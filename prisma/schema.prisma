@@ -12,3 +12,279 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum subscription_status {
+  incomplete
+  incomplete_expired
+  trialing
+  active
+  past_due
+  canceled
+  unpaid
+  paused
+}
+
+enum subscription_interval {
+  none
+  month
+  year
+}
+
+enum project_status {
+  open
+  completed
+}
+
+enum request_status {
+  open
+  completed
+}
+
+enum match_status {
+  pending
+  active
+  rejected
+  cancelled
+}
+
+enum article_status {
+  draft
+  published
+  archived
+}
+
+enum interview_section_key {
+  company_intro
+  work_style
+}
+
+enum interview_block_type {
+  section_title
+  catch_copy
+  heading
+  text
+  image
+}
+
+model users {
+  id               String   @id @db.Uuid
+  email            String?
+  isActive         Boolean
+  isAdmin          Boolean
+  stripeCustomerId String?
+  created_at       DateTime
+  updated_at       DateTime
+
+  userSubscription          user_subscriptions?
+  userSubscriptionHistories user_subscription_histories[]
+  company                   companies?
+
+  salesProjects      projects[]
+  contractorRequests requests[]
+
+  salesMatches      matches[] @relation("salesMatches")
+  contractorMatches matches[] @relation("contractorMatches")
+
+  createdInterviewArticles company_interview_articles[] @relation("createdInterviewArticles")
+  updatedInterviewArticles company_interview_articles[] @relation("updatedInterviewArticles")
+}
+
+model user_subscriptions {
+  id                   BigInt              @id @default(autoincrement())
+  userId               String              @unique @db.Uuid
+  planId               BigInt
+  status               subscription_status
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean
+  stripeSubscriptionId String?             @unique
+  created_at           DateTime
+  updated_at           DateTime
+
+  user users              @relation(fields: [userId], references: [id])
+  plan subscription_plans @relation(fields: [planId], references: [id])
+}
+
+model user_subscription_histories {
+  id                   BigInt              @id @default(autoincrement())
+  userId               String              @db.Uuid
+  planId               BigInt?
+  status               subscription_status
+  stripeSubscriptionId String?
+  eventType            String?
+  periodStart          DateTime?
+  periodEnd            DateTime?
+  rawPayload           String?
+  created_at           DateTime            @default(now())
+
+  user users               @relation(fields: [userId], references: [id])
+  plan subscription_plans? @relation(fields: [planId], references: [id])
+
+  @@index([userId, created_at])
+}
+
+model subscription_plans {
+  id                        BigInt                @id @default(autoincrement())
+  code                      String                @unique
+  name                      String
+  priceYen                  Int
+  interval                  subscription_interval
+  stripeProductId           String?
+  stripePriceId             String?
+  postLimitPerMonth         Int?
+  canUseProfile             Boolean
+  isActive                  Boolean
+  created_at                DateTime
+  updated_at                DateTime
+
+  userSubscriptions         user_subscriptions[]
+  userSubscriptionHistories user_subscription_histories[]
+}
+
+model stripe_webhook_events {
+  id            BigInt   @id @default(autoincrement())
+  stripeEventId String   @unique
+  type          String
+  payload       String
+  processed     Boolean
+  processedAt   DateTime?
+  created_at    DateTime
+}
+
+model companies {
+  id                 BigInt   @id @default(autoincrement())
+  userId             String   @unique @db.Uuid
+  name               String
+  prefectureId       Int
+  city               String?
+  address            String?
+  representativeName String?
+  employeeCount      Int?
+  websiteUrl         String?
+  description        String?
+  logoImageUrl       String?
+  reviewAverage      Decimal? @db.Decimal(5, 2)
+  reviewCount        Int?
+  created_at         DateTime
+  updated_at         DateTime
+
+  user             users                       @relation(fields: [userId], references: [id])
+  prefecture       prefectures                 @relation(fields: [prefectureId], references: [id])
+  interviewArticle company_interview_articles?
+}
+
+model projects {
+  id                   BigInt    @id @default(autoincrement())
+  prefectureId         Int
+  city                 String?
+  title                String
+  investigationSummary String?
+  investigationDetails String?
+  workStartDate        DateTime? @db.Date
+  workEndDate          DateTime? @db.Date
+  rewardYen            Int?
+  paymentCycle         String?
+  salesUserId          String    @db.Uuid
+  status               project_status
+  deleted_at           DateTime?
+  created_at           DateTime
+  updated_at           DateTime
+
+  prefecture prefectures @relation(fields: [prefectureId], references: [id])
+  salesUser  users       @relation(fields: [salesUserId], references: [id])
+  matches    matches[]
+}
+
+model requests {
+  id                   BigInt    @id @default(autoincrement())
+  prefectureId         Int
+  city                 String?
+  title                String
+  investigationSummary String?
+  investigationDetails String?
+  availableStartDate   DateTime? @db.Date
+  availableEndDate     DateTime? @db.Date
+  rewardMinYen         Int?
+  paymentCycle         String?
+  contractorUserId     String    @db.Uuid
+  status               request_status
+  deleted_at           DateTime?
+  created_at           DateTime
+  updated_at           DateTime
+
+  prefecture     prefectures @relation(fields: [prefectureId], references: [id])
+  contractorUser users       @relation(fields: [contractorUserId], references: [id])
+  match          matches?
+}
+
+model prefectures {
+  id           Int    @id
+  name         String
+  displayOrder Int
+
+  companies companies[]
+  projects  projects[]
+  requests  requests[]
+}
+
+model application_details {
+  id         BigInt   @id @default(autoincrement())
+  matchId    BigInt   @unique
+  message    String?
+  created_at DateTime
+  updated_at DateTime
+
+  match matches @relation(fields: [matchId], references: [id])
+}
+
+model matches {
+  id               BigInt       @id @default(autoincrement())
+  projectId        BigInt?
+  requestId        BigInt?      @unique
+  salesUserId      String       @db.Uuid
+  contractorUserId String       @db.Uuid
+  status           match_status
+  created_at       DateTime
+  updated_at       DateTime
+
+  project            projects?            @relation(fields: [projectId], references: [id])
+  request            requests?            @relation(fields: [requestId], references: [id])
+  salesUser          users                @relation("salesMatches", fields: [salesUserId], references: [id])
+  contractorUser     users                @relation("contractorMatches", fields: [contractorUserId], references: [id])
+  applicationDetail  application_details?
+}
+
+model company_interview_articles {
+  id          BigInt    @id @default(autoincrement())
+  companyId   BigInt    @unique
+  title       String
+  introText   String?
+  status      article_status
+  publishedAt DateTime?
+  createdBy   String    @db.Uuid
+  updatedBy   String    @db.Uuid
+  created_at  DateTime
+  updated_at  DateTime
+
+  company       companies                  @relation(fields: [companyId], references: [id])
+  createdByUser users                      @relation("createdInterviewArticles", fields: [createdBy], references: [id])
+  updatedByUser users                      @relation("updatedInterviewArticles", fields: [updatedBy], references: [id])
+  blocks        company_interview_blocks[]
+}
+
+model company_interview_blocks {
+  id           BigInt                @id @default(autoincrement())
+  articleId    BigInt
+  sectionKey   interview_section_key
+  blockType    interview_block_type
+  textContent  String?
+  imageUrl     String?
+  imageAlt     String?
+  displayOrder Int
+  created_at   DateTime
+  updated_at   DateTime
+
+  article company_interview_articles @relation(fields: [articleId], references: [id])
+
+  @@index([articleId, sectionKey, displayOrder])
+}
