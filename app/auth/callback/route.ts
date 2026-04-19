@@ -7,17 +7,36 @@
 // exchangeCodeForSession(...) でログインセッションに変換するためのもの。
 // つまり「登録そのもの」ではなく、「確認メールクリック後にログイン完了させるための callback 処理」。
 
-import { NextResponse } from "next/server";
-  import { createClient } from "@/app/_libs/supabase/server";
+import { NextRequest, NextResponse } from "next/server";                               
+import { createServerClient } from "@supabase/ssr";                                    
+import { cookies } from "next/headers";
+                                                                                       
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+                                                                                       
+  const response = NextResponse.redirect(new URL("/", request.url));
+                                                                                       
+  if (code) {                    
+    const cookieStore = await cookies();
 
-  export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get("code");
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,                                      
+      {
+        cookies: {                                                                     
+          getAll: () => cookieStore.getAll(),
+          setAll: (cookiesToSet) => {                                                  
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options); // レスポンスに直接セット    
+            });                                                                        
+          },
+        },                                                                             
+      }                          
+    );
 
-    if (code) {
-      const supabase = await createClient();
-      await supabase.auth.exchangeCodeForSession(code);
-    }
-
-    return NextResponse.redirect(new URL("/", request.url));
+    await supabase.auth.exchangeCodeForSession(code);
   }
+
+  return response;
+}

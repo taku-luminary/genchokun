@@ -1,28 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { signup } from "./actions";
+import { useForm } from "react-hook-form";
+import { Label } from "@/app/_components/ui/Label";
+import { Input } from "@/app/_components/ui/Input";
+import { Button } from "@/app/_components/ui/Button";
+
+type FormData = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 export default function SignupPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>();
+  // これはイメージとして、内部にこういう管理箱を作ります。
+  // const internalFormState = {
+  //  values: {email: "",password: "", confirmPassword: "",},
+  //  rules: {},
+  //  errors: {},
+  //  isSubmitting: false,
+  // };
 
-    const formData = new FormData(e.currentTarget);
-    const result = await signup(formData);
+  const onSubmit = async (data: FormData) => {
+    setServerError(null);
 
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
-      setSent(true);
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      setServerError(json.error);
+      return;
     }
-  }
+
+    setSent(true);
+  };
 
   if (sent) {
     return (
@@ -30,8 +54,8 @@ export default function SignupPage() {
         <p className="text-2xl mb-2">📩</p>
         <h1 className="text-xl font-black text-brand-green mb-2">確認メールを送りました</h1>
         <p className="text-sm text-slate-500">
-         送信されたメール内のリンクを<br />
-         クリックして登録を完了してください。
+          送信されたメール内のリンクを<br />
+          クリックして登録を完了してください。
         </p>
       </div>
     );
@@ -39,56 +63,69 @@ export default function SignupPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-black text-brand-green mb-6 text-center">会員登録</h1>
+      <h1 className="text-2xl font-black text-brand-green mb-6
+text-center">会員登録</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-bold text-slate-600 mb-1">
-            メールアドレス
-          </label>
-          <input
+          <Label htmlFor="email">メールアドレス</Label>
+          <Input
+            id="email"
             type="email"
-            name="email"
-            required
-            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
+            {...register("email", {
+              required: "メールアドレスを入力してください",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "正しいメールアドレスを入力してください",
+              },
+            })}
           />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-slate-600 mb-1">
-            パスワード
-          </label>
-          <input
+          <Label htmlFor="password">パスワード</Label>
+          <Input
+            id="password"
             type="password"
-            name="password"
-            required
-            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
+            {...register("password", {
+              required: "パスワードを入力してください",
+              minLength: {
+                value: 8,
+                message: "パスワードは8文字以上で入力してください",
+              },
+            })}
           />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-slate-600 mb-1">
-            パスワード（確認）
-          </label>
-          <input
+          <Label htmlFor="confirmPassword">パスワード（確認）</Label>
+          <Input
+            id="confirmPassword"
             type="password"
-            name="confirmPassword"
-            required
-            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
+            {...register("confirmPassword", {
+              required: "確認用パスワードを入力してください",
+              validate: (value) =>
+                value === watch("password") || "パスワードが一致しません",
+            })}
           />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-xsmt-1">{errors.confirmPassword.message}</p>
+          )}
         </div>
 
-        {error && (
-          <p className="text-red-500 text-sm">{error}</p>
+        {serverError && (
+          <p className="text-red-500 text-sm">{serverError}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-brand-green text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50"
-        >
-          {loading ? "送信中..." : "会員登録"}
-        </button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "送信中..." : "会員登録"}
+        </Button>
       </form>
 
       <p className="text-center text-sm text-slate-500 mt-6">
