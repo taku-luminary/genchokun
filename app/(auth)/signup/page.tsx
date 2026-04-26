@@ -30,7 +30,7 @@ export default function SignupPage() {
   //  isSubmitting: false,
   // };
 
-  const onSubmit = async (data: FormData) => {
+  const sendSignupData = async (data: FormData) => {
     setServerError(null);
 
     const res = await fetch("/api/auth/signup", {
@@ -66,12 +66,27 @@ export default function SignupPage() {
       <h1 className="text-2xl font-black text-brand-green mb-6
 text-center">会員登録</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
+      <form onSubmit={handleSubmit(sendSignupData)} className="space-y-4">
+
+      {/* handleSubmit の中ではこういうことが起きるイメージ
+      function handleSubmit(sendSignupData) {
+        return function (event) {
+          event.preventDefault();
+
+          const data = {
+            email: internalFormState.values.email,
+            password: internalFormState.values.password,
+            confirmPassword: internalFormState.values.confirmPassword,
+          };
+          sendSignupData(data);
+        };
+      } */}
+          <div>
           <Label htmlFor="email">メールアドレス</Label>
           <Input
             id="email"
             type="email"
+
             {...register("email", {
               required: "メールアドレスを入力してください",
               pattern: {
@@ -115,7 +130,7 @@ text-center">会員登録</h1>
             })}
           />
           {errors.confirmPassword && (
-            <p className="text-red-500 text-xsmt-1">{errors.confirmPassword.message}</p>
+            <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
           )}
         </div>
 
