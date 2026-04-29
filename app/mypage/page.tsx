@@ -1,44 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-// ============================================================
-// 型定義（APIから返ってくるデータの形）
-// ============================================================
-
-type Stats = {
-  todoCount: number;
-  projectCount: number;
-  applicationCount: number;
-};
-
-type Project = {
-  id: string;
-  created_at: string;
-  prefecture: { name: string };
-  city: string | null;
-  workStartDate: string | null;
-  workEndDate: string | null;
-  investigationSummary: string | null;
-  paymentCycle: string | null;
-  rewardYen: number | null;
-  status: "open" | "completed";
-  matches: { status: string }[];
-};
-
-type Request = {
-  id: string;
-  created_at: string;
-  prefecture: { name: string };
-  city: string | null;
-  availableStartDate: string | null;
-  availableEndDate: string | null;
-  investigationSummary: string | null;
-  paymentCycle: string | null;
-  rewardMinYen: number | null;
-  status: "open" | "completed";
-  match: { status: string } | null;
-};
+import type { MypageApiResponse, MypageProject, MypageRequest } from "@/app/_types/mypage"; // ← 追加
 
 // ============================================================
 // 日付フォーマット関数
@@ -131,8 +94,7 @@ function MypageCard({
 
         {/* マッチング済みのときだけ表示 */}
         {hasMatch && (
-          <div className="flex-shrink-0 w-24 border-2 border-brand-green rounded-xl flex items-center
-justify-center">
+          <div className="flex-shrink-0 w-24 border-2 border-brand-green rounded-xl flex items-center justify-center">
             <p className="text-xs font-bold text-brand-green text-center leading-snug px-1">
               マッチング済み
             </p>
@@ -151,14 +113,14 @@ export default function MyPage() {
   // タブの状態（"projects" または "requests"）
   const [tab, setTab] = useState<"projects" | "requests">("projects");
 
-  // APIから取得したデータの状態
-  const [stats, setStats] = useState<Stats>({
+  // APIから取得したデータの状態（← 型を _types/mypage.ts から使用）
+  const [stats, setStats] = useState<MypageApiResponse["stats"]>({
     todoCount: 0,
     projectCount: 0,
     applicationCount: 0,
   });
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [requests, setRequests] = useState<Request[]>([]);
+  const [projects, setProjects] = useState<MypageProject[]>([]);
+  const [requests, setRequests] = useState<MypageRequest[]>([]);
 
   // ローディング状態
   const [isLoading, setIsLoading] = useState(true);
@@ -170,7 +132,7 @@ export default function MyPage() {
       setIsLoading(true);
 
       const res = await fetch("/api/mypage");
-      const data = await res.json();
+      const data: MypageApiResponse = await res.json(); // ← 型を明示
 
       setStats(data.stats);
       setProjects(data.projects);
@@ -193,54 +155,54 @@ export default function MyPage() {
           </h1>
 
           {/* 統計グリッド（3マス） */}
-          <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">                                                  
-                                   
-            {/* やること（左・2行分） */}                                                                                
-            <div                           
+          <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+
+            {/* やること（左・2行分） */}
+            <div
               className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow ${
-                stats.todoCount > 0                                                                                      
+                stats.todoCount > 0
                   ? "bg-red-50 border-red-100"
-                  : "bg-white border-slate-300"                                                                          
-              }`}                                                                                                        
+                  : "bg-white border-slate-300"
+              }`}
             >
-              <div>                                                                                                      
+              <div>
                 <p className="font-black text-slate-700">やること</p>
                 <p className="text-xs md:text-sm text-slate-500 mt-1">
-                  マッチング・応募されている案件                                                                         
+                  マッチング・応募されている案件
                 </p>
-              </div>                                                                                                     
-              <p                           
+              </div>
+              <p
                 className={`text-5xl md:text-6xl font-black mt-4 ${
-                  stats.todoCount > 0 ? "text-red-400" : "text-slate-800"                                                
+                  stats.todoCount > 0 ? "text-red-400" : "text-slate-800"
                 }`}
-              >                                                                                                          
-                {stats.todoCount}          
+              >
+                {stats.todoCount}
                 <span className="text-2xl ml-1">件</span>
-              </p>                                                                                                       
+              </p>
             </div>
-                                                                                                                        
-            {/* 掲載した案件（右上） */}   
+
+            {/* 掲載した案件（右上） */}
             <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
-              <p className="text-sm md:text-base text-slate-600">                                                        
+              <p className="text-sm md:text-base text-slate-600">
                 あなたが<strong>掲載</strong>した案件
-              </p>                                                                                                       
+              </p>
               <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
-                {stats.projectCount}                                                                                     
+                {stats.projectCount}
                 <span className="text-xl ml-1">件</span>
-              </p>                                                                                                       
+              </p>
             </div>
-                                                                                                                        
-            {/* 応募した案件（右下） */}   
+
+            {/* 応募した案件（右下） */}
             <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
-              <p className="text-sm md:text-base text-slate-600">                                                        
+              <p className="text-sm md:text-base text-slate-600">
                 あなたが<strong>応募</strong>した案件
-              </p>                                                                                                       
-              <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">                                        
+              </p>
+              <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
                 {stats.applicationCount}
-                <span className="text-xl ml-1">件</span>                                                                 
-              </p>                                                                                                       
+                <span className="text-xl ml-1">件</span>
+              </p>
             </div>
-          </div>           
+          </div>
 
           {/* セクション見出し */}
           <p className="text-center text-slate-600 font-bold">
@@ -248,12 +210,10 @@ export default function MyPage() {
           </p>
 
           {/* タブ切り替え（クリックで tab の state が変わる） */}
-          <div className="bg-slate-100 p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto
-shadow-inner">
+          <div className="bg-slate-100 p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto shadow-inner">
             <button
               onClick={() => setTab("projects")}
-              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black
-transition-all duration-300 ${
+              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
                 tab === "projects"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
                   : "text-slate-600 hover:text-slate-800 hover:bg-white/60"
@@ -263,8 +223,7 @@ transition-all duration-300 ${
             </button>
             <button
               onClick={() => setTab("requests")}
-              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black
-transition-all duration-300 ${
+              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
                 tab === "requests"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
                   : "text-slate-600 hover:text-slate-800 hover:bg-white/60"
@@ -331,8 +290,7 @@ transition-all duration-300 ${
                     city={request.city}
                     dateRange={
                       request.availableStartDate && request.availableEndDate
-                        ?
-`${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
+                        ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
                         : "日程未定"
                     }
                     summary={request.investigationSummary}
@@ -349,6 +307,5 @@ transition-all duration-300 ${
         </div>
       </section>
     </>
-  );                                                                                                           
+  );
 }
-   
