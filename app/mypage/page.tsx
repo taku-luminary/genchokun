@@ -159,8 +159,8 @@ export default function MyPage() {
 
             {/* やること（左・2行分） */}
             <div
-              className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow ${
-                stats.todoCount > 0
+              className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow 
+                ${stats.todoCount > 0
                   ? "bg-red-50 border-red-100"
                   : "bg-white border-slate-300"
               }`}
@@ -216,7 +216,7 @@ export default function MyPage() {
               className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
                 tab === "projects"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
-                  : "text-slate-600 hover:text-slate-800 hover:bg-white/60"
+                  : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
               }`}
             >
               募集中の工事案件
@@ -226,7 +226,7 @@ export default function MyPage() {
               className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
                 tab === "requests"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
-                  : "text-slate-600 hover:text-slate-800 hover:bg-white/60"
+                  : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
               }`}
             >
               お仕事待ちの工事店
