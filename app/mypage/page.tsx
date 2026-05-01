@@ -129,8 +129,7 @@ export default function MyPage() {
   // ※ projects と requests を一括で取得するので、タブを切り替えても再取得しない
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-
+ 
       const res = await fetch("/api/mypage");
       const data: MypageApiResponse = await res.json(); // ← 型を明示
 
