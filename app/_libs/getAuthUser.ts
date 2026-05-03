@@ -5,6 +5,6 @@ import { createClient } from "@/app/_libs/supabase/server";
 export async function getAuthUser() {                     
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();     
-    // SupabaseがCookieを見て「この人はログイン済みか」を確認
+    // SupabaseがCookieを見てトークンをもとに「この人はログイン済みか」を確認をして、supabaseのユーザー情報を返す） ※ 事前にcreateClientでcookieの情報を取得している必要がある
   return user;
 }       

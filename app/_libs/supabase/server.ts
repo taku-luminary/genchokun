@@ -1,9 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
-  import { cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 
   export async function createClient() {
     const cookieStore = await cookies()
-    // 今のリクエストに付いてきたCookieを扱うためのものを取得しているコード
+    // 今のリクエストに付いてきたCookieを扱うためのコード（データ取得してるわけではない）
 
     return createServerClient(
       // サーバー側で使うSupabaseクライアントを作って返す関数
@@ -17,12 +17,16 @@ import { createServerClient } from '@supabase/ssr'
       // Supabaseにアクセスするための鍵
       {
         cookies: {
+        // supabaseに渡すもの
           getAll() {
-          // SupabaseがCookieを読みたいときに呼ばれる関数
+          // createServerClientで使える関数、SupabaseがCookieを読みたいときに呼ばれる関数
+          // supabaseに渡すsupabaseが使う関数で、createServerClientが読まれても実行されない
             return cookieStore.getAll()
+            // ユーザーのcookie情報を取得する
           },
           setAll(cookiesToSet) {
           // SupabaseがCookieを書き換えたいときに呼ばれる関数
+          // supabaseに渡すsupabaseが使う関数で、createServerClientが読まれても実行されない
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
