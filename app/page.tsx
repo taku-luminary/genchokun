@@ -45,13 +45,19 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('/api/home');
-      const data: HomeApiResponse = await res.json();
-      setProjects(data.projects);
-      setRequests(data.requests);
-      setIsLoading(false);
+      try {
+        const res = await fetch('/api/home?page=1&limit=20');
+        if (!res.ok) throw new Error("取得失敗");
+        const data: HomeApiResponse = await res.json();
+        setProjects(data.projects);
+        setRequests(data.requests);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);  // 成功・失敗どちらでも必ず実行
+      }
     };
-
+  
     fetchData();
   }, []);
 
@@ -59,8 +65,8 @@ export default function Home() {
     <>
       {/* 上側：緑背景エリア */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#4ade80] to-[#34b38a]">
-        <HeroBackground />
 
+        <HeroBackground />
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 pb-4 space-y-4 md:pt-10 md:pb-6 md:space-y-7">
           <div className="text-center">
             <h2 className="text-2xl md:text-5xl font-black text-white tracking-tight text-shadow-sm leading-tight">

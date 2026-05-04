@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
-import type { MypageApiResponse, MypageProject, MypageRequest } from "@/app/_types/mypage";
+import type { MypageApiResponse} from "@/app/_types/mypage";
+import useSWR from "swr";
 
 // "2026.01.29" 形式に変換
 function formatDate(dateStr: string): string {
@@ -32,31 +33,20 @@ function calcDaysLeft(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+const fetcher = async (url: string): Promise<MypageApiResponse> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error("データの取得に失敗しました");
+  }
+  return res.json();
+};
+
 export default function MyPage() {
+  const { data, error, isLoading } = useSWR<MypageApiResponse>("/api/mypage", fetcher);
   const [tab, setTab] = useState<"projects" | "requests">("projects");
-
-  const [stats, setStats] = useState<MypageApiResponse["stats"]>({
-    todoCount: 0,
-    projectCount: 0,
-    applicationCount: 0,
-  });
-  const [projects, setProjects] = useState<MypageProject[]>([]);
-  const [requests, setRequests] = useState<MypageRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("/api/mypage");
-      const data: MypageApiResponse = await res.json();
-
-      setStats(data.stats);
-      setProjects(data.projects);
-      setRequests(data.requests);
-      setIsLoading(false);
-    };
-
-    fetchData();
-  }, []);
+  const stats = data?.stats;
+  const projects = data?.projects ?? [];
+  const requests = data?.requests ?? [];
 
   return (
     <>
@@ -69,51 +59,65 @@ export default function MyPage() {
           </h1>
 
           {/* 統計グリッド（3マス） */}
-          <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+          {isLoading && (
+            <p className="text-center text-slate-500">
+              データを読み込み中...
+            </p>
+          )}
 
-            <div
-              className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow 
-                ${stats.todoCount > 0
-                  ? "bg-red-50 border-red-100"
-                  : "bg-white border-slate-300"
-              }`}
-            >
-              <div>
-                <p className="font-black text-slate-700">やること</p>
-                <p className="text-xs md:text-sm text-slate-500 mt-1">
-                  マッチング・応募されている案件
-                </p>
-              </div>
-              <p
-                className={`text-5xl md:text-6xl font-black mt-4 ${
-                  stats.todoCount > 0 ? "text-red-400" : "text-slate-800"
+          {!isLoading && error && (
+            <p className="text-center text-red-500">
+              データを取得できませんでした
+            </p>
+          )}
+
+          {!isLoading && !error && stats && (
+            <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+
+              <div
+                className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow 
+                  ${stats.todoCount > 0
+                    ? "bg-red-50 border-red-100"
+                    : "bg-white border-slate-300"
                 }`}
               >
-                {stats.todoCount}
-                <span className="text-2xl ml-1">件</span>
-              </p>
-            </div>
+                <div>
+                  <p className="font-black text-slate-700">やること</p>
+                  <p className="text-xs md:text-sm text-slate-500 mt-1">
+                    マッチング・応募されている案件
+                  </p>
+                </div>
+                <p
+                  className={`text-5xl md:text-6xl font-black mt-4 ${
+                    stats.todoCount > 0 ? "text-red-400" : "text-slate-800"
+                  }`}
+                >
+                  {stats.todoCount}
+                  <span className="text-2xl ml-1">件</span>
+                </p>
+              </div>
 
-            <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
-              <p className="text-sm md:text-base text-slate-600">
-                あなたが<strong>掲載</strong>した案件
-              </p>
-              <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
-                {stats.projectCount}
-                <span className="text-xl ml-1">件</span>
-              </p>
-            </div>
+              <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
+                <p className="text-sm md:text-base text-slate-600">
+                  あなたが<strong>掲載</strong>した案件
+                </p>
+                <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
+                  {stats.projectCount}
+                  <span className="text-xl ml-1">件</span>
+                </p>
+              </div>
 
-            <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
-              <p className="text-sm md:text-base text-slate-600">
-                あなたが<strong>応募</strong>した案件
-              </p>
-              <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
-                {stats.applicationCount}
-                <span className="text-xl ml-1">件</span>
-              </p>
+              <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
+                <p className="text-sm md:text-base text-slate-600">
+                  あなたが<strong>応募</strong>した案件
+                </p>
+                <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
+                  {stats.applicationCount}
+                  <span className="text-xl ml-1">件</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <p className="text-center text-slate-600 font-bold">
             ーーあなたが掲載した案件ーー
@@ -149,10 +153,15 @@ export default function MyPage() {
         <div className="max-w-4xl mx-auto px-4 pt-4 md:pt-6 pb-8">
 
           {isLoading && (
-            <p className="text-center text-slate-500 py-10">読み込み中...</p>
-          )}
+              <p className="text-center text-slate-500 py-10">読み込み中...</p>
+            )}
+           {!isLoading && error && (
+              <p className="text-center text-red-500 py-10">
+                データの取得に失敗しました
+              </p>
+            )}
 
-          {!isLoading && tab === "projects" && (
+          {!isLoading && !error && tab === "projects" && (
             <div className="space-y-3 md:space-y-5">
               {projects.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
@@ -180,7 +189,7 @@ export default function MyPage() {
             </div>
           )}
 
-          {!isLoading && tab === "requests" && (
+          {!isLoading && !error && tab === "requests" && (
             <div className="space-y-3 md:space-y-5">
               {requests.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">

@@ -24,23 +24,41 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   daysLeft,
 }) => {
   // 残り日数の表示テキストと色を決める
-  const daysLeftLabel =
-    daysLeft === null || daysLeft === undefined
-      ? null
-      : daysLeft <= 0
-      ? "期限切れ"
-      : `${daysLeft}日`;
+      let daysLeftLabel: string | null;
 
-      const daysLeftColor =
-      daysLeft !== null && daysLeft !== undefined && daysLeft > 0 && daysLeft <= 3
-        ? "text-red-500"
-        : "text-slate-700";
+      if (daysLeft === null || daysLeft === undefined) {
+        daysLeftLabel = null;
+      } else if (daysLeft <= 0) {
+        daysLeftLabel = "期限切れ";
+      } else {
+        daysLeftLabel = `${daysLeft}日`;
+      }
+      
+      let daysLeftColor: string;
+      
+      if (
+        daysLeft !== null &&
+        daysLeft !== undefined &&
+        daysLeft > 0 &&
+        daysLeft <= 3
+      ) {
+        daysLeftColor = "text-red-500";
+      } else {
+        daysLeftColor = "text-slate-700";
+      }
 
   // 期限切れ or マッチング済み or DBのステータスが完了 → バッジを「完了」にする
-  const isCompleted =
-    status === 'completed' ||
-    hasMatch === true ||
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+      let isCompleted: boolean;
+
+      if (status === 'completed') {
+        isCompleted = true;
+      } else if (hasMatch === true) {
+        isCompleted = true;
+      } else if (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0) {
+        isCompleted = true;
+      } else {
+        isCompleted = false;
+      }
 
   return (
     <div className="bg-white rounded-2xl p-6 card-shadow border border-slate-50 relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer">
