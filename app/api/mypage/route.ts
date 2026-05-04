@@ -29,7 +29,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
       include: { prefecture: true, match: true },
       orderBy: { created_at: "desc" },                                                                                                              
     }),
-  ]);                                                                                                                                               
+  ]);           
                                  
   const response: MypageApiResponse = {
     stats: { projectCount, applicationCount, todoCount },
@@ -37,7 +37,8 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
       id: p.id.toString(),                                                                                                                          
       created_at: p.created_at.toISOString(),
       prefecture: { name: p.prefecture.name },                                                                                                      
-      city: p.city,                                                                                                                                 
+      city: p.city,
+      title: p.title,                                                                                                                                 
       workStartDate: p.workStartDate?.toISOString() ?? null,
       workEndDate: p.workEndDate?.toISOString() ?? null,                                                                                            
       investigationSummary: p.investigationSummary,
