@@ -109,6 +109,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 interface RequestCardProps {
   date: string;
   location: string;
+  title: string; // 追加
   availableDates: string;
   skills: string;
   preference: string;
@@ -121,6 +122,7 @@ interface RequestCardProps {
 export const RequestCard: React.FC<RequestCardProps> = ({
   date,
   location,
+  title, // 追加
   availableDates,
   skills,
   preference,
@@ -156,9 +158,10 @@ export const RequestCard: React.FC<RequestCardProps> = ({
           <h3 className={`text-2xl font-bold mb-4 leading-tight ${
             isCompleted ? 'text-slate-700' : 'text-brand-green'
           }`}>
-            {availableDates}
+            {title}
           </h3>
           <div className="space-y-2 text-slate-700 font-medium">
+            <p>・日程：{availableDates}</p>
             <p>・調査可能内容：{skills}</p>
             <p>・希望：{preference}</p>
             {company && <p>・企業：{company}</p>}

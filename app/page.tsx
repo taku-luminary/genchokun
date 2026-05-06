@@ -6,6 +6,8 @@ import { ProjectCard, RequestCard } from './_components/Cards';
 import { HeroBackground } from './_components/HeroBackground';
 import type { HomeApiResponse, HomeProject, HomeRequest } from './_types/home';
 
+const LIMIT = 20;
+
 type Tab = 'projects' | 'requests';
 
 // "2026.01.29" 形式に変換
@@ -41,25 +43,34 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [projects, setProjects] = useState<HomeProject[]>([]);
   const [requests, setRequests] = useState<HomeRequest[]>([]);
+  const [totalProjects, setTotalProjects] = useState(0); // 案件の総件数
+  const [totalRequests, setTotalRequests] = useState(0); // 依頼待ちの総件数
+  const [projectsPage, setProjectsPage] = useState(1);  // 案件の現在ページ
+  const [requestsPage, setRequestsPage] = useState(1);  // 依頼待ちの現在ページ
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true); // ページ切り替え時も「読み込み中」を表示する
       try {
-        const res = await fetch('/api/home?page=1&limit=20');
+        const res = await fetch(
+          `/api/home?projectsPage=${projectsPage}&requestsPage=${requestsPage}&limit=${LIMIT}`
+        );
         if (!res.ok) throw new Error("取得失敗");
         const data: HomeApiResponse = await res.json();
         setProjects(data.projects);
         setRequests(data.requests);
+        setTotalProjects(data.totalProjects); 
+        setTotalRequests(data.totalRequests); 
       } catch (e) {
         console.error(e);
       } finally {
-        setIsLoading(false);  // 成功・失敗どちらでも必ず実行
+        setIsLoading(false);// 成功・失敗どちらでも必ず実行
       }
     };
   
     fetchData();
-  }, []);
+  }, [projectsPage, requestsPage]); // ページが変わったら再フェッチ
 
   return (
     <>
@@ -87,7 +98,7 @@ export default function Home() {
               </div>
             </Link>
 
-            <button className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-6 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
+            <Link href="/requests/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-6 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
                 <p className="text-[10px] md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">工事店向け</p>
@@ -96,7 +107,7 @@ export default function Home() {
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
                 <img src="input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
               </div>
-            </button>
+            </Link>
           </div>
 
           {/* Search Bar */}
@@ -180,11 +191,12 @@ export default function Home() {
                 <p className="text-center text-slate-500 py-10">登録中の工事店はいません</p>
               ) : (
                 requests.map((request) => (
-                  <RequestCard
-                    key={request.id}
-                    date={formatDate(request.created_at)}
-                    location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
-                    availableDates={
+                    <RequestCard
+                      key={request.id}
+                      date={formatDate(request.created_at)}
+                      location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
+                      title={request.title}
+                      availableDates={
                       request.availableStartDate && request.availableEndDate
                         ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
                         : "日程未定"
@@ -200,13 +212,64 @@ export default function Home() {
                     company={request.companyName ?? undefined}
                     status={request.status === "completed" ? "completed" : "recruiting"}
                     daysLeft={calcDaysLeft(request.availableEndDate)}
-                  />
-                ))
-              )
+                    />
+                  ))
+                )
+              )}
+            </div>
+  
+            {/* ページネーション：案件タブ */}
+            {!isLoading && activeTab === 'projects' && totalProjects > LIMIT && (
+              <div className="flex justify-center items-center gap-6 mt-6">
+                <button
+                  onClick={() => setProjectsPage((p) => p - 1)}
+                  // 上記の意味:setProjectsPage((currentProjectsPage) => currentProjectsPage - 1)
+                  // set関数に関数を渡したら、その関数の第1引数には「今のstate」が自動で入る
+                  // setState((prev) => 新しい値)の形のとき、prevには、Reactが現在のstateの値を入れてくれる。
+                  disabled={projectsPage <= 1}
+                  className="px-5 py-2 rounded-full bg-white font-bold text-brand-green shadow disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  前へ
+                </button>
+                <span className="text-sm font-bold text-slate-600">
+                  {projectsPage} / {Math.ceil(totalProjects / LIMIT)}
+                </span>
+                
+                <button
+                  onClick={() => setProjectsPage((p) => p + 1)}
+                  disabled={projectsPage * LIMIT >= totalProjects}
+                  className="px-5 py-2 rounded-full bg-white font-bold text-brand-green shadow disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  次へ
+                </button>
+              </div>
             )}
+  
+            {/* ページネーション：依頼待ちタブ */}
+            {!isLoading && activeTab === 'requests' && totalRequests > LIMIT && (
+              <div className="flex justify-center items-center gap-6 mt-6">
+                <button
+                  onClick={() => setRequestsPage((p) => p - 1)}
+                  disabled={requestsPage <= 1}
+                  className="px-5 py-2 rounded-full bg-white font-bold text-brand-green shadow disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  前へ
+                </button>
+                <span className="text-sm font-bold text-slate-600">
+                  {requestsPage} / {Math.ceil(totalRequests / LIMIT)}
+                </span>
+                <button
+                  onClick={() => setRequestsPage((p) => p + 1)}
+                  disabled={requestsPage * LIMIT >= totalRequests}
+                  className="px-5 py-2 rounded-full bg-white font-bold text-brand-green shadow disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  次へ
+                </button>
+              </div>
+            )}
+  
           </div>
-        </div>
-      </section>
-    </>
-  );
-}
+        </section>
+      </>
+    );
+  }
