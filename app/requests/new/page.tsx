@@ -46,6 +46,7 @@ export default function NewRequestPage() {
           <Label htmlFor="prefectureId">都道府県 *</Label>
           <select
             id="prefectureId"
+            disabled={isSubmitting}
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
             {...register("prefectureId", { required: "都道府県を選択してください", valueAsNumber: true })}
           >
@@ -64,7 +65,7 @@ export default function NewRequestPage() {
         {/* 市区町村 */}
         <div>
           <Label htmlFor="city">市区町村</Label>
-          <Input id="city" placeholder="例：文京区" {...register("city")} />
+          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" {...register("city")} />
         </div>
 
         {/* タイトル */}
@@ -72,6 +73,7 @@ export default function NewRequestPage() {
           <Label htmlFor="title">タイトル *</Label>
           <Input
             id="title"
+            disabled={isSubmitting}
             placeholder="例：太陽光パネルの現地調査に対応できます"
             {...register("title", { required: "タイトルを入力してください" })}
           />
@@ -85,6 +87,7 @@ export default function NewRequestPage() {
           <Label htmlFor="investigationSummary">調査可能内容</Label>
           <textarea
             id="investigationSummary"
+            disabled={isSubmitting}
             placeholder="例：太陽光パネル・蓄電池・エコキュート"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={2}
@@ -97,6 +100,7 @@ export default function NewRequestPage() {
           <Label htmlFor="investigationDetails">調査詳細</Label>
           <textarea
             id="investigationDetails"
+            disabled={isSubmitting}
             placeholder="対応可能な内容の詳細を記載してください"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={3}
@@ -108,11 +112,11 @@ export default function NewRequestPage() {
         <div className="flex gap-3">
           <div className="flex-1">
             <Label htmlFor="availableStartDate">対応可能開始日</Label>
-            <Input id="availableStartDate" type="date" {...register("availableStartDate")} />
+            <Input id="availableStartDate"  disabled={isSubmitting} type="date" {...register("availableStartDate")} />
           </div>
           <div className="flex-1">
             <Label htmlFor="availableEndDate">対応可能終了日</Label>
-            <Input id="availableEndDate" type="date" {...register("availableEndDate")} />
+            <Input id="availableEndDate" disabled={isSubmitting} type="date" {...register("availableEndDate")} />
           </div>
         </div>
 
@@ -121,6 +125,7 @@ export default function NewRequestPage() {
           <Label htmlFor="rewardMinYen">最低報酬（円）</Label>
           <Input
             id="rewardMinYen"
+            disabled={isSubmitting}
             type="number"
             placeholder="例：15000"
             {...register("rewardMinYen", { valueAsNumber: true })}
@@ -132,6 +137,7 @@ export default function NewRequestPage() {
           <Label htmlFor="paymentCycle">支払サイクル</Label>
           <Input
             id="paymentCycle"
+            disabled={isSubmitting}
             placeholder="例：人日発注"
             {...register("paymentCycle")}
           />

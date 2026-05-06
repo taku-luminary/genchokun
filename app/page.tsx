@@ -1,12 +1,22 @@
 'use client';
 
 import Link from "next/link";
-import React, { useEffect, useState } from 'react';
-import { ProjectCard, RequestCard } from './_components/Cards';
+import React, { useState } from 'react';
+import useSWR from 'swr';import { ProjectCard, RequestCard } from './_components/Cards';
 import { HeroBackground } from './_components/HeroBackground';
 import type { HomeApiResponse, HomeProject, HomeRequest } from './_types/home';
 
 const LIMIT = 20;
+
+const fetcher = async (url: string): Promise<HomeApiResponse> => {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error("取得失敗");
+  }
+
+  return res.json();
+};
 
 type Tab = 'projects' | 'requests';
 
@@ -39,39 +49,20 @@ function calcDaysLeft(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('projects');
-  const [projects, setProjects] = useState<HomeProject[]>([]);
-  const [requests, setRequests] = useState<HomeRequest[]>([]);
-  const [totalProjects, setTotalProjects] = useState(0); // 案件の総件数
-  const [totalRequests, setTotalRequests] = useState(0); // 依頼待ちの総件数
-  const [projectsPage, setProjectsPage] = useState(1);  // 案件の現在ページ
-  const [requestsPage, setRequestsPage] = useState(1);  // 依頼待ちの現在ページ
-  const [isLoading, setIsLoading] = useState(true);
+  export default function Home() {
+    const [activeTab, setActiveTab] = useState<Tab>('projects');
+    const [projectsPage, setProjectsPage] = useState(1);
+    const [requestsPage, setRequestsPage] = useState(1);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true); // ページ切り替え時も「読み込み中」を表示する
-      try {
-        const res = await fetch(
-          `/api/home?projectsPage=${projectsPage}&requestsPage=${requestsPage}&limit=${LIMIT}`
-        );
-        if (!res.ok) throw new Error("取得失敗");
-        const data: HomeApiResponse = await res.json();
-        setProjects(data.projects);
-        setRequests(data.requests);
-        setTotalProjects(data.totalProjects); 
-        setTotalRequests(data.totalRequests); 
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);// 成功・失敗どちらでも必ず実行
-      }
-    };
-  
-    fetchData();
-  }, [projectsPage, requestsPage]); // ページが変わったら再フェッチ
+    const { data, error, isLoading } = useSWR<HomeApiResponse>(
+      `/api/home?projectsPage=${projectsPage}&requestsPage=${requestsPage}&limit=${LIMIT}`,
+      fetcher
+    );
 
+    const projects = data?.projects ?? [];
+    const requests = data?.requests ?? [];
+    const totalProjects = data?.totalProjects ?? 0;
+    const totalRequests = data?.totalRequests ?? 0;
   return (
     <>
       {/* 上側：緑背景エリア */}

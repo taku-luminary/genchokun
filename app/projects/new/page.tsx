@@ -72,29 +72,48 @@
 
                ④ エラーがなければ、完成した data を createProject に渡す
 
-              createProject(data);
-        */}
+              createProject(data);  */}
 
 
-          {/* 都道府県 */}
-          <div>
-            <Label htmlFor="prefectureId">都道府県 *</Label>
-            <select                          
-              id="prefectureId"
-              className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"                  
-              {...register("prefectureId", {required: "都道府県を選択してください", valueAsNumber: true,})}                                                                                                                                               
-            >   
-              <option value="">選択してください</option>
-              {PREFECTURES.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-            {errors.prefectureId && (
-              <p className="text-red-500 text-xs  mt-1">{errors.prefectureId.message}</p>
-            )}
-          </div>
+            {/* 都道府県 */}
+            <div>
+              <Label htmlFor="prefectureId">都道府県 *</Label>
+
+              {/* select は「プルダウン全体」を作るHTMLタグ。
+                  ユーザーがクリックすると、中に書かれている option の一覧が開く。
+                  option を選ぶと、その option の value が select の現在値になる。
+                  さらに register によって、その値が prefectureId という名前で
+                  React Hook Form の内部に保持される。 */}
+              <select
+                id="prefectureId"
+                className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
+                {...register("prefectureId", {
+                  required: "都道府県を選択してください",
+                  valueAsNumber: true,
+                })}
+                // valueAsNumber → option の value を文字列ではなく数値として保持する
+              >
+                {/* option は「プルダウンの中の選択肢1つ1つ」を作るHTMLタグ。
+                    この option は初期表示用。
+                    value="" なので、まだ都道府県が選ばれていない状態を表す。 */}
+                <option value="">選択してください</option>
+
+                {PREFECTURES.map((p) => (
+                  // key   → React用。画面部品を区別するため。送信されない。
+                  // value → フォーム用。選ばれたときに保存される値。APIやPrismaに送る値。
+                  // children {p.name} → ユーザーに見える文字。
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+
+              {errors.prefectureId && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.prefectureId.message}
+                </p>
+              )}
+            </div>
 
           {/* 市区町村 */}
           <div>
