@@ -31,6 +31,7 @@ export type MypageRequest = {
   created_at: string;
   prefecture: { name: string };
   city: string | null;
+  title: string | null;        // ← 追加
   availableStartDate: string | null;
   availableEndDate: string | null;
   investigationSummary: string | null;

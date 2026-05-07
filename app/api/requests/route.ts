@@ -8,7 +8,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
   const user = await getAuthUser();
   if (!user) {
     return NextResponse.json({ error: "ログインが必要です" } ,
-     { status: 401 });
+     { status: 401 });//  401 は Unauthorizedで、ログインしていない、または認証できていない状態
   }
 
   // リクエストボディを取得
@@ -16,7 +16,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "リクエストの形式が正しくありません" } , { status: 400 });
+    return NextResponse.json({ error: "リクエストの形式が正しくありません" } , 
+      { status: 400 });  //  400 は Bad Requestで、リクエストの形式が正しくない状態
   }
   // DBに依頼待ちを保存
   try {
@@ -39,16 +40,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
     });
 
   return NextResponse.json({ id: request_record.id.toString() });
-  // 実際に返るレスポンスのイメージ（例）
-  // {
-  //   status: 200,
-  //   ok: true,
-  //   body: { id: "15" }
-  // }
-} catch {
-  return NextResponse.json(
-    { error: "依頼待ちの作成に失敗しました" } as never,
-    { status: 500 }
-  );
-}
+    // 実際に返るレスポンスのイメージ（例）
+    // {
+    //   status: 200,
+    //   ok: true,
+    //   body: { id: "15" }
+    // }
+  } catch {
+    return NextResponse.json(
+      { error: "依頼待ちの作成に失敗しました" }
+      , { status: 500 } 
+      // 500 は Internal Server Error で、サーバー側で予期しないエラーが起きた状態。
+    );
+  }
 }

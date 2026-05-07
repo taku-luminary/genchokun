@@ -86,6 +86,7 @@
                   React Hook Form の内部に保持される。 */}
               <select
                 id="prefectureId"
+                disabled={isSubmitting}
                 className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
                 {...register("prefectureId", {
                   required: "都道府県を選択してください",
@@ -118,7 +119,7 @@
           {/* 市区町村 */}
           <div>
             <Label htmlFor="city">市区町村</Label>
-            <Input id="city" placeholder="例：文京区" {...register("city")} />
+            <Input id="city" disabled={isSubmitting} placeholder="例：文京区" {...register("city")} />
               {/*===registerの説明=== 
                 register("city") は、React Hook Form がこの入力欄を管理するための設定オブジェクトを返す。
                 HTML/JSXのタグでは基本的に 属性=値 の形で書く。だから、JSのオブジェクトをそのまま置けない。
@@ -140,6 +141,7 @@
             <Label htmlFor="title">タイトル *</Label>
             <Input
               id="title"
+              disabled={isSubmitting}
               placeholder="例：太陽光パネルの現地調査"
               {...register("title", { required: "タイトルを入力してください" })}
             />
@@ -153,6 +155,7 @@
             <Label htmlFor="investigationSummary">調査可能内容</Label>
             <textarea
               id="investigationSummary"
+              disabled={isSubmitting}
               placeholder="例：太陽光パネル・蓄電池"
               className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
               rows={2}
@@ -165,6 +168,7 @@
             <Label htmlFor="investigationDetails">調査詳細</Label>
             <textarea
               id="investigationDetails"
+              disabled={isSubmitting}
               placeholder="詳細な内容を記載してください"
               className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
               rows={3}
@@ -176,11 +180,12 @@
           <div className="flex gap-3">
             <div className="flex-1">
               <Label   htmlFor="workStartDate">作業開始日</Label>
-              <Input id="workStartDate" type="date"  {...register("workStartDate")} />
+              <Input id="workStartDate" disabled={isSubmitting} type="date"  {...register("workStartDate")} />
             </div>
+
             <div className="flex-1">
               <Label htmlFor="workEndDate">作業終了日</Label>
-              <Input id="workEndDate" type="date" {...register("workEndDate")} />
+              <Input id="workEndDate" disabled={isSubmitting} type="date" {...register("workEndDate")} />
             </div>
           </div>
 
@@ -189,6 +194,7 @@
             <Label htmlFor="rewardYen">報酬（円）</Label>
             <Input
               id="rewardYen"
+              disabled={isSubmitting}
               type="number"
               placeholder="例：15000"
               {...register("rewardYen", { valueAsNumber: true })}
@@ -200,6 +206,7 @@
             <Label htmlFor="paymentCycle">支払サイクル</Label>
             <Input
               id="paymentCycle"
+              disabled={isSubmitting}
               placeholder="例：人日発注"
               {...register("paymentCycle")}
             />
