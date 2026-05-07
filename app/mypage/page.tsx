@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
 import type { MypageApiResponse} from "@/app/_types/mypage";
-import useSWR from "swr";
+import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+
 
 // "2026.01.29" 形式に変換
 function formatDate(dateStr: string): string {
@@ -33,16 +34,9 @@ function calcDaysLeft(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-const fetcher = async (url: string): Promise<MypageApiResponse> => {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error("データの取得に失敗しました");
-  }
-  return res.json();
-};
 
 export default function MyPage() {
-  const { data, error, isLoading } = useSWR<MypageApiResponse>("/api/mypage", fetcher);
+  const { data, error, isLoading } = useAuthedFetch<MypageApiResponse>("/api/mypage");
   const [tab, setTab] = useState<"projects" | "requests">("projects");
   const stats = data?.stats;
   const projects = data?.projects ?? [];
@@ -199,6 +193,7 @@ export default function MyPage() {
                 requests.map((request) => (
                   <RequestCard
                     key={request.id}
+                    title={request.title ?? "（タイトルなし）"} 
                     date={formatDate(request.created_at)}
                     location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
                     availableDates={

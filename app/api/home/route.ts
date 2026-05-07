@@ -15,12 +15,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   // NextResponse< ... > → Next.jsのレスポンスを返す
   // HomeApiResponse → そのレスポンスの中身のJSONの型
 
+  // タブごとに独立したページ番号を受け取る
   const { searchParams } = new URL(request.url);
-  const page = Number(searchParams.get("page") ?? "1");
+  const projectsPage = Number(searchParams.get("projectsPage") ?? "1");
+  const requestsPage = Number(searchParams.get("requestsPage") ?? "1");
   const limit = Number(searchParams.get("limit") ?? "20");
-  const skip = (page - 1) * limit;
-
-  const [projects, requests] = await Promise.all([
+  
+  const [projects, totalProjects, requests, totalRequests] = await Promise.all([
     // Promise.all([A, B]) → AとBを同時にやって、両方終わったら結果を配列で返すJavaScript 標準の組み込みオブジェクト
 
       prisma.projects.findMany({
@@ -30,9 +31,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
           salesUser: { include: { company: true } },
         },
         orderBy: { created_at: "desc" },
-        skip,
-        take: limit,
+        skip: (projectsPage - 1) * limit, // 先頭から何件スキップするか
+        take: limit,  // 何件取得するか
       }),
+
+      prisma.projects.count({ where: { deleted_at: null } }), // 案件の総件数
+      
       prisma.requests.findMany({
         where: { deleted_at: null },
         include: {
@@ -40,10 +44,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
           contractorUser: { include: { company: true } },
         },
         orderBy: { created_at: "desc" },
-        skip,
+        skip: (requestsPage - 1) * limit,
         take: limit,
       }),
+      
+      prisma.requests.count({ where: { deleted_at: null } }), // 依頼待ちの総件数
     ]);
+
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
     id: p.id.toString(),
@@ -64,6 +71,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     created_at: r.created_at.toISOString(),
     prefecture: { name: r.prefecture.name },
     city: r.city,
+    title: r.title, // 追加
     availableStartDate: r.availableStartDate?.toISOString() ?? null,
     availableEndDate: r.availableEndDate?.toISOString() ?? null,
     investigationSummary: r.investigationSummary,
@@ -94,6 +102,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     const response: HomeApiResponse = {
       projects: sortCards(mappedProjects),
       requests: sortCards(mappedRequests),
+      totalProjects,  
+      totalRequests,  
     };
   
     return NextResponse.json(response);
