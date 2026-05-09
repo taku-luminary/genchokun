@@ -4,30 +4,7 @@ import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
 import type { RequestDetailResponse } from '@/app/_types/requests';
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
-}
-
-function formatJpDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
-}
-
-function calcDaysLeft(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const end = new Date(dateStr);
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-}
+import type { HomeRequest } from '@/app/_types/home';
 
 export default function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,27 +19,28 @@ export default function RequestDetailPage() {
 
   const isCompleted = data.status === "completed";
 
+  const homeRequest: HomeRequest = {
+    id: data.id,
+    created_at: data.created_at,
+    prefecture: data.prefecture,
+    city: data.city,
+    title: data.title,
+    availableStartDate: data.availableStartDate,
+    availableEndDate: data.availableEndDate,
+    investigationSummary: data.investigationSummary,
+    paymentCycle: data.paymentCycle,
+    rewardMinYen: data.rewardMinYen,
+    status: data.status,
+    companyName: data.company?.name ?? null,
+  };
+
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
 
         {/* 依頼カード */}
         <div className="pointer-events-none">
-          <RequestCard
-            date={formatDate(data.created_at)}
-            location={`${data.prefecture.name}${data.city ? ` ${data.city}` : ""}`}
-            title={data.title}
-            availableDates={
-              data.availableStartDate && data.availableEndDate
-                ? `${formatJpDate(data.availableStartDate)}〜${formatJpDate(data.availableEndDate)}`
-                : "日程未定"
-            }
-            skills={data.investigationSummary ?? "未記載"}
-            preference={data.rewardMinYen ? `${data.rewardMinYen.toLocaleString()}円〜` : "—"}
-            company={data.company?.name ?? undefined}
-            status={isCompleted ? "completed" : "recruiting"}
-            daysLeft={calcDaysLeft(data.availableEndDate)}
-          />
+          <RequestCard request={homeRequest} />
         </div>
 
         {/* 詳細カード・マッチングボタン */}
