@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
 import type { MypageApiResponse} from "@/app/_types/mypage";
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+import Link from "next/link";
+
 
 
 // "2026.01.29" 形式に変換
@@ -48,9 +50,19 @@ export default function MyPage() {
       <section className="bg-white">
         <div className="max-w-4xl mx-auto px-4 pt-6 pb-6 space-y-6">
 
-          <h1 className="text-2xl md:text-3xl font-black text-center text-slate-800">
+        <h1 className="text-2xl md:text-3xl font-black text-center text-slate-800">
             マイページ
           </h1>
+
+          {/* 自社情報編集への導線 */}
+          <div className="text-center">
+            <Link
+              href="/mypage/settings/company"
+              className="inline-block text-sm text-brand-green underline hover:opacity-80"
+            >
+              自社情報を編集する
+            </Link>
+          </div>
 
           {/* 統計グリッド（3マス） */}
           {isLoading && (
@@ -163,21 +175,11 @@ export default function MyPage() {
                 </p>
               ) : (
                 projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  date={formatDate(project.created_at)}
-                  location={`${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`}
-                  title={project.title}
-                  schedule={
-                    project.workStartDate && project.workEndDate
-                      ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
-                      : "日程未定"
-                  }
-                  amount={project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—"}
-                  status={project.status === "completed" ? "completed" : "recruiting"}
-                  hasMatch={project.matches.some((m) => m.status === "active")}
-                  daysLeft={calcDaysLeft(project.workEndDate)}
-                />
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    hasMatch={project.matches.some((m) => m.status === "active")}
+                  />
                 ))
               )}
             </div>
@@ -193,23 +195,7 @@ export default function MyPage() {
                 requests.map((request) => (
                   <RequestCard
                     key={request.id}
-                    title={request.title ?? "（タイトルなし）"} 
-                    date={formatDate(request.created_at)}
-                    location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
-                    availableDates={
-                      request.availableStartDate && request.availableEndDate
-                        ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
-                        : "日程未定"
-                    }
-                    skills={request.investigationSummary ?? "—"}
-                    preference={
-                      request.paymentCycle
-                        ? request.rewardMinYen
-                          ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
-                          : request.paymentCycle
-                        : "—"
-                    }
-                    status={request.status === "completed" ? "completed" : "recruiting"}
+                    request={request}
                     hasMatch={request.match?.status === "active"}
                   />
                 ))

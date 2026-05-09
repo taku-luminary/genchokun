@@ -15,13 +15,14 @@ export type MypageProject = {
   created_at: string;
   prefecture: { name: string };
   city: string | null;
-  title: string;           // ← 追加
+  title: string;
   workStartDate: string | null;
   workEndDate: string | null;
   investigationSummary: string | null;
   paymentCycle: string | null;
   rewardYen: number | null;
   status: "open" | "completed";
+  companyName: string | null;        // ← 追加（Cards.tsx と整合させる）
   matches: { status: string }[];
 };
 
@@ -31,12 +32,13 @@ export type MypageRequest = {
   created_at: string;
   prefecture: { name: string };
   city: string | null;
-  title: string | null;        // ← 追加
+  title: string;                      // ← null許容を外す（HomeRequest と統一）
   availableStartDate: string | null;
   availableEndDate: string | null;
   investigationSummary: string | null;
   paymentCycle: string | null;
   rewardMinYen: number | null;
   status: "open" | "completed";
+  companyName: string | null;        // ← 追加
   match: { status: string } | null;
 };

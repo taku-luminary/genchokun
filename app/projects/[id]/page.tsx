@@ -8,6 +8,11 @@ import type { HomeProject } from '@/app/_types/home';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
+    // useParams<{ id: string }>() は、URLの動的パラメータを取得する関数。
+    // <{ id: string }> は、「useParams() の結果は、id というプロパティを持ち、その id は string 型です」と TS に教えている部分。
+    // useParams() の結果は params のようなオブジェクトで、その中から分割代入 const { id } = ... によって id だけを取り出している。
+    // つまり、URLの [id] に入っている値を、string 型の id 変数として使えるようにしている。
+
   const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
 
   if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
@@ -74,16 +79,21 @@ export default function ProjectDetailPage() {
         {data.company && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
             <div className="pb-2 flex items-center gap-2">
-              <p className="text-m font-bold text-slate-700">発注者の自社情報</p>
-              <p className="text-xs text-slate-400">掲載された会社情報です</p>
+              <p className="text-m font-bold text-slate-700">投稿元の販売店情報</p>
+              <p className="text-xs text-slate-400">販売店が掲載している情報です</p>
             </div>
+
             <CompanyRow label="会社名" value={data.company.name} />
+
             <CompanyRow
               label="所在地"
               value={[data.company.prefecture, data.company.city, data.company.address].filter(Boolean).join(" ")}
             />
+            
             {data.company.representativeName && <CompanyRow label="代表者" value={data.company.representativeName} />}
+
             {data.company.employeeCount && <CompanyRow label="従業員数" value={`${data.company.employeeCount}名`} />}
+
             {data.company.websiteUrl && (
               <div className="flex gap-2">
                 <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">Webサイト</p>
@@ -92,6 +102,7 @@ export default function ProjectDetailPage() {
                 </a>
               </div>
             )}
+
             {data.company.description && (
               <div>
                 <p className="text-sm font-bold text-slate-700 mb-1">会社紹介</p>

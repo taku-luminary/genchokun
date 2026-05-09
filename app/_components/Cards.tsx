@@ -1,10 +1,11 @@
 import React from 'react';
 import type { HomeProject, HomeRequest } from '@/app/_types/home';
+import type { MypageProject, MypageRequest } from '@/app/_types/mypage';
 import { formatDate, formatJpDate, calcDaysLeft } from '@/app/_utils/format';
 
 // ─── ProjectCard ───────────────────────────────────────────
 interface ProjectCardProps {
-  project: HomeProject;
+  project: HomeProject | MypageProject;
   hasMatch?: boolean;
 }
 
@@ -86,7 +87,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
 
 // ─── RequestCard ───────────────────────────────────────────
 interface RequestCardProps {
-  request: HomeRequest;
+  request: HomeRequest | MypageRequest;
   hasMatch?: boolean;
 }
 
