@@ -15,29 +15,3 @@ export type CreateRequestRequest = {
 export type CreateRequestResponse = {
   id: string;
 };
-
-// GET /api/requests/[id] のレスポンス型
-export type RequestDetailResponse = {
-  id: string;
-  created_at: string;
-  prefecture: { name: string };
-  city: string | null;
-  title: string;
-  investigationSummary: string | null;
-  investigationDetails: string | null;
-  availableStartDate: string | null;
-  availableEndDate: string | null;
-  rewardMinYen: number | null;
-  paymentCycle: string | null;
-  status: "open" | "completed";
-  company: {
-    name: string;
-    prefecture: string;
-    city: string | null;
-    address: string | null;
-    representativeName: string | null;
-    employeeCount: number | null;
-    websiteUrl: string | null;
-    description: string | null;
-  } | null;
-};

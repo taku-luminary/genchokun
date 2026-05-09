@@ -1,42 +1,64 @@
 import React from 'react';
-import type { HomeProject, HomeRequest } from '@/app/_types/home';
-import { formatDate, formatJpDate, calcDaysLeft } from '@/app/_utils/format';
 
-// ─── ProjectCard ───────────────────────────────────────────
 interface ProjectCardProps {
-  project: HomeProject;
+  date: string;
+  location: string;
+  title: string;
+  schedule: string;
+  amount: string;
+  client?: string;
+  status: 'recruiting' | 'completed';
   hasMatch?: boolean;
+  daysLeft?: number | null;  // ← 追加
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) => {
-  const daysLeft = calcDaysLeft(project.workEndDate);
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  date,
+  location,
+  title,
+  schedule,
+  amount,
+  client,
+  status,
+  hasMatch,
+  daysLeft,
+}) => {
+  // 残り日数の表示テキストと色を決める
+      let daysLeftLabel: string | null;
 
-  let daysLeftLabel: string | null;
-  if (daysLeft === null || daysLeft === undefined) {
-    daysLeftLabel = null;
-  } else if (daysLeft <= 0) {
-    daysLeftLabel = "期限切れ";
-  } else {
-    daysLeftLabel = `${daysLeft}日`;
-  }
+      if (daysLeft === null || daysLeft === undefined) {
+        daysLeftLabel = null;
+      } else if (daysLeft <= 0) {
+        daysLeftLabel = "期限切れ";
+      } else {
+        daysLeftLabel = `${daysLeft}日`;
+      }
+      
+      let daysLeftColor: string;
+      
+      if (
+        daysLeft !== null &&
+        daysLeft !== undefined &&
+        daysLeft > 0 &&
+        daysLeft <= 3
+      ) {
+        daysLeftColor = "text-red-500";
+      } else {
+        daysLeftColor = "text-slate-700";
+      }
 
-  const daysLeftColor =
-    daysLeft !== null && daysLeft !== undefined && daysLeft > 0 && daysLeft <= 3
-      ? "text-red-500"
-      : "text-slate-700";
+  // 期限切れ or マッチング済み or DBのステータスが完了 → バッジを「完了」にする
+      let isCompleted: boolean;
 
-  const isCompleted =
-    project.status === 'completed' ||
-    hasMatch === true ||
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
-
-  const date = formatDate(project.created_at);
-  const location = `${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`;
-  const schedule =
-    project.workStartDate && project.workEndDate
-      ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
-      : "日程未定";
-  const amount = project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—";
+      if (status === 'completed') {
+        isCompleted = true;
+      } else if (hasMatch === true) {
+        isCompleted = true;
+      } else if (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0) {
+        isCompleted = true;
+      } else {
+        isCompleted = false;
+      }
 
   return (
     <div className="bg-white rounded-2xl p-6 card-shadow border border-slate-50 relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer">
@@ -57,10 +79,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
 
       <div className="flex gap-4">
         <div className="flex-1">
-          <h3 className={`text-2xl font-bold mb-4 ${
+        <h3 className={`text-2xl font-bold mb-4 ${
             isCompleted ? 'text-slate-700' : 'text-brand-green'
           }`}>
-            {project.title}
+            {title}
           </h3>
           <div className="space-y-2 text-slate-700 font-medium">
             {daysLeftLabel && (
@@ -68,7 +90,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
             )}
             <p>・日程：{schedule}</p>
             <p>・金額：{amount}</p>
-            {project.companyName && <p>・発注者：{project.companyName}</p>}
+            {client && <p>・発注者：{client}</p>}
           </div>
         </div>
 
@@ -84,32 +106,35 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
   );
 };
 
-// ─── RequestCard ───────────────────────────────────────────
 interface RequestCardProps {
-  request: HomeRequest;
+  date: string;
+  location: string;
+  title: string; // 追加
+  availableDates: string;
+  skills: string;
+  preference: string;
+  company?: string;
+  status: 'recruiting' | 'completed';
   hasMatch?: boolean;
+  daysLeft?: number | null;
 }
 
-export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) => {
-  const daysLeft = calcDaysLeft(request.availableEndDate);
-
+export const RequestCard: React.FC<RequestCardProps> = ({
+  date,
+  location,
+  title, // 追加
+  availableDates,
+  skills,
+  preference,
+  company,
+  status,
+  hasMatch,
+  daysLeft,
+}) => {
   const isCompleted =
-    request.status === 'completed' ||
+    status === 'completed' ||
     hasMatch === true ||
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
-
-  const date = formatDate(request.created_at);
-  const location = `${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`;
-  const availableDates =
-    request.availableStartDate && request.availableEndDate
-      ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
-      : "日程未定";
-  const preference =
-    request.paymentCycle
-      ? request.rewardMinYen
-        ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
-        : request.paymentCycle
-      : "—";
 
   return (
     <div className="bg-white rounded-2xl p-6 card-shadow border border-slate-50 relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer">
@@ -133,13 +158,13 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) =
           <h3 className={`text-2xl font-bold mb-4 leading-tight ${
             isCompleted ? 'text-slate-700' : 'text-brand-green'
           }`}>
-            {request.title}
+            {title}
           </h3>
           <div className="space-y-2 text-slate-700 font-medium">
             <p>・日程：{availableDates}</p>
-            <p>・調査可能内容：{request.investigationSummary ?? "—"}</p>
+            <p>・調査可能内容：{skills}</p>
             <p>・希望：{preference}</p>
-            {request.companyName && <p>・企業：{request.companyName}</p>}
+            {company && <p>・企業：{company}</p>}
           </div>
         </div>
 
