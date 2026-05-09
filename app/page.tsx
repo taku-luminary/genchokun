@@ -11,6 +11,35 @@ const LIMIT = 20;
 
 type Tab = 'projects' | 'requests';
 
+// "2026.01.29" 形式に変換
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day}`;
+}
+
+// "1月31日(土)" 形式に変換
+function formatJpDate(dateStr: string | null): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const days = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
+}
+
+// 作業終了日から残り日数を計算する（nullなら null を返す）
+function calcDaysLeft(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  const end = new Date(dateStr);
+  const today = new Date();
+  // 時刻を除いた日付だけで比較するためにゼロにする
+  end.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const diff = end.getTime() - today.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [projectsPage, setProjectsPage] = useState(1);  // 案件の現在ページ
@@ -125,11 +154,22 @@ export default function Home() {
               projects.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">掲載中の案件はありません</p>
               ) : (
-                // 案件カード
                 projects.map((project) => (
-                  <Link key={project.id} href={`/projects/${project.id}`} className="block">
-                    <ProjectCard project={project} />
-                  </Link>
+                  <ProjectCard
+                    key={project.id}
+                    date={formatDate(project.created_at)}
+                    location={`${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`}
+                    title={project.title}
+                    schedule={
+                      project.workStartDate && project.workEndDate
+                        ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
+                        : "日程未定"
+                    }
+                    amount={project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—"}
+                    client={project.companyName ?? undefined}
+                    status={project.status === "completed" ? "completed" : "recruiting"}
+                    daysLeft={calcDaysLeft(project.workEndDate)}
+                  />
                 ))
               )
             )}
@@ -138,14 +178,32 @@ export default function Home() {
               requests.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">登録中の工事店はいません</p>
               ) : (
-                // 依頼カード
                 requests.map((request) => (
-                  <Link key={request.id} href={`/requests/${request.id}`} className="block">
-                    <RequestCard request={request} />
-                  </Link>
-                ))
-              )
-            )}
+                  <RequestCard
+                    key={request.id}
+                    date={formatDate(request.created_at)}
+                    location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
+                    title={request.title}
+                    availableDates={
+                      request.availableStartDate && request.availableEndDate
+                        ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
+                        : "日程未定"
+                    }
+                    skills={request.investigationSummary ?? "—"}
+                    preference={
+                      request.paymentCycle
+                        ? request.rewardMinYen
+                          ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
+                          : request.paymentCycle
+                        : "—"
+                    }
+                    company={request.companyName ?? undefined}
+                    status={request.status === "completed" ? "completed" : "recruiting"}
+                    daysLeft={calcDaysLeft(request.availableEndDate)}
+                    />
+                  ))
+                )
+              )}
             </div>
   
             {/* ページネーション：案件タブ */}
