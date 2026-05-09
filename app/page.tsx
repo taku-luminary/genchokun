@@ -155,21 +155,22 @@ export default function Home() {
                 <p className="text-center text-slate-500 py-10">掲載中の案件はありません</p>
               ) : (
                 projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    date={formatDate(project.created_at)}
-                    location={`${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`}
-                    title={project.title}
-                    schedule={
-                      project.workStartDate && project.workEndDate
-                        ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
-                        : "日程未定"
-                    }
-                    amount={project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—"}
-                    client={project.companyName ?? undefined}
-                    status={project.status === "completed" ? "completed" : "recruiting"}
-                    daysLeft={calcDaysLeft(project.workEndDate)}
-                  />
+                  <Link key={project.id} href={`/projects/${project.id}`} className="block">
+                    <ProjectCard
+                      date={formatDate(project.created_at)}
+                      location={`${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`}
+                      title={project.title}
+                      schedule={
+                        project.workStartDate && project.workEndDate
+                          ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
+                          : "日程未定"
+                      }
+                      amount={project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—"}
+                      client={project.companyName ?? undefined}
+                      status={project.status === "completed" ? "completed" : "recruiting"}
+                      daysLeft={calcDaysLeft(project.workEndDate)}
+                    />
+                  </Link>
                 ))
               )
             )}
@@ -179,29 +180,30 @@ export default function Home() {
                 <p className="text-center text-slate-500 py-10">登録中の工事店はいません</p>
               ) : (
                 requests.map((request) => (
-                  <RequestCard
-                    key={request.id}
-                    date={formatDate(request.created_at)}
-                    location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
-                    title={request.title}
-                    availableDates={
-                      request.availableStartDate && request.availableEndDate
-                        ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
-                        : "日程未定"
-                    }
-                    skills={request.investigationSummary ?? "—"}
-                    preference={
-                      request.paymentCycle
-                        ? request.rewardMinYen
-                          ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
-                          : request.paymentCycle
-                        : "—"
-                    }
-                    company={request.companyName ?? undefined}
-                    status={request.status === "completed" ? "completed" : "recruiting"}
-                    daysLeft={calcDaysLeft(request.availableEndDate)}
+                  <Link key={request.id} href={`/requests/${request.id}`} className="block">
+                    <RequestCard
+                      date={formatDate(request.created_at)}
+                      location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
+                      title={request.title}
+                      availableDates={
+                        request.availableStartDate && request.availableEndDate
+                          ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
+                          : "日程未定"
+                      }
+                      skills={request.investigationSummary ?? "—"}
+                      preference={
+                        request.paymentCycle
+                          ? request.rewardMinYen
+                            ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
+                            : request.paymentCycle
+                          : "—"
+                      }
+                      company={request.companyName ?? undefined}
+                      status={request.status === "completed" ? "completed" : "recruiting"}
+                      daysLeft={calcDaysLeft(request.availableEndDate)}
                     />
-                  ))
+                  </Link>
+                ))
                 )
               )}
             </div>
