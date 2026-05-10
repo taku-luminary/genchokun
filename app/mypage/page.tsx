@@ -4,38 +4,6 @@ import { useState } from "react";
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
 import type { MypageApiResponse} from "@/app/_types/mypage";
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
-import Link from "next/link";
-
-
-
-// "2026.01.29" 形式に変換
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
-}
-
-// "1月31日(土)" 形式に変換
-function formatJpDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
-}
-
-// 作業終了日から残り日数を計算する（nullなら null を返す）
-function calcDaysLeft(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const end = new Date(dateStr);
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  const diff = end.getTime() - today.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
 
 export default function MyPage() {
   const { data, error, isLoading } = useAuthedFetch<MypageApiResponse>("/api/mypage");
@@ -53,16 +21,6 @@ export default function MyPage() {
         <h1 className="text-2xl md:text-3xl font-black text-center text-slate-800">
             マイページ
           </h1>
-
-          {/* 自社情報編集への導線 */}
-          <div className="text-center">
-            <Link
-              href="/mypage/settings/company"
-              className="inline-block text-sm text-brand-green underline hover:opacity-80"
-            >
-              自社情報を編集する
-            </Link>
-          </div>
 
           {/* 統計グリッド（3マス） */}
           {isLoading && (

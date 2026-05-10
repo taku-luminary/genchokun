@@ -29,29 +29,35 @@ export default function CompanySettingsPage() {
   // 画面初回表示：自社情報を取得し、登録済みならフォームに流し込む
   useEffect(() => {
     const load = async () => {
-      const res = await fetch("/api/companies/me");
-      if (res.status === 401) {
-        router.push("/login");
-        return;
+      try {
+        const res = await fetch("/api/companies/me");
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+        const json: CompanyMeResponse = await res.json();
+        if (json.company) {
+          // 既存データを初期値にセット（reset でフォーム全体を上書き）
+          reset({
+            name:               json.company.name,
+            prefectureId:       json.company.prefectureId,
+            city:               json.company.city               ?? undefined,
+            address:            json.company.address            ?? undefined,
+            representativeName: json.company.representativeName ?? undefined,
+            employeeCount:      json.company.employeeCount      ?? undefined,
+            websiteUrl:         json.company.websiteUrl         ?? undefined,
+            description:        json.company.description        ?? undefined,
+          });
+          setIsNew(false);
+        } else {
+          setIsNew(true);
+        }
+      } catch (e) {
+        console.error(e);
+        setServerError("通信に失敗しました。時間をおいて再度お試しください");
+      } finally {
+        setLoading(false);   // ← 成功でも失敗でも必ずローディング解除
       }
-      const json: CompanyMeResponse = await res.json();
-      if (json.company) {
-        // 既存データを初期値にセット（reset でフォーム全体を上書き）
-        reset({
-          name:               json.company.name,
-          prefectureId:       json.company.prefectureId,
-          city:               json.company.city               ?? undefined,
-          address:            json.company.address            ?? undefined,
-          representativeName: json.company.representativeName ?? undefined,
-          employeeCount:      json.company.employeeCount      ?? undefined,
-          websiteUrl:         json.company.websiteUrl         ?? undefined,
-          description:        json.company.description        ?? undefined,
-        });
-        setIsNew(false);
-      } else {
-        setIsNew(true);
-      }
-      setLoading(false);
     };
     load();
   }, [reset, router]);
@@ -59,20 +65,25 @@ export default function CompanySettingsPage() {
   const saveCompany = async (data: UpdateCompanyRequest) => {
     setServerError(null);
     setSavedMessage(null);
-
-    const res = await fetch("/api/companies/me", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const json = await res.json();
-      setServerError(json.error ?? "保存に失敗しました");
-      return;
+  
+    try {
+      const res = await fetch("/api/companies/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+  
+      if (!res.ok) {
+        const json = await res.json();
+        setServerError(json.error ?? "保存に失敗しました");
+        return;
+      }
+      setSavedMessage("自社情報を保存しました");
+      setIsNew(false);// 新規→編集モードへ切り替わる
+    } catch (e) {
+      console.error(e);
+      setServerError("通信に失敗しました。時間をおいて再度お試しください");
     }
-    setSavedMessage("自社情報を保存しました");
-    setIsNew(false); // 新規→編集モードへ切り替わる
   };
 
   if (loading) {
