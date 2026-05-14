@@ -71,7 +71,6 @@
                  例：prefectureId が空なら errors.prefectureId にエラーを入れる
 
                ④ エラーがなければ、完成した data を createProject に渡す
-
               createProject(data);  */}
 
 
@@ -121,6 +120,10 @@
             <Label htmlFor="city">市区町村</Label>
             <Input id="city" disabled={isSubmitting} placeholder="例：文京区" {...register("city")} />
               {/*===registerの説明=== 
+                  ① 入力欄の名前をRHFに教える
+                  ② 入力が変わったら内部ストアを更新する onChange を渡す
+                  ③ blurしたことを記録する onBlur を渡す
+                  ④ input要素そのものを覚える ref を渡す
                 register("city") は、React Hook Form がこの入力欄を管理するための設定オブジェクトを返す。
                 HTML/JSXのタグでは基本的に 属性=値 の形で書く。だから、JSのオブジェクトをそのまま置けない。
                 JSX の中で {...オブジェクト} と書くと、オブジェクトの中身が props として展開される。
@@ -130,10 +133,38 @@
                   onChange: (event) => {
                     const value = event.target.value;
                     formValues["city"] = value;}, ← RHFの内部ストアに保存するイメージ
-                  onBlur: () => {入力欄から離れたことを記録する},
-                  ref: (element) => {このinput要素をRHFが覚える}
-                />                
+                  onBlur: () => {入力欄から離れたことを記録する}, ← 入力欄から離れたことをRHFが記録する、 バリデーションや touched 状態の管理に使われる
+                  ref: (element) => {registeredFields["city"] = element;} ← このinput要素そのものをRHFが覚える。これにより、reset時に、registeredFields["city"].value = "文京区";のように、画面上のinputへ値を反映できる
+                /> 
+
+                ■役割
+                  formValues → RHF内部の正式なフォームデータ置き場
+                  formValues.name = ... → 保存時に使う内部データを更新する
+                  registeredFields → 実際のinput/select/textarea要素の置き場
+                  registeredFields.name.value = ... → 画面上のinputに表示する値を更新する
+                  register → inputをRHFに接続し、onChangeで内部データを更新できるようにし、refでinput要素も覚えられるようにする
                 */}
+                {/*===event / target / value の説明===
+                  onChange は、入力欄の中身が変わったときに実行される関数。
+                  event は React が自動で渡してくれる「入力変更イベントの情報」。
+                  event.target には、実際に変更された input 要素が入る。
+
+                  例：<Input id="city" name="city" /> に「文京区」と入力した場合、
+
+                  event.target はこの input 自体が入る、
+                  event.target.value は "文京区" になる。
+
+                  つまり、const value = event.target.value;は「今入力されている文字列を取り出す」という意味。
+                */}
+                {/*["name"]と.nameの説明===
+                  formValues["name"] と formValues.name は同じ。
+                  でも、formValues[fieldName] と formValues.fieldName は違う。
+                  fieldName が変数なら、必ず [] を使う。
+                  [] は「この変数の中身をプロパティ名として使う」という意味。
+                  . は「そのまま書いた名前をプロパティ名として使う」という意味。
+                */}
+                
+
           </div>
 
           {/* タイトル */}
