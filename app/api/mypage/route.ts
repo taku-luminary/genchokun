@@ -34,32 +34,35 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
   const response: MypageApiResponse = {
     stats: { projectCount, applicationCount, todoCount },
     projects: projects.map((p) => ({
-      id: p.id.toString(),                                                                                                                          
+      id: p.id.toString(),
       created_at: p.created_at.toISOString(),
-      prefecture: { name: p.prefecture.name },                                                                                                      
+      prefecture: { name: p.prefecture.name },
       city: p.city,
-      title: p.title,                                                                                                                                 
+      title: p.title,
       workStartDate: p.workStartDate?.toISOString() ?? null,
-      workEndDate: p.workEndDate?.toISOString() ?? null,                                                                                            
+      workEndDate: p.workEndDate?.toISOString() ?? null,
       investigationSummary: p.investigationSummary,
-      paymentCycle: p.paymentCycle,                                                                                                                 
-      rewardYen: p.rewardYen === null ? null : Number(p.rewardYen),                                                                                 
+      paymentCycle: p.paymentCycle,
+      rewardYen: p.rewardYen === null ? null : Number(p.rewardYen),
       status: p.status,
-      matches: p.matches.map((m) => ({ status: m.status })),                                                                                        
-    })),                                                                                                                                            
+      companyName: null,                                   // ← 追加（自分の投稿なので null）
+      matches: p.matches.map((m) => ({ status: m.status })),
+    })),                                                                                                                                         
     requests: requests.map((r) => ({
-      id: r.id.toString(),                                                                                                                          
+      id: r.id.toString(),
       created_at: r.created_at.toISOString(),
-      prefecture: { name: r.prefecture.name },                                                                                                      
-      city: r.city,              
+      prefecture: { name: r.prefecture.name },
+      city: r.city,
+      title: r.title,                                      // ← 追加（漏れていた）
       availableStartDate: r.availableStartDate?.toISOString() ?? null,
-      availableEndDate: r.availableEndDate?.toISOString() ?? null,                                                                                  
+      availableEndDate: r.availableEndDate?.toISOString() ?? null,
       investigationSummary: r.investigationSummary,
-      paymentCycle: r.paymentCycle,                                                                                                                 
+      paymentCycle: r.paymentCycle,
       rewardMinYen: r.rewardMinYen === null ? null : Number(r.rewardMinYen),
-      status: r.status,                                                                                                                             
+      status: r.status,
+      companyName: null,                                   // ← 追加
       match: r.match ? { status: r.match.status } : null,
-    })),                                                                                                                                            
+    })),                                                                                                                                          
   };                             
 
   return NextResponse.json(response);

@@ -71,7 +71,7 @@ export default function RequestDetailPage() {
                 onClick={() => alert("マッチング機能は現在準備中です")}
                 className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition"
               >
-                この依頼にマッチングを申し込む
+                この工事店へ仕事を依頼する
               </button>
             </div>
           )}
@@ -81,8 +81,8 @@ export default function RequestDetailPage() {
         {data.company && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
             <div className="pb-2 space-y-1 flex items-center gap-2">
-              <p className="text-m font-bold text-slate-700">依頼者の自社情報</p>
-              <p className="text-xs text-slate-400">掲載された会社情報です</p>
+              <p className="text-m font-bold text-slate-700">投稿元の工事店情報</p>
+              <p className="text-xs text-slate-400">工事店が掲載している情報です</p>
             </div>
 
             <CompanyRow label="会社名" value={data.company.name} />

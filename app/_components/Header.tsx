@@ -32,6 +32,9 @@
               >
                 マイページ
               </Link>
+              <Link href="/mypage/settings/company" className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">
+                自社情報
+              </Link>
               <LogoutButton />
             </>
           ) : (

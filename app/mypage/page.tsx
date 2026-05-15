@@ -5,36 +5,6 @@ import { ProjectCard, RequestCard } from "@/app/_components/Cards";
 import type { MypageApiResponse} from "@/app/_types/mypage";
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 
-
-// "2026.01.29" 形式に変換
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
-}
-
-// "1月31日(土)" 形式に変換
-function formatJpDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
-}
-
-// 作業終了日から残り日数を計算する（nullなら null を返す）
-function calcDaysLeft(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const end = new Date(dateStr);
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  const diff = end.getTime() - today.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
-
 export default function MyPage() {
   const { data, error, isLoading } = useAuthedFetch<MypageApiResponse>("/api/mypage");
   const [tab, setTab] = useState<"projects" | "requests">("projects");
@@ -48,7 +18,7 @@ export default function MyPage() {
       <section className="bg-white">
         <div className="max-w-4xl mx-auto px-4 pt-6 pb-6 space-y-6">
 
-          <h1 className="text-2xl md:text-3xl font-black text-center text-slate-800">
+        <h1 className="text-2xl md:text-3xl font-black text-center text-slate-800">
             マイページ
           </h1>
 
@@ -163,21 +133,11 @@ export default function MyPage() {
                 </p>
               ) : (
                 projects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  date={formatDate(project.created_at)}
-                  location={`${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`}
-                  title={project.title}
-                  schedule={
-                    project.workStartDate && project.workEndDate
-                      ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
-                      : "日程未定"
-                  }
-                  amount={project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—"}
-                  status={project.status === "completed" ? "completed" : "recruiting"}
-                  hasMatch={project.matches.some((m) => m.status === "active")}
-                  daysLeft={calcDaysLeft(project.workEndDate)}
-                />
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    hasMatch={project.matches.some((m) => m.status === "active")}
+                  />
                 ))
               )}
             </div>
@@ -193,23 +153,7 @@ export default function MyPage() {
                 requests.map((request) => (
                   <RequestCard
                     key={request.id}
-                    title={request.title ?? "（タイトルなし）"} 
-                    date={formatDate(request.created_at)}
-                    location={`${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`}
-                    availableDates={
-                      request.availableStartDate && request.availableEndDate
-                        ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
-                        : "日程未定"
-                    }
-                    skills={request.investigationSummary ?? "—"}
-                    preference={
-                      request.paymentCycle
-                        ? request.rewardMinYen
-                          ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
-                          : request.paymentCycle
-                        : "—"
-                    }
-                    status={request.status === "completed" ? "completed" : "recruiting"}
+                    request={request}
                     hasMatch={request.match?.status === "active"}
                   />
                 ))
