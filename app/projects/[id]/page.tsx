@@ -65,7 +65,10 @@ export default function ProjectDetailPage() {
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isClosed = data.status === "completed";
   const isCompleted = isClosed || isExpired;
-    // サーバ側で「応募済み」と判定された場合 or 応募直後（クライアント側state）の合体フラグ
+
+  // サーバ側で「応募済み = data.hasApplied」と判定された場合 or 応募直後（クライアント側state = applied）の合体フラグ
+  // applied がないと、応募成功後も data.hasApplied は古い取得データのままなので、画面上では一瞬またはずっと「この案件に応募する」ボタンが残る可能性があります。
+  // data.hasApplied が true または applied が true なら isAlreadyApplied を true にする
   const isAlreadyApplied = data.hasApplied || applied;
 
   // ProjectDetailResponse → HomeProject に変換してカードに渡す
@@ -111,7 +114,7 @@ export default function ProjectDetailPage() {
               </div>
             )}
           </div>
-          
+
           {/* 募集中・未応募: 通常の応募ボタン */}
           {!isCompleted && !isAlreadyApplied && (
             <div className="px-6 pb-6 space-y-3">

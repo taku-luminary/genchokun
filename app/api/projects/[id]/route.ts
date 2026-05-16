@@ -41,6 +41,8 @@ export async function GET(
         },
       });
       hasApplied = existing !== null;
+      // existing が null じゃないなら、hasApplied を true にする
+      // existing が null なら、hasApplied を false にする
     }
 
     const c = project.salesUser.company;
