@@ -92,7 +92,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
-        updated_at:         new Date(),
       },
       // 未登録のとき → 新規作成
       create: {
@@ -105,8 +104,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
-        created_at:         new Date(),
-        updated_at:         new Date(),
       },
     });
 

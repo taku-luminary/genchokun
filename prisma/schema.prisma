@@ -72,8 +72,8 @@ model users {
   isActive         Boolean
   isAdmin          Boolean
   stripeCustomerId String?
-  created_at       DateTime
-  updated_at       DateTime
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
 
   userSubscription          user_subscriptions?
   userSubscriptionHistories user_subscription_histories[]
@@ -104,8 +104,8 @@ model user_subscriptions {
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean
   stripeSubscriptionId String?             @unique
-  created_at           DateTime
-  updated_at           DateTime
+  created_at           DateTime @default(now())
+  updated_at           DateTime @default(now()) @updatedAt
 
   user users              @relation(fields: [userId], references: [id])
   plan subscription_plans @relation(fields: [planId], references: [id])
@@ -140,8 +140,8 @@ model subscription_plans {
   postLimitPerMonth         Int?
   canUseProfile             Boolean
   isActive                  Boolean
-  created_at                DateTime
-  updated_at                DateTime
+  created_at                DateTime @default(now())
+  updated_at                DateTime @default(now()) @updatedAt
 
   userSubscriptions         user_subscriptions[]
   userSubscriptionHistories user_subscription_histories[]
@@ -154,7 +154,7 @@ model stripe_webhook_events {
   payload       String
   processed     Boolean
   processedAt   DateTime?
-  created_at    DateTime
+  created_at    DateTime @default(now())
 }
 
 model companies {
@@ -171,8 +171,8 @@ model companies {
   logoImageUrl       String?
   reviewAverage      Decimal? @db.Decimal(5, 2)
   reviewCount        Int?
-  created_at         DateTime
-  updated_at         DateTime
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now()) @updatedAt
 
   user             users                       @relation(fields: [userId], references: [id])
   prefecture       prefectures                 @relation(fields: [prefectureId], references: [id])
@@ -193,8 +193,8 @@ model projects {
   salesUserId          String    @db.Uuid
   status               project_status
   deleted_at           DateTime?
-  created_at           DateTime
-  updated_at           DateTime
+  created_at           DateTime @default(now())
+  updated_at           DateTime @default(now()) @updatedAt
 
   prefecture prefectures @relation(fields: [prefectureId], references: [id])
   salesUser  users       @relation(fields: [salesUserId], references: [id])
@@ -215,8 +215,8 @@ model requests {
   contractorUserId     String    @db.Uuid
   status               request_status
   deleted_at           DateTime?
-  created_at           DateTime
-  updated_at           DateTime
+  created_at           DateTime @default(now())
+  updated_at           DateTime @default(now()) @updatedAt
 
   prefecture     prefectures @relation(fields: [prefectureId], references: [id])
   contractorUser users       @relation(fields: [contractorUserId], references: [id])
@@ -237,8 +237,8 @@ model application_details {
   id         BigInt   @id @default(autoincrement())
   matchId    BigInt   @unique
   message    String?
-  created_at DateTime
-  updated_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   match matches @relation(fields: [matchId], references: [id])
 }
@@ -250,8 +250,8 @@ model matches {
   salesUserId      String       @db.Uuid
   contractorUserId String       @db.Uuid
   status           match_status
-  created_at       DateTime
-  updated_at       DateTime
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
 
   project            projects?            @relation(fields: [projectId], references: [id])
   request            requests?            @relation(fields: [requestId], references: [id])
@@ -269,8 +269,8 @@ model company_interview_articles {
   publishedAt DateTime?
   createdBy   String    @db.Uuid
   updatedBy   String    @db.Uuid
-  created_at  DateTime
-  updated_at  DateTime
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
 
   company       companies                  @relation(fields: [companyId], references: [id])
   createdByUser users                      @relation("createdInterviewArticles", fields: [createdBy], references: [id])
@@ -287,8 +287,8 @@ model company_interview_blocks {
   imageUrl     String?
   imageAlt     String?
   displayOrder Int
-  created_at   DateTime
-  updated_at   DateTime
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
 
   article company_interview_articles @relation(fields: [articleId], references: [id])
 

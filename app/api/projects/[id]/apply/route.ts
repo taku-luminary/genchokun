@@ -98,15 +98,12 @@ export async function POST(
     }
 
     // 6. matches テーブルに pending レコードを作成
-    const now = new Date();
     const match = await prisma.matches.create({
       data: {
         projectId: project.id,
         salesUserId: project.salesUserId,
         contractorUserId: user.id,
         status: "pending",
-        created_at: now,
-        updated_at: now,
       },
     });
 
