@@ -111,7 +111,7 @@ export async function POST(
     });
 
     // 7. 成功レスポンス（BigInt は文字列に変換）
-    return NextResponse.json({ matchId: match.id.toString() });
+    return NextResponse.json({ success: true });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
