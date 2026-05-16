@@ -39,4 +39,5 @@ export type ProjectDetailResponse = {
     websiteUrl: string | null;
     description: string | null;
   } | null;
+  hasApplied: boolean;
 };

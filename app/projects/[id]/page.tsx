@@ -65,6 +65,8 @@ export default function ProjectDetailPage() {
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isClosed = data.status === "completed";
   const isCompleted = isClosed || isExpired;
+    // サーバ側で「応募済み」と判定された場合 or 応募直後（クライアント側state）の合体フラグ
+  const isAlreadyApplied = data.hasApplied || applied;
 
   // ProjectDetailResponse → HomeProject に変換してカードに渡す
   const homeProject: HomeProject = {
@@ -109,27 +111,32 @@ export default function ProjectDetailPage() {
               </div>
             )}
           </div>
-          {/* 募集中: 応募ボタンエリア */}
-          {!isCompleted && (
+          
+          {/* 募集中・未応募: 通常の応募ボタン */}
+          {!isCompleted && !isAlreadyApplied && (
             <div className="px-6 pb-6 space-y-3">
-              {applied ? (
-                <div className="text-center py-4 rounded-2xl bg-slate-100 text-slate-700 font-bold">
-                  応募しました
-                </div>
-              ) : (
-                <>
-                  <button
-                    onClick={handleApply}
-                    disabled={isSubmitting}
-                    className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "送信中..." : "この案件に応募する"}
-                  </button>
-                  {errorMessage && (
-                    <p className="text-red-500 text-sm text-center">{errorMessage}</p>
-                  )}
-                </>
+              <button
+                onClick={handleApply}
+                disabled={isSubmitting}
+                className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "送信中..." : "この案件に応募する"}
+              </button>
+              {errorMessage && (
+                <p className="text-red-500 text-sm text-center">{errorMessage}</p>
               )}
+            </div>
+          )}
+
+          {/* 募集中・応募済み: グレーボタンで「すでに応募済みです」 */}
+          {!isCompleted && isAlreadyApplied && (
+            <div className="px-6 pb-6">
+              <button
+                disabled
+                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
+              >
+                すでに応募済みです
+              </button>
             </div>
           )}
 
