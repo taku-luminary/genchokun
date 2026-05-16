@@ -52,7 +52,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
         <span className={`px-4 py-1 md:px-6 md:py-1.5 rounded-full text-[10px] md:text-sm font-bold text-white ${
           isCompleted ? 'bg-slate-500' : 'bg-brand-green'
         }`}>
-          {isCompleted ? '完了' : '募集中'}
+          {isCompleted ? '終了' : '募集中'}
         </span>
       </div>
 
@@ -125,7 +125,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) =
         <span className={`px-4 py-1 md:px-6 md:py-1.5 rounded-full text-[10px] md:text-sm font-bold text-white ${
           isCompleted ? 'bg-slate-500' : 'bg-brand-green'
         }`}>
-          {isCompleted ? '完了' : '募集中'}
+          {isCompleted ? '終了' : '募集中'}
         </span>
       </div>
 
