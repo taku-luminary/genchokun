@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import type { ProjectDetailResponse } from "@/app/_types/projects";
+import { getAuthUser } from "@/app/_libs/getAuthUser";
+
 
 export async function GET(
   _request: NextRequest,
@@ -10,7 +12,7 @@ export async function GET(
 
   try {
     const project = await prisma.projects.findUnique({
-      where: { id: BigInt(id), deleted_at: null },
+      where: { id: BigInt(id), deletedAt: null },
       include: {
         prefecture: true,
         salesUser: {
@@ -27,11 +29,27 @@ export async function GET(
       return NextResponse.json({ error: "案件が見つかりません" } as never, { status: 404 });
     }
 
+    // ログイン中ユーザーが既に応募済みかをチェック（未ログインは false）
+    const user = await getAuthUser();
+    let hasApplied = false;
+    if (user) {
+      const existing = await prisma.matches.findFirst({
+        where: {
+          projectId: project.id,
+          contractorUserId: user.id,
+          status: { in: ["pending", "active"] },
+        },
+      });
+      hasApplied = existing !== null;
+      // existing が null じゃないなら、hasApplied を true にする
+      // existing が null なら、hasApplied を false にする
+    }
+
     const c = project.salesUser.company;
 
     return NextResponse.json({
       id: project.id.toString(),
-      created_at: project.created_at.toISOString(),
+      createdAt: project.createdAt.toISOString(),
       prefecture: { name: project.prefecture.name },
       city: project.city,
       title: project.title,
@@ -54,6 +72,7 @@ export async function GET(
             description: c.description,
           }
         : null,
+        hasApplied,
     });
 
   } catch (e) {                                

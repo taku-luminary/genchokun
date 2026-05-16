@@ -11,6 +11,16 @@ type ErrorResponse = {
 // ログイン中ユーザーの会社情報を返す。未登録なら { company: null }
 export async function GET(): Promise<NextResponse<CompanyMeResponse | ErrorResponse>> {  
   try {
+      // try catchの目的は、APIでエラーが起きても、返す形式・ログ・ステータスを自分で管理するため
+      // getAuthUser, request.json, prisma などは失敗する可能性がある。
+      // try の外で失敗すると Next.js のデフォルトHTMLエラーが返り、
+      // フロント側の res.json() が失敗して json.error を読めなくなる。
+      // その結果、setServerError(json.error) まで処理が進まず、
+      // 画面に「サーバーエラーが発生しました」を表示できない。
+      // さらにフロント側でも JSON 変換エラーが発生し、
+      // 本来見せたいエラー表示ではなく、コンソールエラーや予期しない画面崩れにつながる。
+      // そのため、失敗する可能性がある処理は try の中に入れて、
+      // catch で必ず JSON 形式のエラーを返す。
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
@@ -82,7 +92,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
-        updated_at:         new Date(),
       },
       // 未登録のとき → 新規作成
       create: {
@@ -95,8 +104,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
-        created_at:         new Date(),
-        updated_at:         new Date(),
       },
     });
 

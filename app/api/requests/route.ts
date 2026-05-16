@@ -34,8 +34,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
         paymentCycle:       body.paymentCycle       ?? null,
         contractorUserId:   user.id,
         status:             "open",
-        created_at:         new Date(),
-        updated_at:         new Date(),
       },
     });
 

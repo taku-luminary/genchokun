@@ -27,8 +27,6 @@ import { NextRequest, NextResponse } from "next/server";
         paymentCycle:        body.paymentCycle  ?? null,
         salesUserId:         user.id,
         status:              "open",
-        created_at:          new Date(),
-        updated_at:          new Date(),
       },
     });
 

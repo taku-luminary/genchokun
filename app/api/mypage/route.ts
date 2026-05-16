@@ -11,7 +11,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
                                  
   const [projectCount, applicationCount, todoCount, projects, requests] = await Promise.all([                                                       
     prisma.projects.count({      
-      where: { salesUserId: user.id, deleted_at: null },                                                                                            
+      where: { salesUserId: user.id, deletedAt: null },                                                                                            
     }),
     prisma.matches.count({                                                                                                                          
       where: { contractorUserId: user.id },
@@ -20,14 +20,14 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
       where: { salesUserId: user.id, status: "pending" },
     }),                                                                                                                                             
     prisma.projects.findMany({
-      where: { salesUserId: user.id, deleted_at: null },                                                                                            
+      where: { salesUserId: user.id, deletedAt: null },                                                                                            
       include: { prefecture: true, matches: true },                                                                                                 
-      orderBy: { created_at: "desc" },
+      orderBy: { createdAt: "desc" },
     }),                                                                                                                                             
     prisma.requests.findMany({   
-      where: { contractorUserId: user.id, deleted_at: null },                                                                                       
+      where: { contractorUserId: user.id, deletedAt: null },                                                                                       
       include: { prefecture: true, match: true },
-      orderBy: { created_at: "desc" },                                                                                                              
+      orderBy: { createdAt: "desc" },                                                                                                              
     }),
   ]);           
                                  
@@ -35,7 +35,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
     stats: { projectCount, applicationCount, todoCount },
     projects: projects.map((p) => ({
       id: p.id.toString(),
-      created_at: p.created_at.toISOString(),
+      createdAt: p.createdAt.toISOString(),
       prefecture: { name: p.prefecture.name },
       city: p.city,
       title: p.title,
@@ -50,7 +50,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
     })),                                                                                                                                         
     requests: requests.map((r) => ({
       id: r.id.toString(),
-      created_at: r.created_at.toISOString(),
+      createdAt: r.createdAt.toISOString(),
       prefecture: { name: r.prefecture.name },
       city: r.city,
       title: r.title,                                      // ← 追加（漏れていた）

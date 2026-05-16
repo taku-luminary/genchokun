@@ -65,8 +65,6 @@ export async function GET(request: NextRequest) {
           email: user.email ?? null,
           isActive: true,
           isAdmin: false,
-          created_at: new Date(),
-          updated_at: new Date(),
         },
         // callback は新規登録者だけでなく既存ユーザーも来る可能性があるため、
         // users テーブルに存在しなければ作成、存在すればそのまま通す

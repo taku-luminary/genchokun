@@ -1,10 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
+import type { CreateProjectApplicationResponse } from '@/app/_types/applications';
+import { calcDaysLeft } from '@/app/_utils/format';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,15 +18,63 @@ export default function ProjectDetailPage() {
 
   const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
 
+  // 応募状態の管理
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // 応募ボタンを押したときの処理
+  const handleApply = async () => {
+    // 1. 確認ダイアログ
+    if (!window.confirm("この案件に応募しますか？")) return;
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      // 2. API を呼び出す（POST /api/projects/[id]/apply）
+      const res = await fetch(`/api/projects/${id}/apply`, { method: "POST" });
+      const json: CreateProjectApplicationResponse = await res.json();
+
+      // 3. 失敗時はエラーメッセージを表示
+      if (!res.ok) {
+        setErrorMessage("error" in json ? json.error : "応募に失敗しました");
+        return;
+      }
+
+      // 4. 成功時は applied=true にしてボタンを置き換える
+      setApplied(true);
+    } catch (e) {
+      // 通信エラーやJSON変換エラー
+      console.error(e);
+      setErrorMessage("通信エラーが発生しました");
+    } finally {
+      // 成功・失敗どちらでも送信中フラグをOFFに戻す
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
   if (error || !data) return <p className="text-center text-red-500 py-20">案件の取得に失敗しました</p>;
 
-  const isCompleted = data.status === "completed";
+  // 状態判定を3つに分ける
+  // - isExpired: workEndDate を過ぎている（期限切れ）
+  // - isClosed: 販売店が手動で完了にした、またはマッチング後など (status=completed)
+  // - isCompleted: 上記いずれかに該当（応募不可な全状態）
+  const daysLeft = calcDaysLeft(data.workEndDate);
+  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isClosed = data.status === "completed";
+  const isCompleted = isClosed || isExpired;
+
+  // サーバ側で「応募済み = data.hasApplied」と判定された場合 or 応募直後（クライアント側state = applied）の合体フラグ
+  // applied がないと、応募成功後も data.hasApplied は古い取得データのままなので、画面上では一瞬またはずっと「この案件に応募する」ボタンが残る可能性があります。
+  // data.hasApplied が true または applied が true なら isAlreadyApplied を true にする
+  const isAlreadyApplied = data.hasApplied || applied;
 
   // ProjectDetailResponse → HomeProject に変換してカードに渡す
   const homeProject: HomeProject = {
     id: data.id,
-    created_at: data.created_at,
+    createdAt: data.createdAt,
     prefecture: data.prefecture,
     city: data.city,
     title: data.title,
@@ -63,13 +114,43 @@ export default function ProjectDetailPage() {
               </div>
             )}
           </div>
-          {!isCompleted && (
+
+          {/* 募集中・未応募: 通常の応募ボタン */}
+          {!isCompleted && !isAlreadyApplied && (
+            <div className="px-6 pb-6 space-y-3">
+              <button
+                onClick={handleApply}
+                disabled={isSubmitting}
+                className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "送信中..." : "この案件に応募する"}
+              </button>
+              {errorMessage && (
+                <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+              )}
+            </div>
+          )}
+
+          {/* 募集中・応募済み: グレーボタンで「すでに応募済みです」 */}
+          {!isCompleted && isAlreadyApplied && (
             <div className="px-6 pb-6">
               <button
-                onClick={() => alert("応募機能は現在準備中です")}
-                className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition"
+                disabled
+                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
               >
-                この案件に応募する
+                すでに応募済みです
+              </button>
+            </div>
+          )}
+
+          {/* 期限切れ（手動完了ではない）: グレーボタンで応募終了を表示 */}
+          {isExpired && !isClosed && (
+            <div className="px-6 pb-6">
+              <button
+                disabled
+                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
+              >
+                応募は終了しました
               </button>
             </div>
           )}
