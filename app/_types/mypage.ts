@@ -12,7 +12,7 @@ export type MypageApiResponse = {
 // 工事案件1件の型
 export type MypageProject = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string;
@@ -29,7 +29,7 @@ export type MypageProject = {
 // 工事店依頼1件の型
 export type MypageRequest = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string;                      // ← null許容を外す（HomeRequest と統一）

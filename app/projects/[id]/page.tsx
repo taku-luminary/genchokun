@@ -71,7 +71,7 @@ export default function ProjectDetailPage() {
   // ProjectDetailResponse → HomeProject に変換してカードに渡す
   const homeProject: HomeProject = {
     id: data.id,
-    created_at: data.created_at,
+    createdAt: data.createdAt,
     prefecture: data.prefecture,
     city: data.city,
     title: data.title,

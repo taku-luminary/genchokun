@@ -18,7 +18,7 @@ export type CreateProjectResponse = {
 // GET /api/projects/[id] のレスポンス型
 export type ProjectDetailResponse = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string;

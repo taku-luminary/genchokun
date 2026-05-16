@@ -2,7 +2,7 @@
 
 export type HomeProject = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string;
@@ -16,7 +16,7 @@ export type HomeProject = {
 
 export type HomeRequest = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string; // 追加

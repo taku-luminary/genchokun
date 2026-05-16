@@ -31,7 +31,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch }) =
     hasMatch === true ||
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
-  const date = formatDate(project.created_at);
+  const date = formatDate(project.createdAt);
   const location = `${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`;
   const schedule =
     project.workStartDate && project.workEndDate
@@ -99,7 +99,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) =
     hasMatch === true ||
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
-  const date = formatDate(request.created_at);
+  const date = formatDate(request.createdAt);
   const location = `${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`;
   const availableDates =
     request.availableStartDate && request.availableEndDate

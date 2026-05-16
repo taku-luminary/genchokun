@@ -41,7 +41,7 @@ export async function POST(
 
     // 2. 案件を取得（論理削除されていないもの）
     const project = await prisma.projects.findUnique({
-      where: { id: BigInt(id), deleted_at: null },
+      where: { id: BigInt(id), deletedAt: null },
     });
     if (!project) {
       return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });

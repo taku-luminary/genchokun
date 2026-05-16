@@ -25,36 +25,36 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     // Promise.all([A, B]) → AとBを同時にやって、両方終わったら結果を配列で返すJavaScript 標準の組み込みオブジェクト
 
       prisma.projects.findMany({
-        where: { deleted_at: null },
+        where: { deletedAt: null },
         include: {
           prefecture: true,
           salesUser: { include: { company: true } },
         },
-        orderBy: { created_at: "desc" },
+        orderBy: { createdAt: "desc" },
         skip: (projectsPage - 1) * limit, // 先頭から何件スキップするか
         take: limit,  // 何件取得するか
       }),
 
-      prisma.projects.count({ where: { deleted_at: null } }), // 案件の総件数
+      prisma.projects.count({ where: { deletedAt: null } }), // 案件の総件数
       
       prisma.requests.findMany({
-        where: { deleted_at: null },
+        where: { deletedAt: null },
         include: {
           prefecture: true,
           contractorUser: { include: { company: true } },
         },
-        orderBy: { created_at: "desc" },
+        orderBy: { createdAt: "desc" },
         skip: (requestsPage - 1) * limit,
         take: limit,
       }),
       
-      prisma.requests.count({ where: { deleted_at: null } }), // 依頼待ちの総件数
+      prisma.requests.count({ where: { deletedAt: null } }), // 依頼待ちの総件数
     ]);
 
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
     id: p.id.toString(),
-    created_at: p.created_at.toISOString(),
+    createdAt: p.createdAt.toISOString(),
     prefecture: { name: p.prefecture.name },
     city: p.city,
     title: p.title,
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
 
   const mappedRequests: HomeRequest[] = requests.map((r) => ({
     id: r.id.toString(),
-    created_at: r.created_at.toISOString(),
+    createdAt: r.createdAt.toISOString(),
     prefecture: { name: r.prefecture.name },
     city: r.city,
     title: r.title, // 追加
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   }));
 
   // 募集中が上・完了（期限切れ含む）が下、同じグループ内は投稿順（新しい順）
-  const sortCards = <T extends { status: string; workEndDate?: string | null; availableEndDate?: string | null; created_at: string }>
+  const sortCards = <T extends { status: string; workEndDate?: string | null; availableEndDate?: string | null; createdAt: string }>
   (cards: T[]): T[] =>
     //sortCards に渡された引数 mappedProjects の型を見て、TypeScript が T を HomeProject だと推論してくれる
     cards.sort((a, b) => {
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
       const aCompleted = isEffectivelyCompleted(a.status, endDateA);
       const bCompleted = isEffectivelyCompleted(b.status, endDateB);
       if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
     const response: HomeApiResponse = {

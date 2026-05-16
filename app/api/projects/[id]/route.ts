@@ -12,7 +12,7 @@ export async function GET(
 
   try {
     const project = await prisma.projects.findUnique({
-      where: { id: BigInt(id), deleted_at: null },
+      where: { id: BigInt(id), deletedAt: null },
       include: {
         prefecture: true,
         salesUser: {
@@ -47,7 +47,7 @@ export async function GET(
 
     return NextResponse.json({
       id: project.id.toString(),
-      created_at: project.created_at.toISOString(),
+      createdAt: project.createdAt.toISOString(),
       prefecture: { name: project.prefecture.name },
       city: project.city,
       title: project.title,

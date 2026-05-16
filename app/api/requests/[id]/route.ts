@@ -10,7 +10,7 @@ export async function GET(
 
   try {
     const request = await prisma.requests.findUnique({
-      where: { id: BigInt(id), deleted_at: null },
+      where: { id: BigInt(id), deletedAt: null },
       include: {
         prefecture: true,
         contractorUser: {
@@ -31,7 +31,7 @@ export async function GET(
 
     return NextResponse.json({
       id: request.id.toString(),
-      created_at: request.created_at.toISOString(),
+      createdAt: request.createdAt.toISOString(),
       prefecture: { name: request.prefecture.name },
       city: request.city,
       title: request.title,

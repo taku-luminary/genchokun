@@ -19,7 +19,7 @@ export type CreateRequestResponse = {
 // GET /api/requests/[id] のレスポンス型
 export type RequestDetailResponse = {
   id: string;
-  created_at: string;
+  createdAt: string;
   prefecture: { name: string };
   city: string | null;
   title: string;
