@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
@@ -23,33 +24,37 @@ export default function RequestApplyPage() {
   // 下書き保存用の sessionStorage キー (依頼IDごとに分けて混在を防ぐ)
   const storageKey = `request-apply-message:${id}`;
 
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // サーバ通信エラーは useState で保持 (requests/new など他フォームと同じパターン)
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  // react-hook-form のフック (他フォームと同じパターン)
+  // - フォーム値の管理、送信中フラグ (isSubmitting) を一括で扱う
+  // - defaultValues で初期値を空文字に
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm<CreateRequestApplicationRequest>({
+    defaultValues: { message: '' },
+  });
+
+  // 文字数カウンタ用に message の現在値を取得
+  // watch は値変化で再レンダリングを起こすが、textarea 1個なので影響は小さい
+  const message = watch('message') ?? '';
 
   // マウント時に sessionStorage から下書きを復元する
   // - useEffect の中身はブラウザ側でだけ実行されるので、
   //   サーバー側 (SSR) で window が無いエラーにならない
-  // - 依存配列 [storageKey] は実質的にページが開かれた最初の1回だけ動く
+  // - setValue で react-hook-form の内部状態に値を書き戻す
+  // - 依存配列 [storageKey, setValue] は実質的にページが開かれた最初の1回だけ動く
   useEffect(() => {
     const saved = sessionStorage.getItem(storageKey);
     if (saved) {
-      setMessage(saved);
+      setValue('message', saved);
     }
-  }, [storageKey]);
-
-  // textarea の入力ハンドラ
-  // - state を更新しつつ、同じ値を sessionStorage にも保存する
-  // - 空文字になったら削除して、不要な下書きを残さない
-  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setMessage(value);
-    if (value) {
-      sessionStorage.setItem(storageKey, value);
-    } else {
-      sessionStorage.removeItem(storageKey);
-    }
-  };
+  }, [storageKey, setValue]);
 
   // 読み込み中・取得失敗
   if (isLoading) {
@@ -120,8 +125,10 @@ export default function RequestApplyPage() {
     companyName: data.company?.name ?? null,
   };
 
-  // 応募ボタン押下時
-  const handleSubmit = async () => {
+  // 応募送信ハンドラ
+  // - handleSubmit(onSubmit) でラップされ、values にフォームの中身が渡る
+  // - 確認ダイアログで Cancel なら何もしない (isSubmitting は自動的に false に戻る)
+  const onSubmit = async (values: CreateRequestApplicationRequest) => {
     if (
       !window.confirm(
         'この内容で応募しますか？\n応募と同時にマッチングが成立し、キャンセルできません。',
@@ -129,13 +136,11 @@ export default function RequestApplyPage() {
     ) {
       return;
     }
-
-    setIsSubmitting(true);
-    setErrorMessage(null);
+    setServerError(null);
 
     try {
       const body: CreateRequestApplicationRequest = {
-        message: message.trim() || undefined,
+        message: values.message?.trim() || undefined,
       };
       const res = await fetch(`/api/requests/${id}/apply`, {
         method: 'POST',
@@ -145,9 +150,7 @@ export default function RequestApplyPage() {
       const json: CreateRequestApplicationResponse = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(
-          'error' in json ? json.error : '応募に失敗しました',
-        );
+        setServerError('error' in json ? json.error : '応募に失敗しました');
         return;
       }
 
@@ -158,15 +161,18 @@ export default function RequestApplyPage() {
       // 成功 → 詳細ページに戻る (hasApplied=true で "マッチング済み" 表示になる)
       router.push(`/requests/${id}`);
     } catch {
-      setErrorMessage('通信エラーが発生しました');
-    } finally {
-      setIsSubmitting(false);
+      setServerError('通信エラーが発生しました');
     }
   };
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+      {/* <form> でラップして handleSubmit を onSubmit に渡す
+          (button type="submit" でフォーム送信が発火する) */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-4xl mx-auto px-4 py-6 space-y-4"
+      >
         {/* 1. 依頼カード (クリック無効化) */}
         <div className="pointer-events-none">
           <RequestCard request={homeRequest} />
@@ -178,12 +184,24 @@ export default function RequestApplyPage() {
             相手へのコメント (任意)
           </label>
           <textarea
-            value={message}
-            onChange={handleMessageChange}
             rows={5}
             maxLength={1000}
+            disabled={isSubmitting}
             placeholder="自己紹介や、現地調査をお願いしたい背景などを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
+            // register が onChange/onBlur/ref などフォーム連動に必要な props を一括で渡す。
+            // 自前で onChange の追加処理 (sessionStorage連動) も渡したいときは
+            // register の第2引数オプションに { onChange } を渡せばよい。
+            {...register('message', {
+              onChange: (e) => {
+                const value = e.target.value;
+                if (value) {
+                  sessionStorage.setItem(storageKey, value);
+                } else {
+                  sessionStorage.removeItem(storageKey);
+                }
+              },
+            })}
           />
           <p className="text-xs text-slate-400 text-right">
             {message.length} / 1000
@@ -191,13 +209,13 @@ export default function RequestApplyPage() {
         </div>
 
         {/* 3. エラー表示 */}
-        {errorMessage && (
-          <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+        {serverError && (
+          <p className="text-red-500 text-sm text-center">{serverError}</p>
         )}
 
-        {/* 4. 応募ボタン */}
+        {/* 4. 応募ボタン (type="submit" でフォーム送信) */}
         <button
-          onClick={handleSubmit}
+          type="submit"
           disabled={isSubmitting}
           className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -211,7 +229,7 @@ export default function RequestApplyPage() {
         >
           戻る
         </Link>
-      </div>
+      </form>
     </div>
   );
-}                
+}

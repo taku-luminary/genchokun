@@ -156,7 +156,7 @@
 
                   つまり、const value = event.target.value;は「今入力されている文字列を取り出す」という意味。
                 */}
-                {/*["name"]と.nameの説明===
+                {/*===["name"]と.nameの説明===
                   formValues["name"] と formValues.name は同じ。
                   でも、formValues[fieldName] と formValues.fieldName は違う。
                   fieldName が変数なら、必ず [] を使う。
