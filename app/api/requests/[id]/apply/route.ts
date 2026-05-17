@@ -91,27 +91,27 @@ export async function POST(
         { status: 409 }
       );
     }
-
-    // 8. 即マッチング: matches + application_details + requests.status の更新を
-    //    すべて1つのトランザクションでまとめる
-    //    依頼への応募は1依頼1マッチで「成立=募集終了」のため、
-    //    requests.status も "completed" に変えて他の販売店からは応募できない見た目に揃える
-    await prisma.$transaction(async (tx) => {
-      const match = await tx.matches.create({
-        data: {
-          requestId: target.id,
-          salesUserId: user.id,                      // 応募者 = 販売店(自分)
-          contractorUserId: target.contractorUserId, // 被応募者 = 工事店(投稿者)
-          status: "active",                          // 即マッチング
+    
+    // 8. 即マッチング: requests.update のネスト書きで
+    //    matches + application_details の作成と requests.status の更新を同時に行う。
+    //    Prisma の単一呼び出しは内部で自動的にトランザクションになるため、
+    //    途中で失敗すれば全てロールバックされ、$transaction と同じ安全性が保たれる。
+    //    リレーション名は schema.prisma の定義 (match / applicationDetail) に合わせる。
+    await prisma.requests.update({
+      where: { id: target.id },
+      data: {
+        status: "completed",
+        match: {
+          create: {
+            salesUserId: user.id,                      // 応募者 = 販売店(自分)
+            contractorUserId: target.contractorUserId, // 被応募者 = 工事店(投稿者)
+            status: "active",                          // 即マッチング
+            applicationDetail: {
+              create: { message },
+            },
+          },
         },
-      });
-      await tx.application_details.create({
-        data: { matchId: match.id, message },
-      });
-      await tx.requests.update({
-        where: { id: target.id },
-        data: { status: "completed" },
-      });
+      },
     });
 
     return NextResponse.json({ success: true });
