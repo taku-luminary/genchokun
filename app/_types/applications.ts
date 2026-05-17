@@ -4,3 +4,15 @@
 export type CreateProjectApplicationResponse =
   | { success: true }
   | { error: string };
+
+// 応募API（POST /api/requests/[id]/apply）のリクエスト型
+// message は相手へのコメント (任意入力)
+export type CreateRequestApplicationRequest = {
+  message?: string;
+};
+
+// 応募API（POST /api/requests/[id]/apply）のレスポンス型
+// projects と同じ形に揃える
+export type CreateRequestApplicationResponse =
+  | { success: true }
+  | { error: string };

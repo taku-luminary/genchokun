@@ -40,4 +40,9 @@ export type RequestDetailResponse = {
     websiteUrl: string | null;
     description: string | null;
   } | null;
+  // ログイン中ユーザー(販売店)が既にこの依頼に応募済みか (自分視点)
+  hasApplied: boolean;
+  // この依頼が既に誰かとマッチング成立しているか (依頼視点)
+  // 1依頼=1マッチなので、true なら他のユーザーは応募不可
+  isMatched: boolean;
 };

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
+import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { RequestDetailResponse } from "@/app/_types/requests";
 
 export async function GET(
@@ -26,6 +27,40 @@ export async function GET(
     if (!request) {
       return NextResponse.json({ error: "依頼が見つかりません" } as never, { status: 404 });
     }
+    
+    // この依頼に既にマッチが成立しているかを判定する
+    // matches.requestId は @unique のため、依頼ごとに最大1件しか存在しない
+    // 1回のクエリで取得し、その結果から
+    //   - isMatched (誰かが応募してマッチ済みか)
+    //   - hasApplied (自分が応募済みか)
+    // の両方を導出する
+    const matchedAny = await prisma.matches.findFirst({
+      where: {
+        requestId: request.id,
+        status: { in: ["pending", "active"] },
+      },
+      select: { salesUserId: true },
+    });
+    const isMatched = matchedAny !== null;
+
+
+    // 追加: ログイン中ユーザーが既にこの依頼に応募(=マッチング)済みかを判定する
+    // - 依頼に応募するのは「販売店」なので、salesUserId に user.id を入れて検索する
+    // - status は "pending" または "active" の場合に応募済み扱い
+    //   ("rejected" / "cancelled" は今後の拡張用。今は active のみ作成される)
+    const user = await getAuthUser();
+    let hasApplied = false;
+    if (user) {
+      const existing = await prisma.matches.findFirst({
+        where: {
+          requestId: request.id,
+          salesUserId: user.id,
+          status: { in: ["pending", "active"] },
+        },
+      });
+      hasApplied = existing !== null;
+    }
+
 
     const c = request.contractorUser.company;
 
@@ -54,6 +89,8 @@ export async function GET(
             description: c.description,
           }
         : null,
+      hasApplied,
+      isMatched, 
     });
   } catch (e) {
     console.error(e);
