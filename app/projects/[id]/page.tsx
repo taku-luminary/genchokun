@@ -88,7 +88,7 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
