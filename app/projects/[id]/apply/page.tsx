@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
@@ -24,76 +24,33 @@ export default function ProjectApplyPage() {
   // 下書き保存用の sessionStorage キー (案件IDごとに分けて混在を防ぐ)
   const storageKey = `project-apply-message:${id}`;
 
-  // サーバ通信エラーは useState で保持 (requests/new など他フォームと同じパターン)
-  const [serverError, setServerError] = useState<string | null>(null);
-
-  // react-hook-form のフック (他フォームと同じパターン)
-  // - フォーム値の管理、送信中フラグ (isSubmitting) を一括で扱う
-  // - defaultValues で初期値を空文字に
+  // react-hook-form のフック
+  // - setError でサーバ通信エラーもフォーム状態に格納する
+  //   root.serverError は予約名 "root" の下位キーで、フィールドではない
+  //   フォーム全体のエラーを表すのに使う (react-hook-form 公式の推奨パターン)
+  // - clearErrors で root.serverError を削除し、再送信時に古いエラーを残さない
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { isSubmitting },
+    setError,
+    clearErrors,
+    formState: { isSubmitting, errors },
   } = useForm<CreateProjectApplicationRequest>({
     defaultValues: { message: '' },
   });
 
   // 文字数カウンタ用に message の現在値を取得
-  // watch は値変化で再レンダリングを起こすが、textarea 1個なので影響は小さい
   const message = watch('message') ?? '';
 
-  // ======setValue:の説明======
-  // ・register: 入力欄と RHF をつなぐコード。 ユーザーが入力したら、その値が RHF 内部に保存されるようにする関数
-  // ・setValue: ユーザーが入力していなくても、RHF 内部に保存されている入力値を、コード側から変更するための関数
-  // 
-  // setValue("message", saved) と書くと、message 欄の値を saved に変更できる。
-  // 今回は sessionStorage に保存されていた下書きを textarea に復元するために使っている。
-
-  // ======sessionStorage に保存されていた下書きを textarea に復元する処理======
-  // ここでは、以前入力途中だったコメントが sessionStorage に残っていれば、それを React Hook Form の message 欄に戻している。
-  // まず、sessionStorage.getItem(storageKey) で、ブラウザに保存されていた下書きコメントを取り出す。
-  // 例：
-  // storageKey = "project-apply-message:123"
-  // sessionStorage に "あとで応募します" が保存されていた場合、
-  // saved には "あとで応募します" が入る。
-  //
-  // ただし、sessionStorage から値を取り出しただけでは、textarea には自動で表示されない。
-  // なぜなら、今回のtextarea は useState ではなく、React Hook Form が register("message") によって管理しているから。
-  // そのため、React Hook Form が管理している message の値をコード側から変更するために setValue を使う。
-  //
-  // setValue("message", saved) は、イメージとしては、formValues["message"] = saved;
-  // つまり、React Hook Form 内部に保存されているmessage の値を saved に更新している。
-  //
-  // さらに、React Hook Form は register の ref によって実際の textarea 要素も覚えているため、
-  // 内部データだけでなく、画面上の textarea にも saved の内容が反映される。
-  
-  // ======= 役割の違い =======
-  // ・register 本来の onChange：ユーザーが入力した内容を RHF 内部に保存する担当。
-  //
-  // ・register に追加した onChange：入力中の内容を sessionStorage に保存する担当。
-  //   sessionStorage.setItem(...) は「下書きを保存する処理」。
-  //
-  // ・useEffect + setValue 側：sessionStorage の内容を textarea に復元する担当。
-  //   setValue(...) は「保存されていた下書きをフォームに戻す処理」。
+  // マウント時に sessionStorage から下書きを復元する
   useEffect(() => {
     const saved = sessionStorage.getItem(storageKey);
     if (saved) {
       setValue('message', saved);
     }
   }, [storageKey, setValue]);
-  // ====== setValue 後の反映先①：textarea ======
-  // setValue("message", saved) によって RHF 内部の message が更新される。
-  // textarea は register("message") によって RHF の message と接続されているため、
-  // RHF 内部の message が更新されると、画面上の textarea にも saved の内容が表示される。
-  
-  // ====== setValue 後の反映先②：watch ======
-  // watch("message") は RHF 内部の message の現在値を監視している。
-  // setValue("message", saved) によって RHF 内部の message が更新されると、
-  // watch("message") もその新しい値を取得する。
-  // その結果、const message = watch("message") ?? "" の message も更新され、
-  // {message.length} / 1000 の文字数カウンターにも反映される。
 
   // 読み込み中・取得失敗
   if (isLoading) {
@@ -106,15 +63,10 @@ export default function ProjectApplyPage() {
   }
 
   // 応募不可ガードを優先度順に判定する
-  //   1. 自分が応募済み
-  //   2. 募集が手動終了 (status=completed)
-  //   3. 期限切れ (workEndDate を過ぎている)
-  // projects は複数応募可能なので requests のような「他人マッチ済み」ガードはない。
   const daysLeft = calcDaysLeft(data.workEndDate);
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isClosed = data.status === 'completed';
 
-  // 共通の案内表示 (重複するJSXを関数化)
   const renderNotice = (text: string) => (
     <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
       <p className="text-slate-600">{text}</p>
@@ -153,13 +105,12 @@ export default function ProjectApplyPage() {
   };
 
   // 応募送信ハンドラ
-  // - handleSubmit(onSubmit) でラップされ、values にフォームの中身が渡る
-  // - 確認ダイアログで Cancel なら何もしない (isSubmitting は自動的に false に戻る)
   const onSubmit = async (values: CreateProjectApplicationRequest) => {
     if (!window.confirm('この内容で応募してよろしいですか？')) {
       return;
     }
-    setServerError(null);
+    // 前回のサーバーエラーがあればクリアしてから送信
+    clearErrors('root.serverError');
 
     try {
       const body: CreateProjectApplicationRequest = {
@@ -173,7 +124,11 @@ export default function ProjectApplyPage() {
       const json: CreateProjectApplicationResponse = await res.json();
 
       if (!res.ok) {
-        setServerError('error' in json ? json.error : '応募に失敗しました');
+        // サーバーから返ったエラーメッセージを root.serverError として登録
+        setError('root.serverError', {
+          type: 'server',
+          message: 'error' in json ? json.error : '応募に失敗しました',
+        });
         return;
       }
 
@@ -183,14 +138,15 @@ export default function ProjectApplyPage() {
       // 詳細ページに戻る (hasApplied=true で「応募済み」表示になる)
       router.push(`/projects/${id}`);
     } catch {
-      setServerError('通信エラーが発生しました');
+      setError('root.serverError', {
+        type: 'network',
+        message: '通信エラーが発生しました',
+      });
     }
   };
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
-      {/* <form> でラップして handleSubmit を onSubmit に渡す
-          (button type="submit" でフォーム送信が発火する) */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto px-4 py-6 space-y-4"
@@ -211,9 +167,6 @@ export default function ProjectApplyPage() {
             disabled={isSubmitting}
             placeholder="自社の強みや、対応可能な日程・条件などを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
-            // register が onChange/onBlur/ref などフォーム連動に必要な props を一括で渡す。
-            // 自前で onChange の追加処理 (sessionStorage連動) も渡したいときは
-            // register の第2引数オプションに { onChange } を渡せばよい。
             {...register('message', {
               onChange: (e) => {
                 const value = e.target.value;
@@ -230,12 +183,14 @@ export default function ProjectApplyPage() {
           </p>
         </div>
 
-        {/* 3. エラー表示 */}
-        {serverError && (
-          <p className="text-red-500 text-sm text-center">{serverError}</p>
+        {/* 3. サーバーエラー表示 (root.serverError から参照) */}
+        {errors.root?.serverError?.message && (
+          <p className="text-red-500 text-sm text-center">
+            {errors.root.serverError.message}
+          </p>
         )}
 
-        {/* 4. 応募ボタン (type="submit" でフォーム送信) */}
+        {/* 4. 応募ボタン */}
         <button
           type="submit"
           disabled={isSubmitting}

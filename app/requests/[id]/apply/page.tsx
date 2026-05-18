@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
@@ -21,34 +21,29 @@ export default function RequestApplyPage() {
     `/api/requests/${id}`,
   );
 
-  // 下書き保存用の sessionStorage キー (依頼IDごとに分けて混在を防ぐ)
+  // 下書き保存用の sessionStorage キー
   const storageKey = `request-apply-message:${id}`;
 
-  // サーバ通信エラーは useState で保持 (requests/new など他フォームと同じパターン)
-  const [serverError, setServerError] = useState<string | null>(null);
-
-  // react-hook-form のフック (他フォームと同じパターン)
-  // - フォーム値の管理、送信中フラグ (isSubmitting) を一括で扱う
-  // - defaultValues で初期値を空文字に
+  // react-hook-form のフック
+  // - setError でサーバ通信エラーもフォーム状態に格納する
+  //   root.serverError は予約名 "root" の下位キーで、フィールドではない
+  //   フォーム全体のエラーを表すのに使う (react-hook-form 公式の推奨パターン)
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { isSubmitting },
+    setError,
+    clearErrors,
+    formState: { isSubmitting, errors },
   } = useForm<CreateRequestApplicationRequest>({
     defaultValues: { message: '' },
   });
 
   // 文字数カウンタ用に message の現在値を取得
-  // watch は値変化で再レンダリングを起こすが、textarea 1個なので影響は小さい
   const message = watch('message') ?? '';
 
   // マウント時に sessionStorage から下書きを復元する
-  // - useEffect の中身はブラウザ側でだけ実行されるので、
-  //   サーバー側 (SSR) で window が無いエラーにならない
-  // - setValue で react-hook-form の内部状態に値を書き戻す
-  // - 依存配列 [storageKey, setValue] は実質的にページが開かれた最初の1回だけ動く
   useEffect(() => {
     const saved = sessionStorage.getItem(storageKey);
     if (saved) {
@@ -76,7 +71,6 @@ export default function RequestApplyPage() {
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isClosed = data.status === 'completed';
 
-  // 共通の案内表示コンポーネント
   const renderNotice = (text: string) => (
     <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
       <p className="text-slate-600">{text}</p>
@@ -89,27 +83,20 @@ export default function RequestApplyPage() {
     </div>
   );
 
-  // すでに自分がマッチング済み
   if (data.hasApplied) {
     return renderNotice('すでにマッチング済みです');
   }
-
-  // 他のユーザーとマッチング成立済み (1依頼1マッチのため応募不可)
   if (data.isMatched) {
     return renderNotice('他のユーザーとマッチングが成立済みです');
   }
-
-  // 募集が手動終了されている
   if (isClosed) {
     return renderNotice('この依頼は募集を終了しています');
   }
-
-  // 期限切れ
   if (isExpired) {
     return renderNotice('この依頼は応募受付期間が終了しました');
   }
 
-  // RequestCard が要求する形式に変換 (詳細ページと同じ変換)
+  // RequestCard が要求する形式に変換
   const homeRequest: HomeRequest = {
     id: data.id,
     createdAt: data.createdAt,
@@ -126,8 +113,6 @@ export default function RequestApplyPage() {
   };
 
   // 応募送信ハンドラ
-  // - handleSubmit(onSubmit) でラップされ、values にフォームの中身が渡る
-  // - 確認ダイアログで Cancel なら何もしない (isSubmitting は自動的に false に戻る)
   const onSubmit = async (values: CreateRequestApplicationRequest) => {
     if (
       !window.confirm(
@@ -136,7 +121,8 @@ export default function RequestApplyPage() {
     ) {
       return;
     }
-    setServerError(null);
+    // 前回のサーバーエラーがあればクリアしてから送信
+    clearErrors('root.serverError');
 
     try {
       const body: CreateRequestApplicationRequest = {
@@ -150,25 +136,28 @@ export default function RequestApplyPage() {
       const json: CreateRequestApplicationResponse = await res.json();
 
       if (!res.ok) {
-        setServerError('error' in json ? json.error : '応募に失敗しました');
+        setError('root.serverError', {
+          type: 'server',
+          message: 'error' in json ? json.error : '応募に失敗しました',
+        });
         return;
       }
 
       // 成功時のみ下書きを削除する
-      // (失敗時は残しておけば、戻って開き直したときにそのまま再応募できる)
       sessionStorage.removeItem(storageKey);
 
-      // 成功 → 詳細ページに戻る (hasApplied=true で "マッチング済み" 表示になる)
+      // 詳細ページに戻る (hasApplied=true で "マッチング済み" 表示になる)
       router.push(`/requests/${id}`);
     } catch {
-      setServerError('通信エラーが発生しました');
+      setError('root.serverError', {
+        type: 'network',
+        message: '通信エラーが発生しました',
+      });
     }
   };
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
-      {/* <form> でラップして handleSubmit を onSubmit に渡す
-          (button type="submit" でフォーム送信が発火する) */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto px-4 py-6 space-y-4"
@@ -189,9 +178,6 @@ export default function RequestApplyPage() {
             disabled={isSubmitting}
             placeholder="自己紹介や、現地調査をお願いしたい背景などを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
-            // register が onChange/onBlur/ref などフォーム連動に必要な props を一括で渡す。
-            // 自前で onChange の追加処理 (sessionStorage連動) も渡したいときは
-            // register の第2引数オプションに { onChange } を渡せばよい。
             {...register('message', {
               onChange: (e) => {
                 const value = e.target.value;
@@ -208,12 +194,14 @@ export default function RequestApplyPage() {
           </p>
         </div>
 
-        {/* 3. エラー表示 */}
-        {serverError && (
-          <p className="text-red-500 text-sm text-center">{serverError}</p>
+        {/* 3. サーバーエラー表示 (root.serverError から参照) */}
+        {errors.root?.serverError?.message && (
+          <p className="text-red-500 text-sm text-center">
+            {errors.root.serverError.message}
+          </p>
         )}
 
-        {/* 4. 応募ボタン (type="submit" でフォーム送信) */}
+        {/* 4. 応募ボタン */}
         <button
           type="submit"
           disabled={isSubmitting}

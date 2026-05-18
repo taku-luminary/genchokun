@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";  
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Label } from "@/app/_components/ui/Label";
@@ -13,16 +12,18 @@ type FormData = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
+
   const onSubmit = async (data: FormData) => {
-    setServerError(null);
+    clearErrors('root.serverError');
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -32,7 +33,10 @@ export default function LoginPage() {
 
     if (!res.ok) {
       const json = await res.json();
-      setServerError(json.error);
+      setError('root.serverError', {
+        type: 'server',
+        message: json.error,
+      });
       return;
     }
 
@@ -78,8 +82,8 @@ text-center">ログイン</h1>
           )}
         </div>
 
-        {serverError && (
-          <p className="text-red-500 text-sm">{serverError}</p>
+        {errors.root?.serverError?.message && (
+          <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
         )}
 
         <Button type="submit" disabled={isSubmitting}>
