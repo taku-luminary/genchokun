@@ -13,13 +13,14 @@ import type {
 
 export default function CompanySettingsPage() {
   const [isNew, setIsNew] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<UpdateCompanyRequest>();
 
@@ -77,7 +78,7 @@ export default function CompanySettingsPage() {
   }, [data, reset]);
 
   const saveCompany = async (data: UpdateCompanyRequest) => {
-    setServerError(null);
+    clearErrors('root.serverError');
     setSavedMessage(null);
   
     try {
@@ -89,14 +90,20 @@ export default function CompanySettingsPage() {
   
       if (!res.ok) {
         const json = await res.json();
-        setServerError(json.error ?? "保存に失敗しました");
+        setError('root.serverError', {
+          type: 'server',
+          message: json.error ?? "保存に失敗しました",
+        });
         return;
       }
       setSavedMessage("自社情報を保存しました");
-      setIsNew(false);// 新規→編集モードへ切り替わる
+      setIsNew(false);
     } catch (e) {
       console.error(e);
-      setServerError("通信に失敗しました。時間をおいて再度お試しください");
+      setError('root.serverError', {
+        type: 'network',
+        message: "通信に失敗しました。時間をおいて再度お試しください",
+      });
     }
   };
 
@@ -263,7 +270,7 @@ export default function CompanySettingsPage() {
         </div>
 
         {/* サーバーエラー / 成功メッセージ */}
-        {serverError  && <p className="text-red-500 font-bold text-sm text-center">{serverError}</p>}
+        {errors.root?.serverError?.message && <p className="text-red-500 font-bold text-sm text-center">{errors.root.serverError.message}</p>}
         {savedMessage && <p className="text-green-600 font-bold text-sm text-center">{savedMessage}</p>}
 
         <Button type="submit" disabled={isSubmitting}>

@@ -14,12 +14,13 @@ type FormData = {
 
 export default function SignupPage() {
   const [sent, setSent] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
   // これはイメージとして、内部にこういう管理箱を作ります。
@@ -31,7 +32,7 @@ export default function SignupPage() {
   // };
 
   const sendSignupData = async (data: FormData) => {
-    setServerError(null);
+    clearErrors('root.serverError');
 
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -41,7 +42,10 @@ export default function SignupPage() {
 
     if (!res.ok) {
       const json = await res.json();
-      setServerError(json.error);
+      setError('root.serverError', {
+        type: 'server',
+        message: json.error,
+      });
       return;
     }
 
@@ -134,10 +138,10 @@ text-center">会員登録</h1>
           )}
         </div>
 
-        {serverError && (
-          <p className="text-red-500 text-sm">{serverError}</p>
+        {errors.root?.serverError?.message && (
+          <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
         )}
-
+        
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "送信中..." : "会員登録"}
         </Button>

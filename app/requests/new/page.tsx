@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Label } from "@/app/_components/ui/Label";
@@ -11,15 +10,16 @@ import type { CreateRequestRequest } from "@/app/_types/requests";
 
 export default function NewRequestPage() {
   const router = useRouter();
-  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<CreateRequestRequest>();
 
   const createRequest = async (data: CreateRequestRequest) => {
-    setServerError(null);
+    clearErrors('root.serverError');
 
     const res = await fetch("/api/requests", {
       method: "POST",
@@ -29,11 +29,15 @@ export default function NewRequestPage() {
 
     if (!res.ok) {
       const json = await res.json();
-      setServerError(json.error ?? "投稿に失敗しました");
+      setError('root.serverError', {
+        type: 'server',
+        message: json.error ?? "投稿に失敗しました",
+      });
       return;
     }
-    router.push("/mypage"); // 投稿成功 → マイページへ
+    router.push("/mypage");
   };
+
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
@@ -143,9 +147,9 @@ export default function NewRequestPage() {
           />
         </div>
 
-        {/* サーバーエラー */}
-        {serverError && (
-          <p className="text-red-500 text-sm">{serverError}</p>
+        {/* サーバーエラー (root.serverError から参照) */}
+        {errors.root?.serverError?.message && (
+          <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
         )}
 
         {/* 送信ボタン */}

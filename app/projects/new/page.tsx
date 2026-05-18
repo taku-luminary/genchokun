@@ -1,6 +1,5 @@
 "use client";
 
-  import { useState } from "react";
   import { useForm } from "react-hook-form";
   import { useRouter } from "next/navigation";
   import { Label } from "@/app/_components/ui/Label";
@@ -11,10 +10,11 @@
 
   export default function NewProjectPage() {
     const router = useRouter();
-    const [serverError, setServerError] = useState<string | null>(null);
     const {
       register,
       handleSubmit,
+      setError,
+      clearErrors,
       formState: { errors, isSubmitting },
     } = useForm<CreateProjectRequest>();
     // ===useForm<CreateProjectRequest>();の説明＝＝＝
@@ -24,20 +24,24 @@
     // ただし、register や handleSubmit や isSubmitting 自体がCreateProjectRequest 型になるわけではありません。
 
     const createProject = async (data: CreateProjectRequest) => {
-      setServerError(null);
-
+      // 前回のサーバーエラーをクリア (root.serverError は予約名 root の下位キー)
+      clearErrors('root.serverError');
+  
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),  //フォームの入力内容をAPIに渡すために、JSON文字列に変換してリクエスト本文に入れている
+        body: JSON.stringify(data),
       });
-
+  
       if (!res.ok) {
         const json = await res.json();
-        setServerError(json.error ?? "投稿に失敗しました");
+        setError('root.serverError', {
+          type: 'server',
+          message: json.error ?? "投稿に失敗しました",
+        });
         return;
       }
-      router.push("/mypage");  // 投稿成功 → マイページへ
+      router.push("/mypage");
     };
 
     return (
@@ -156,7 +160,7 @@
 
                   つまり、const value = event.target.value;は「今入力されている文字列を取り出す」という意味。
                 */}
-                {/*["name"]と.nameの説明===
+                {/*===["name"]と.nameの説明===
                   formValues["name"] と formValues.name は同じ。
                   でも、formValues[fieldName] と formValues.fieldName は違う。
                   fieldName が変数なら、必ず [] を使う。
@@ -242,10 +246,10 @@
               {...register("paymentCycle")}
             />
           </div>
-
-          {/* サーバーエラー */}
-          {serverError && (
-            <p className="text-red-500 text-sm">{serverError}</p>
+          
+          {/* サーバーエラー (root.serverError から参照) */}
+          {errors.root?.serverError?.message && (
+            <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
           )}
 
           {/* 送信ボタン */}

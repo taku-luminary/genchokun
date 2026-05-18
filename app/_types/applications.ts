@@ -1,6 +1,12 @@
+// 応募API（POST /api/projects/[id]/apply）のリクエスト型
+// message は応募時のアピールメッセージ (任意入力)
+// 販売店が後で応募者を選ぶ際の判断材料として保存される
+export type CreateProjectApplicationRequest = {
+  message?: string;
+};
+
 // 応募API（POST /api/projects/[id]/apply）のレスポンス型
-// 成功時は matchId（作成された matches テーブルの行ID）
-// 失敗時は error（エラーメッセージ）
+// 成功時は { success: true }、失敗時は { error: string }
 export type CreateProjectApplicationResponse =
   | { success: true }
   | { error: string };
