@@ -22,3 +22,15 @@ export type CreateRequestApplicationRequest = {
 export type CreateRequestApplicationResponse =
   | { success: true }
   | { error: string };
+
+  // マッチング決定API（POST /api/projects/[id]/matches）のリクエスト型
+// 販売店が応募者の中から1社を選ぶときに送る matches.id (文字列化済)
+export type DecideProjectMatchRequest = {
+  matchId: string;
+};
+
+// マッチング決定APIのレスポンス型
+// 成功時 { success: true } / 失敗時 { error: string }
+export type DecideProjectMatchResponse =
+  | { success: true }
+  | { error: string };

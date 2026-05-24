@@ -42,3 +42,26 @@ export type MypageRequest = {
   companyName: string | null;        // ← 追加
   match: { status: string } | null;
 };
+
+// 詳細レスポンスでも一覧と同じ MypageProject を使う
+// (ProjectCard をそのまま再利用するため)
+export type MypageProjectDetailResponse =
+  | {
+      project: MypageProject;
+      applications: ProjectApplication[];
+    }
+  | { error: string };
+
+// 応募1件分（決定ボタンを押すために matchId が必要）
+// status は match_status enum: "pending" | "active" | "rejected" | "cancelled"
+export type ProjectApplication = {
+  matchId: string;
+  status: "pending" | "active" | "rejected" | "cancelled";
+  message: string | null;
+  appliedAt: string;
+  contractor: {
+    userId: string;
+    companyName: string | null;
+    prefecture: string | null;
+  };
+};
