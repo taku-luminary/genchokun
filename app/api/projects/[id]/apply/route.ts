@@ -16,8 +16,6 @@ import type {
 export async function POST(
   // 第1引数: リクエスト情報。
   // body にコメント(message)を含むので request.json() で読む必要がある。
-  // 名前は慣習的に request (引数なら _request) としているが、ここでは body を
-  // 使うため _request ではなく request にしている。
   request: NextRequest,
 
   // 第2引数: URL などの情報。

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link"; 
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
 import type { MypageApiResponse} from "@/app/_types/mypage";
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
@@ -132,13 +133,27 @@ export default function MyPage() {
                   掲載した案件はありません
                 </p>
               ) : (
-                projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    hasMatch={project.matches.some((m) => m.status === "active")}
-                  />
-                ))
+                projects.map((project) => {
+                  // 「生きてる応募」の件数 = pending(未決定) + active(決定済)
+                  // rejected/cancelled は数えない
+                  const applicationCount = project.matches.filter(
+                    (m) => m.status === "pending" || m.status === "active"
+                  ).length;
+                
+                  return (
+                    <Link
+                      key={project.id}
+                      href={`/mypage/projects/${project.id}`}
+                      className="block"
+                    >
+                      <ProjectCard
+                        project={project}
+                        hasMatch={project.matches.some((m) => m.status === "active")}
+                        applicationCount={applicationCount}
+                      />
+                    </Link>
+                  );
+                })
               )}
             </div>
           )}
