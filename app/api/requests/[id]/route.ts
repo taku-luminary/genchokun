@@ -2,14 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { RequestDetailResponse } from "@/app/_types/requests";
+import type { CompanyContact } from "@/app/_types/companies";
+
+// エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
+type ErrorResponse = { error: string };
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse<RequestDetailResponse>> {
+): Promise<NextResponse<RequestDetailResponse | ErrorResponse>> {
   const { id } = await params;
 
   try {
+    // ▼ 変更: 既存は match を別クエリで取得していたが、include で1クエリにまとめる。
+    //   match → salesUser → company まで辿って、マッチした販売店の連絡先を取得できるようにする。
+    //   matches.requestId は @unique なので match は最大1件しか存在しない。
     const request = await prisma.requests.findUnique({
       where: { id: BigInt(id), deletedAt: null },
       include: {
@@ -21,46 +28,75 @@ export async function GET(
             },
           },
         },
+        match: {
+          include: {
+            salesUser: {
+              include: {
+                company: { include: { prefecture: true } },
+              },
+            },
+          },
+        },
       },
     });
 
     if (!request) {
-      return NextResponse.json({ error: "依頼が見つかりません" } as never, { status: 404 });
+      return NextResponse.json({ error: "依頼が見つかりません" }, { status: 404 });
     }
-    
-    // この依頼に既にマッチが成立しているかを判定する
-    // matches.requestId は @unique のため、依頼ごとに最大1件しか存在しない
-    // 1回のクエリで取得し、その結果から
-    //   - isMatched (誰かが応募してマッチ済みか)
-    //   - hasApplied (自分が応募済みか)
-    // の両方を導出する
-    const matchedAny = await prisma.matches.findFirst({
-      where: {
-        requestId: request.id,
-        status: { in: ["pending", "active"] },
-      },
-      select: { salesUserId: true },
-    });
-    const isMatched = matchedAny !== null;
 
-
-    // 追加: ログイン中ユーザーが既にこの依頼に応募(=マッチング)済みかを判定する
-    // - 依頼に応募するのは「販売店」なので、salesUserId に user.id を入れて検索する
-    // - status は "pending" または "active" の場合に応募済み扱い
-    //   ("rejected" / "cancelled" は今後の拡張用。今は active のみ作成される)
+    // ログインユーザーの情報をもとに、3つのフラグと2つの連絡先を判定する
     const user = await getAuthUser();
-    let hasApplied = false;
-    if (user) {
-      const existing = await prisma.matches.findFirst({
-        where: {
-          requestId: request.id,
-          salesUserId: user.id,
-          status: { in: ["pending", "active"] },
-        },
-      });
-      hasApplied = existing !== null;
-    }
 
+    // 自分がこの依頼の投稿者（工事店）か
+    const isMyRequest = user ? user.id === request.contractorUserId : false;
+
+    // この依頼に既にマッチが成立しているか
+    // matches.requestId は @unique のため最大1件。pending/active のみ「成立中」扱い。
+    const isMatched = request.match
+      ? ["pending", "active"].includes(request.match.status)
+      : false;
+
+    // 自分(販売店)が応募済みかどうか
+    // 即マッチなので「応募 = match.salesUserId === user.id」と等価
+    const hasApplied = !!(
+      user &&
+      request.match &&
+      request.match.salesUserId === user.id &&
+      ["pending", "active"].includes(request.match.status)
+    );
+
+    // ▼ 連絡先の出し分け
+    // requests は即マッチなので match.status は通常 active のみ。
+    // active のときだけ、相手の連絡先を出す（プライバシー保護）。
+    let contractorContact: CompanyContact | null = null;
+    let salesContact: CompanyContact | null = null;
+
+    if (request.match?.status === "active") {
+      // 応募者視点: 自分が応募者 → 工事店（投稿者）の連絡先を渡す
+      if (hasApplied) {
+        const cc = request.contractorUser.company;
+        if (cc) {
+          contractorContact = {
+            phone: cc.contactPhone,
+            email: cc.contactEmail,
+            lineId: cc.contactLineId,
+            note: cc.contactNote,
+          };
+        }
+      }
+      // 投稿者視点: 自分の依頼にマッチ → 販売店（応募者）の連絡先を渡す
+      if (isMyRequest) {
+        const sc = request.match.salesUser.company;
+        if (sc) {
+          salesContact = {
+            phone: sc.contactPhone,
+            email: sc.contactEmail,
+            lineId: sc.contactLineId,
+            note: sc.contactNote,
+          };
+        }
+      }
+    }
 
     const c = request.contractorUser.company;
 
@@ -90,10 +126,13 @@ export async function GET(
           }
         : null,
       hasApplied,
-      isMatched, 
+      isMatched,
+      isMyRequest,
+      contractorContact,
+      salesContact,
     });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "サーバーエラーが発生しました" } as never, { status: 500 });
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

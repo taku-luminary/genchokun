@@ -79,8 +79,17 @@ export default function ProjectApplyPage() {
     </div>
   );
 
-  if (data.hasApplied) {
+  // 応募ページの再アクセスガード。
+  // myMatchStatus が null 以外（pending/active/rejected）なら過去に関与があるので
+  // 再応募を許可しない。状態に応じてメッセージを出し分ける。
+  if (data.myMatchStatus === 'active') {
+    return renderNotice('この案件はあなたがマッチング成立済みです');
+  }
+  if (data.myMatchStatus === 'pending') {
     return renderNotice('すでにこの案件に応募しています');
+  }
+  if (data.myMatchStatus === 'rejected') {
+    return renderNotice('この案件は他の応募者で成立済みです');
   }
   if (isClosed) {
     return renderNotice('この案件は募集を終了しています');

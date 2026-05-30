@@ -67,6 +67,11 @@ export default function CompanySettingsPage() {
           employeeCount: data.company.employeeCount ?? undefined,
           websiteUrl: data.company.websiteUrl ?? undefined,
           description: data.company.description ?? undefined,
+          // ▼ 追加: 連絡先4項目も既存値があれば入れる
+          contactPhone: data.company.contactPhone ?? undefined,
+          contactEmail: data.company.contactEmail ?? undefined,
+          contactLineId: data.company.contactLineId ?? undefined,
+          contactNote: data.company.contactNote ?? undefined,
         });
 
       // 既存の会社情報があるので、この画面は「新規登録」ではなく「編集」モードにする
@@ -267,6 +272,79 @@ export default function CompanySettingsPage() {
             rows={5}
             {...register("description")}
           />
+        </div>
+                {/* 連絡先セクション ─ マッチング成立後に相手にだけ公開される */}
+                <div className="space-y-4 border-t-2 border-slate-200 pt-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">連絡先</h2>
+            <p className="text-xs text-slate-500 mt-1">
+              マッチング成立後に、相手にのみ表示されます。<br />
+              電話・メール・LINE・その他 のうち <strong>最低1つ</strong> を入力してください。
+            </p>
+          </div>
+
+          {/* 電話番号 */}
+          <div>
+            <Label htmlFor="contactPhone">電話番号</Label>
+            <Input
+              id="contactPhone"
+              disabled={isSubmitting}
+              type="tel"
+              placeholder="例：090-1234-5678"
+              {...register("contactPhone", {
+                // 4項目のどれか1つは入っていることをチェック。
+                // 第2引数 formValues には現在のフォーム全項目の値が入る。
+                validate: (_value, formValues) => {
+                  const anyFilled = [
+                    formValues.contactPhone,
+                    formValues.contactEmail,
+                    formValues.contactLineId,
+                    formValues.contactNote,
+                  ].some((v) => v && v.trim() !== "");
+                  return anyFilled || "連絡先（電話/メール/LINE/その他）のいずれか1つは入力してください";
+                },
+              })}
+            />
+            {errors.contactPhone && (
+              <p className="text-red-500 text-xs mt-1">{errors.contactPhone.message}</p>
+            )}
+          </div>
+
+          {/* 連絡用メールアドレス */}
+          <div>
+            <Label htmlFor="contactEmail">連絡用メールアドレス</Label>
+            <Input
+              id="contactEmail"
+              disabled={isSubmitting}
+              type="email"
+              placeholder="例：eigyo@example.co.jp"
+              {...register("contactEmail")}
+            />
+          </div>
+
+          {/* LINE ID / 招待URL */}
+          <div>
+            <Label htmlFor="contactLineId">LINE ID / 招待URL</Label>
+            <Input
+              id="contactLineId"
+              disabled={isSubmitting}
+              placeholder="例：@genchokun または https://line.me/..."
+              {...register("contactLineId")}
+            />
+          </div>
+
+          {/* その他の連絡手段（自由欄） */}
+          <div>
+            <Label htmlFor="contactNote">その他の連絡手段</Label>
+            <textarea
+              id="contactNote"
+              disabled={isSubmitting}
+              placeholder="例：Chatwork ID: 12345 / SMS可"
+              className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+              rows={3}
+              {...register("contactNote")}
+            />
+          </div>
         </div>
 
         {/* サーバーエラー / 成功メッセージ */}

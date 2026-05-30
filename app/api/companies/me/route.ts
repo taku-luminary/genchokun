@@ -49,8 +49,14 @@ export async function GET(): Promise<NextResponse<CompanyMeResponse | ErrorRespo
         websiteUrl: company.websiteUrl,
         description: company.description,
         logoImageUrl: company.logoImageUrl,
+        // ▼ 追加
+        contactPhone: company.contactPhone,
+        contactEmail: company.contactEmail,
+        contactLineId: company.contactLineId,
+        contactNote: company.contactNote,
       },
     });
+
   } catch (e) {
     console.error(e);
     return NextResponse.json(
@@ -80,6 +86,20 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
       );
     }
 
+    // ▼ 追加: 連絡先4項目のうち、最低1つは入力されていること（フロントを通さない直叩き防御）
+    const contactsFilled = [
+      body.contactPhone,
+      body.contactEmail,
+      body.contactLineId,
+      body.contactNote,
+    ].some((v) => v && v.trim() !== "");
+    if (!contactsFilled) {
+      return NextResponse.json(
+        { error: "連絡先（電話/メール/LINE/その他）のいずれか1つは必須です" },
+        { status: 400 }
+      );
+    }
+
     const company = await prisma.companies.upsert({
       where: { userId: user.id },
       // 既に登録があるとき → 更新
@@ -92,6 +112,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
+        // ▼ 追加
+        contactPhone:       body.contactPhone ?? null,
+        contactEmail:       body.contactEmail ?? null,
+        contactLineId:      body.contactLineId ?? null,
+        contactNote:        body.contactNote ?? null,
       },
       // 未登録のとき → 新規作成
       create: {
@@ -104,6 +129,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         employeeCount:      body.employeeCount ?? null,
         websiteUrl:         body.websiteUrl ?? null,
         description:        body.description ?? null,
+        // ▼ 追加
+        contactPhone:       body.contactPhone ?? null,
+        contactEmail:       body.contactEmail ?? null,
+        contactLineId:      body.contactLineId ?? null,
+        contactNote:        body.contactNote ?? null,
       },
     });
 

@@ -1,3 +1,5 @@
+import type { CompanyContact } from "./companies";
+
 // POST /api/requests に送るリクエストの型
 export type CreateRequestRequest = {
   prefectureId: number;
@@ -45,4 +47,12 @@ export type RequestDetailResponse = {
   // この依頼が既に誰かとマッチング成立しているか (依頼視点)
   // 1依頼=1マッチなので、true なら他のユーザーは応募不可
   isMatched: boolean;
+  // ▼ 追加: 自分がこの依頼の投稿者（=工事店）か。投稿者にだけ販売店の連絡先を渡すため。
+  isMyRequest: boolean;
+  // ▼ 追加: 自分が応募してマッチした場合の「工事店（投稿者）」の連絡先。
+  //         hasApplied && isMatched 以外は null。
+  contractorContact: CompanyContact | null;
+  // ▼ 追加: 自分の依頼にマッチが入った場合の「販売店（応募者）」の連絡先。
+  //         isMyRequest && isMatched 以外は null。
+  salesContact: CompanyContact | null;
 };
