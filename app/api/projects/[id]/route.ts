@@ -29,20 +29,28 @@ export async function GET(
       return NextResponse.json({ error: "案件が見つかりません" } as never, { status: 404 });
     }
 
-    // ログイン中ユーザーが既に応募済みかをチェック（未ログインは false）
+    // ▼ 変更: hasApplied(boolean) ではなく myMatchStatus(4値) を計算する。
+    //         pending/active/rejected の3状態のいずれかが見つかればその status を、
+    //         どれも無ければ null（未応募）を返す。
+    //         cancelled は対象外（今は使っていないが、将来「自主取下げ」用に予約済み）。
     const user = await getAuthUser();
-    let hasApplied = false;
+    let myMatchStatus: ProjectDetailResponse["myMatchStatus"] = null;
     if (user) {
       const existing = await prisma.matches.findFirst({
         where: {
           projectId: project.id,
           contractorUserId: user.id,
-          status: { in: ["pending", "active"] },
+          status: { in: ["pending", "active", "rejected"] },
         },
+        select: { status: true },
       });
-      hasApplied = existing !== null;
-      // existing が null じゃないなら、hasApplied を true にする
-      // existing が null なら、hasApplied を false にする
+      // Prisma の型は match_status 全体 (pending/active/rejected/cancelled) を返すが、
+      // 上の where 句で cancelled は除外している。型ガードで明示的に絞り込んで
+      // myMatchStatus の型 ("pending" | "active" | "rejected" | null) と整合させる。
+      if (existing && existing.status !== "cancelled") {
+        myMatchStatus = existing.status;
+      }
+
     }
 
     const c = project.salesUser.company;
@@ -72,11 +80,22 @@ export async function GET(
             description: c.description,
           }
         : null,
-        hasApplied,
+      myMatchStatus,
+      // ▼ 追加: 自分がマッチ成立した（active）ときだけ、販売店の連絡先を返す。
+      //         pending/rejected/null の場合は null。
+      salesContact:
+        myMatchStatus === "active" && c
+          ? {
+              phone: c.contactPhone,
+              email: c.contactEmail,
+              lineId: c.contactLineId,
+              note: c.contactNote,
+            }
+          : null,
     });
 
-  } catch (e) {                                
+  } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" } as never, { status: 500 });
-  }                                            
+  }
 }

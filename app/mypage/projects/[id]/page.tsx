@@ -1,5 +1,5 @@
 'use client';
-
+import { ContactInfo } from '@/app/_components/ContactInfo';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -120,23 +120,30 @@ export default function MypageProjectDetailPage() {
 
         {/* 2. マッチング成立済みの相手がいる場合は最上部で強調表示 */}
         {matchedApp && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-2">
+          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
             <p className="text-sm font-black text-emerald-700">
-              ✓ マッチング成立済み
+              ✓ マッチング成立済み<br />　こちらの案件については、以下連絡先よりマッチング相手に確認して進めてくだい
             </p>
+            <div className="border-t border-emerald-200 pt-3 mt-3"></div>
             <p className="text-lg font-bold text-slate-800">
               {matchedApp.contractor.companyName ?? '（会社名未登録）'}
             </p>
-            {matchedApp.contractor.prefecture && (
-              <p className="text-sm text-slate-600">
-                {matchedApp.contractor.prefecture}
-              </p>
-            )}
             {matchedApp.message && (
               <p className="text-sm text-slate-700 whitespace-pre-wrap mt-2">
                 {matchedApp.message}
               </p>
             )}
+
+            {/* ▼ 追加: 相手（工事店）の連絡先。マッチ済みなので公開してOK。 */}
+            {/*    contact === null は「相手が連絡先未登録」のケース。           */}
+            <div>
+              <ContactInfo
+                phone={matchedApp.contractor.contact?.phone ?? null}
+                email={matchedApp.contractor.contact?.email ?? null}
+                lineId={matchedApp.contractor.contact?.lineId ?? null}
+                note={matchedApp.contractor.contact?.note ?? null}
+              />
+            </div>
           </section>
         )}
 

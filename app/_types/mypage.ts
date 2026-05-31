@@ -1,3 +1,5 @@
+import type { CompanyContact } from "./companies";
+
 // /api/mypage が返すデータ全体の型
 export type MypageApiResponse = {
   stats: {
@@ -63,5 +65,8 @@ export type ProjectApplication = {
     userId: string;
     companyName: string | null;
     prefecture: string | null;
+    // ▼ 追加: マッチ成立（status === "active"）の応募者にだけ連絡先を入れる。
+    //         pending/rejected/cancelled の場合は null。プライバシー保護のため。
+    contact: CompanyContact | null;
   };
 };

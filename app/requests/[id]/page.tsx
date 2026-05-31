@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
+import { ContactInfo } from '@/app/_components/ContactInfo';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
@@ -62,6 +63,52 @@ export default function RequestDetailPage() {
           <RequestCard request={homeRequest} />
         </div>
 
+        {/* ▼ 追加: 応募者視点 — 自分が応募してマッチ成立済み → 工事店の連絡先 */}
+        {data.hasApplied && data.isMatched && (
+          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
+            <p className="text-sm font-black text-emerald-700">
+              🎉 マッチング成立済み
+            </p>
+            <p className="text-sm text-slate-700">
+              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
+            </p>
+            <div className="border-t border-emerald-200 pt-3 mt-3">
+              <p className="text-xs font-bold text-emerald-700 mb-2">
+                ━ 工事店の連絡先 ━
+              </p>
+              <ContactInfo
+                phone={data.contractorContact?.phone ?? null}
+                email={data.contractorContact?.email ?? null}
+                lineId={data.contractorContact?.lineId ?? null}
+                note={data.contractorContact?.note ?? null}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ▼ 追加: 投稿者視点 — 自分の依頼にマッチが入った → 販売店の連絡先 */}
+        {data.isMyRequest && data.isMatched && (
+          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
+            <p className="text-sm font-black text-emerald-700">
+              🎉 あなたの依頼にマッチが入りました
+            </p>
+            <p className="text-sm text-slate-700">
+              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
+            </p>
+            <div className="border-t border-emerald-200 pt-3 mt-3">
+              <p className="text-xs font-bold text-emerald-700 mb-2">
+                ━ 販売店の連絡先 ━
+              </p>
+              <ContactInfo
+                phone={data.salesContact?.phone ?? null}
+                email={data.salesContact?.email ?? null}
+                lineId={data.salesContact?.lineId ?? null}
+                note={data.salesContact?.note ?? null}
+              />
+            </div>
+          </section>
+        )}
+
         {/* 詳細カード・マッチングボタン */}
         <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">
           <div className="p-6 space-y-4">
@@ -85,7 +132,7 @@ export default function RequestDetailPage() {
           </div>
 
           {/* 応募可能: 応募ページへの遷移リンク */}
-          {!isCompleted && !data.hasApplied && (
+          {!isCompleted && !data.hasApplied && !data.isMyRequest && (
             <div className="px-6 pb-6">
               <Link
                 href={`/requests/${data.id}/apply`}
@@ -101,7 +148,7 @@ export default function RequestDetailPage() {
             <div className="px-6 pb-6">
               <button
                 disabled
-                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
+                className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-black text-lg cursor-not-allowed"
               >
                 マッチング済みです
               </button>
@@ -112,7 +159,7 @@ export default function RequestDetailPage() {
               isClosed/isExpired の条件は外して、「マッチが成立している」
               事実を最優先で見せる。応募API側で status も completed に更新されるため
               この分岐は isClosed=true でも発火する必要がある。 */}
-          {!data.hasApplied && data.isMatched && (
+          {!data.hasApplied && !data.isMyRequest && data.isMatched && (
             <div className="px-6 pb-6">
               <button
                 disabled
@@ -125,7 +172,7 @@ export default function RequestDetailPage() {
 
           {/* 募集が手動終了 (status=completed) かつマッチ無し
               isClosed && isExpired の両方が true の場合もここでカバーする */}
-          {!data.hasApplied && !data.isMatched && isClosed && (
+          {!data.hasApplied && !data.isMyRequest && !data.isMatched && isClosed && (
             <div className="px-6 pb-6">
               <button
                 disabled
@@ -137,7 +184,7 @@ export default function RequestDetailPage() {
           )}
 
           {/* 期限切れ (マッチ無し、手動完了でもない) */}
-          {!data.hasApplied && !data.isMatched && !isClosed && isExpired && (
+          {!data.hasApplied && !data.isMyRequest && !data.isMatched && !isClosed && isExpired && (
             <div className="px-6 pb-6">
               <button
                 disabled

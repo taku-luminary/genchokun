@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
+import { ContactInfo } from '@/app/_components/ContactInfo';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
@@ -27,6 +28,16 @@ export default function ProjectDetailPage() {
   const daysLeft = calcDaysLeft(data.workEndDate);
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isClosed = data.status === "completed";
+
+  // ログイン中ユーザーの状態を myMatchStatus から判定する。
+  //   null:     未応募
+  //   pending:  応募済み、販売店の決定待ち
+  //   active:   自分が選ばれた（マッチ成立）
+  //   rejected: 他の応募者が選ばれた（落選）
+  const isApplied = data.myMatchStatus !== null;
+  const isWon = data.myMatchStatus === "active";
+  const isLost = data.myMatchStatus === "rejected";
+  const isWaiting = data.myMatchStatus === "pending";
 
   // ProjectDetailResponse → HomeProject に変換してカードに渡す
   const homeProject: HomeProject = {
@@ -52,6 +63,38 @@ export default function ProjectDetailPage() {
           <ProjectCard project={homeProject} />
         </div>
 
+        {/* ▼ 追加: 自分が選ばれた時の「マッチング成立」セクション（最優先で目立たせる） */}
+        {isWon && (
+          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
+            <p className="text-sm font-black text-emerald-700">
+              🎉 あなたが選ばれました
+            </p>
+            <p className="text-sm text-slate-700">
+              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
+            </p>
+            <div className="border-t border-emerald-200 pt-3 mt-3">
+              <p className="text-xs font-bold text-emerald-700 mb-2">
+                ━ 販売店の連絡先 ━
+              </p>
+              <ContactInfo
+                phone={data.salesContact?.phone ?? null}
+                email={data.salesContact?.email ?? null}
+                lineId={data.salesContact?.lineId ?? null}
+                note={data.salesContact?.note ?? null}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* ▼ 追加: 落選通知（地味めに表示） */}
+        {isLost && (
+          <section className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5">
+            <p className="text-sm text-slate-600">
+              この案件は他の応募者でマッチング成立しました
+            </p>
+          </section>
+        )}
+
         {/* 詳細カード・応募ボタン */}
         <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">
           <div className="p-6 space-y-4">
@@ -73,8 +116,8 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* 応募可能: 応募ページへの遷移リンク
-              優先順位の末尾 = 上3つのいずれにも該当しないとき */}
-          {!data.hasApplied && !isClosed && !isExpired && (
+              優先順位の末尾 = 未応募 かつ 案件オープン かつ 期限内 */}
+          {!isApplied && !isClosed && !isExpired && (
             <div className="px-6 pb-6">
               <Link
                 href={`/projects/${data.id}/apply`}
@@ -85,21 +128,33 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* 自分が応募済み (最優先) */}
-          {data.hasApplied && (
+          {/* 応募済み・選考中 (pending) */}
+          {isWaiting && (
             <div className="px-6 pb-6">
               <button
                 disabled
                 className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
               >
-                すでに応募済みです
+                応募済み・販売店の決定をお待ちください
+              </button>
+            </div>
+          )}
+
+          {/* 自分が選ばれた (active) — ボタン領域は静かに「マッチ成立済み」表示 */}
+          {isWon && (
+            <div className="px-6 pb-6">
+              <button
+                disabled
+                className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-black text-lg cursor-not-allowed"
+              >
+                マッチング成立済み
               </button>
             </div>
           )}
 
           {/* 募集が手動終了 (status=completed) かつ未応募
               isClosed && isExpired の両方が true の場合もここでカバーする */}
-          {!data.hasApplied && isClosed && (
+          {!isApplied && isClosed && (
             <div className="px-6 pb-6">
               <button
                 disabled
@@ -111,7 +166,7 @@ export default function ProjectDetailPage() {
           )}
 
           {/* 期限切れ (未応募、手動完了でもない) */}
-          {!data.hasApplied && !isClosed && isExpired && (
+          {!isApplied && !isClosed && isExpired && (
             <div className="px-6 pb-6">
               <button
                 disabled

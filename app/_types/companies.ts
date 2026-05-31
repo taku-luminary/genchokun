@@ -8,6 +8,11 @@ export type UpdateCompanyRequest = {
   employeeCount?: number;
   websiteUrl?: string;
   description?: string;
+  // ▼ 追加: マッチング成立後に相手にのみ公開される連絡先（最低1つ必須はフォーム/API側で担保）
+  contactPhone?: string;
+  contactEmail?: string;
+  contactLineId?: string;
+  contactNote?: string;
 };
 
 // GET /api/companies/me のレスポンス型
@@ -25,5 +30,18 @@ export type CompanyMeResponse = {
     websiteUrl: string | null;
     description: string | null;
     logoImageUrl: string | null;
+    contactPhone: string | null;
+    contactEmail: string | null;
+    contactLineId: string | null;
+    contactNote: string | null;
   } | null;
+};
+
+// 共通: マッチ成立時に相手会社の連絡先を返すための型
+// /api/mypage/projects/[id]、/api/projects/[id]、/api/requests/[id] から再利用する
+export type CompanyContact = {
+  phone: string | null;
+  email: string | null;
+  lineId: string | null;
+  note: string | null;
 };

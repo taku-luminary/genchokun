@@ -116,6 +116,17 @@ export async function GET(
           userId: m.contractorUserId,
           companyName: m.contractorUser.company?.name ?? null,
           prefecture: m.contractorUser.company?.prefecture?.name ?? null,
+          // ▼ 追加: マッチ成立済み（status === "active"）の応募者にだけ連絡先を返す。
+          //         pending の応募者の連絡先は絶対に漏らさない（プライバシー）。
+          contact:
+            m.status === "active" && m.contractorUser.company
+              ? {
+                  phone: m.contractorUser.company.contactPhone,
+                  email: m.contractorUser.company.contactEmail,
+                  lineId: m.contractorUser.company.contactLineId,
+                  note: m.contractorUser.company.contactNote,
+                }
+              : null,
         },
       })),
     });
