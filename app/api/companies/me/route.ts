@@ -49,7 +49,6 @@ export async function GET(): Promise<NextResponse<CompanyMeResponse | ErrorRespo
         websiteUrl: company.websiteUrl,
         description: company.description,
         logoImageUrl: company.logoImageUrl,
-        // ▼ 追加
         contactPhone: company.contactPhone,
         contactEmail: company.contactEmail,
         contactLineId: company.contactLineId,
@@ -87,12 +86,14 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
     }
 
     // ▼ 追加: 連絡先4項目のうち、最低1つは入力されていること（フロントを通さない直叩き防御）
+    // .some()は配列の値を1つずつ取り出して、関数に渡す、配列の中に、条件に当てはまるものが1つでもあれば trueにするJavaScript の配列メソッド
     const contactsFilled = [
       body.contactPhone,
       body.contactEmail,
       body.contactLineId,
       body.contactNote,
     ].some((v) => v && v.trim() !== "");
+    
     if (!contactsFilled) {
       return NextResponse.json(
         { error: "連絡先（電話/メール/LINE/その他）のいずれか1つは必須です" },
