@@ -35,6 +35,9 @@ export async function GET(
     //         cancelled は対象外（今は使っていないが、将来「自主取下げ」用に予約済み）。
     const user = await getAuthUser();
     let myMatchStatus: ProjectDetailResponse["myMatchStatus"] = null;
+    // ▼ 追加: ログイン中ユーザーがこの案件の掲載者本人かどうか。
+    //         未ログインなら false。
+    const isMyProject = user ? user.id === project.salesUserId : false;
     if (user) {
       const existing = await prisma.matches.findFirst({
         where: {
@@ -81,6 +84,8 @@ export async function GET(
           }
         : null,
       myMatchStatus,
+      // ▼ 追加: 掲載者本人なら true。画面側で「管理ページへの誘導バナー」表示に使う。
+      isMyProject,
       // ▼ 追加: 自分がマッチ成立した（active）ときだけ、販売店の連絡先を返す。
       //         pending/rejected/null の場合は null。
       salesContact:

@@ -47,6 +47,8 @@ export type ProjectDetailResponse = {
   //   active:    自分が選ばれた（マッチ成立）
   //   rejected:  他の応募者が選ばれた（落選）
   myMatchStatus: "pending" | "active" | "rejected" | null;
+  // ▼ 追加: ログイン中ユーザーがこの案件の掲載者本人かどうか
+  isMyProject: boolean;
   // ▼ 追加: myMatchStatus === "active" のときだけ、案件投稿者（販売店）の連絡先を入れる。
   //         他の状態では null（プライバシー保護）。
   salesContact: CompanyContact | null;
