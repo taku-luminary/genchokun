@@ -1,5 +1,5 @@
 'use client';
-import { ContactInfo } from '@/app/_components/ContactInfo';
+import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -119,12 +119,14 @@ export default function MypageProjectDetailPage() {
         </div>
 
         {/* 2. マッチング成立済みの相手がいる場合は最上部で強調表示 */}
+        {/*    相手（工事店）の連絡先はマッチ済みなので公開してOK。 */}
         {matchedApp && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-emerald-700">
-              ✓ マッチング成立済み<br />　こちらの案件については、以下連絡先よりマッチング相手に確認して進めてくだい
-            </p>
-            <div className="border-t border-emerald-200 pt-3 mt-3"></div>
+          <MatchedContactCard
+            title="✓ マッチング成立済み"
+            description="こちらの案件については、下記の連絡先からマッチング相手に確認して進めてください。"
+            contactLabel="工事店の連絡先"
+            contact={matchedApp.contractor.contact}
+          >
             <p className="text-lg font-bold text-slate-800">
               {matchedApp.contractor.companyName ?? '（会社名未登録）'}
             </p>
@@ -133,19 +135,9 @@ export default function MypageProjectDetailPage() {
                 {matchedApp.message}
               </p>
             )}
-
-            {/* ▼ 追加: 相手（工事店）の連絡先。マッチ済みなので公開してOK。 */}
-            {/*    contact === null は「相手が連絡先未登録」のケース。           */}
-            <div>
-              <ContactInfo
-                phone={matchedApp.contractor.contact?.phone ?? null}
-                email={matchedApp.contractor.contact?.email ?? null}
-                lineId={matchedApp.contractor.contact?.lineId ?? null}
-                note={matchedApp.contractor.contact?.note ?? null}
-              />
-            </div>
-          </section>
+          </MatchedContactCard>
         )}
+
 
         {/* サーバーエラー表示 */}
         {serverError && (

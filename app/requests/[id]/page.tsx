@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
-import { ContactInfo } from '@/app/_components/ContactInfo';
+import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
@@ -65,49 +65,24 @@ export default function RequestDetailPage() {
 
         {/* ▼ 追加: 応募者視点 — 自分が応募してマッチ成立済み → 工事店の連絡先 */}
         {data.hasApplied && data.isMatched && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-emerald-700">
-              🎉 マッチング成立済み
-            </p>
-            <p className="text-sm text-slate-700">
-              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
-            </p>
-            <div className="border-t border-emerald-200 pt-3 mt-3">
-              <p className="text-xs font-bold text-emerald-700 mb-2">
-                ━ 工事店の連絡先 ━
-              </p>
-              <ContactInfo
-                phone={data.contractorContact?.phone ?? null}
-                email={data.contractorContact?.email ?? null}
-                lineId={data.contractorContact?.lineId ?? null}
-                note={data.contractorContact?.note ?? null}
-              />
-            </div>
-          </section>
+          <MatchedContactCard
+            title="🎉 マッチング成立済み"
+            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+            contactLabel="工事店の連絡先"
+            contact={data.contractorContact}
+          />
         )}
 
         {/* ▼ 追加: 投稿者視点 — 自分の依頼にマッチが入った → 販売店の連絡先 */}
         {data.isMyRequest && data.isMatched && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-emerald-700">
-              🎉 あなたの依頼にマッチが入りました
-            </p>
-            <p className="text-sm text-slate-700">
-              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
-            </p>
-            <div className="border-t border-emerald-200 pt-3 mt-3">
-              <p className="text-xs font-bold text-emerald-700 mb-2">
-                ━ 販売店の連絡先 ━
-              </p>
-              <ContactInfo
-                phone={data.salesContact?.phone ?? null}
-                email={data.salesContact?.email ?? null}
-                lineId={data.salesContact?.lineId ?? null}
-                note={data.salesContact?.note ?? null}
-              />
-            </div>
-          </section>
+          <MatchedContactCard
+            title="🎉 あなたの依頼にマッチが入りました"
+            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+            contactLabel="販売店の連絡先"
+            contact={data.salesContact}
+          />
         )}
+
 
         {/* 詳細カード・マッチングボタン */}
         <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">

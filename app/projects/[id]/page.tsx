@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
-import { ContactInfo } from '@/app/_components/ContactInfo';
+import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
@@ -82,28 +82,14 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-
         {/* ▼ 追加: 自分が選ばれた時の「マッチング成立」セクション（最優先で目立たせる） */}
         {isWon && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-emerald-700">
-              🎉 あなたが選ばれました
-            </p>
-            <p className="text-sm text-slate-700">
-              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
-            </p>
-            <div className="border-t border-emerald-200 pt-3 mt-3">
-              <p className="text-xs font-bold text-emerald-700 mb-2">
-                ━ 販売店の連絡先 ━
-              </p>
-              <ContactInfo
-                phone={data.salesContact?.phone ?? null}
-                email={data.salesContact?.email ?? null}
-                lineId={data.salesContact?.lineId ?? null}
-                note={data.salesContact?.note ?? null}
-              />
-            </div>
-          </section>
+          <MatchedContactCard
+            title="🎉 あなたが選ばれました"
+            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+            contactLabel="販売店の連絡先"
+            contact={data.salesContact}
+          />
         )}
 
         {/* ▼ 追加: 落選通知（地味めに表示） */}
