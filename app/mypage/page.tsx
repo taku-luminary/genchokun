@@ -130,7 +130,7 @@ export default function MyPage() {
                   : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
               }`}
             >
-              お仕事待ちの工事店
+              対応できる工事店枠
             </button>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function MyPage() {
             <div className="space-y-3 md:space-y-5">
               {projects.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
-                  掲載した案件はありません
+                  掲載した工事案件はありません
                 </p>
               ) : (
                 projects.map((project) => {
@@ -187,7 +187,7 @@ export default function MyPage() {
             <div className="space-y-3 md:space-y-5">
               {requests.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
-                  掲載した依頼待ちはありません
+                  掲載した工事店枠はありません
                 </p>
               ) : (
                 requests.map((request) => (
@@ -212,7 +212,7 @@ export default function MyPage() {
             <div className="space-y-3 md:space-y-5">
               {appliedProjects.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
-                  応募した案件はありません
+                  応募した工事案件はありません
                 </p>
               ) : (
                 appliedProjects.map((item) => (
@@ -237,7 +237,7 @@ export default function MyPage() {
             <div className="space-y-3 md:space-y-5">
               {appliedRequests.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
-                  応募した依頼はありません
+                  応募した工事店枠はありません
                 </p>
               ) : (
                 appliedRequests.map((item) => (

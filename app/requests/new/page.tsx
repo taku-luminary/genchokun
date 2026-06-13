@@ -154,7 +154,7 @@ export default function NewRequestPage() {
 
         {/* 送信ボタン */}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "投稿中..." : "依頼待ちを掲載する"}
+          {isSubmitting ? "投稿中..." : "対応できる枠を掲載する"}
         </Button>
       </form>
     </div>

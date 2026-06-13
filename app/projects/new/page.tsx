@@ -254,7 +254,7 @@
 
           {/* 送信ボタン */}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "投稿中..." : "案件を掲載する"}
+            {isSubmitting ? "投稿中..." : "工事案件を掲載する"}
           </Button>
         </form>
       </div>
