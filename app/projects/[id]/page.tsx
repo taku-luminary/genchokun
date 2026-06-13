@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
-import { ContactInfo } from '@/app/_components/ContactInfo';
+import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
@@ -63,27 +63,33 @@ export default function ProjectDetailPage() {
           <ProjectCard project={homeProject} />
         </div>
 
+        {/* ▼ 追加: 掲載者本人向けの案内。応募状況・連絡先は管理ページに集約しているため、
+            ここでは表示せず管理ページへ誘導する */}
+        {data.isMyProject && (
+          <section className="bg-neutral-50 border-1 border-neutral-100 rounded-2xl p-6 space-y-3">
+            <p className="text-sm font-black text-neutral-700">
+               これはあなたが掲載した案件です
+            </p>
+            <p className="text-sm text-neutral-600">
+              応募状況・マッチング状況・マッチ相手の連絡先は管理ページで確認できます。
+            </p>
+            <Link
+              href={`/mypage/projects/${data.id}`}
+              className="block w-full py-3 rounded-2xl bg-neutral-600 text-white font-black text-center shadow hover:opacity-90 transition"
+            >
+              管理ページを開く
+            </Link>
+          </section>
+        )}
+
         {/* ▼ 追加: 自分が選ばれた時の「マッチング成立」セクション（最優先で目立たせる） */}
         {isWon && (
-          <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-emerald-700">
-              🎉 あなたが選ばれました
-            </p>
-            <p className="text-sm text-slate-700">
-              下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。
-            </p>
-            <div className="border-t border-emerald-200 pt-3 mt-3">
-              <p className="text-xs font-bold text-emerald-700 mb-2">
-                ━ 販売店の連絡先 ━
-              </p>
-              <ContactInfo
-                phone={data.salesContact?.phone ?? null}
-                email={data.salesContact?.email ?? null}
-                lineId={data.salesContact?.lineId ?? null}
-                note={data.salesContact?.note ?? null}
-              />
-            </div>
-          </section>
+          <MatchedContactCard
+            title="🎉 あなたが選ばれました"
+            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+            contactLabel="販売店の連絡先"
+            contact={data.salesContact}
+          />
         )}
 
         {/* ▼ 追加: 落選通知（地味めに表示） */}
@@ -116,8 +122,8 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* 応募可能: 応募ページへの遷移リンク
-              優先順位の末尾 = 未応募 かつ 案件オープン かつ 期限内 */}
-          {!isApplied && !isClosed && !isExpired && (
+              優先順位の末尾 = 掲載者本人ではない かつ 未応募 かつ 案件オープン かつ 期限内 */}
+          {!data.isMyProject && !isApplied && !isClosed && !isExpired && (
             <div className="px-6 pb-6">
               <Link
                 href={`/projects/${data.id}/apply`}
@@ -152,9 +158,9 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* 募集が手動終了 (status=completed) かつ未応募
+          {/* 募集が手動終了 (status=completed) かつ未応募 かつ 掲載者本人ではない
               isClosed && isExpired の両方が true の場合もここでカバーする */}
-          {!isApplied && isClosed && (
+          {!data.isMyProject && !isApplied && isClosed && (
             <div className="px-6 pb-6">
               <button
                 disabled
@@ -165,8 +171,8 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* 期限切れ (未応募、手動完了でもない) */}
-          {!isApplied && !isClosed && isExpired && (
+          {/* 期限切れ (未応募、手動完了でもない、掲載者本人でもない) */}
+          {!data.isMyProject && !isApplied && !isClosed && isExpired && (
             <div className="px-6 pb-6">
               <button
                 disabled

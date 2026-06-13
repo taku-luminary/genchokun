@@ -166,11 +166,16 @@ export default function MyPage() {
                 </p>
               ) : (
                 requests.map((request) => (
-                  <RequestCard
+                  <Link
                     key={request.id}
-                    request={request}
-                    hasMatch={request.match?.status === "active"}
-                  />
+                    href={`/requests/${request.id}`}
+                    className="block"
+                  >
+                    <RequestCard
+                      request={request}
+                      hasMatch={request.match?.status === "active"}
+                    />
+                  </Link>
                 ))
               )}
             </div>
