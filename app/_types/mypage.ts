@@ -1,14 +1,20 @@
 import type { CompanyContact } from "./companies";
-
+// ▼ 追加: 応募した案件一覧はホームと同じカード型を使い回す
+import type { HomeProject, HomeRequest } from "./home";
 // /api/mypage が返すデータ全体の型
+
 export type MypageApiResponse = {
   stats: {
     todoCount: number;
-    projectCount: number;
-    applicationCount: number;
+    // ▼ 変更: projectCount → postedCount（掲載した案件すべて = 工事案件 + お仕事待ち）
+    postedCount: number;
+    // ▼ 変更: applicationCount → appliedCount（応募した案件すべて = 工事案件 + お仕事待ち）
+    appliedCount: number;
   };
   projects: MypageProject[];
   requests: MypageRequest[];
+  appliedProjects: AppliedProject[];
+  appliedRequests: AppliedRequest[];
 };
 
 // 工事案件1件の型
@@ -69,4 +75,22 @@ export type ProjectApplication = {
     //         pending/rejected/cancelled の場合は null。プライバシー保護のため。
     contact: CompanyContact | null;
   };
+};
+
+// ▼ 追加: 自分が工事店として応募した project 1件分
+export type AppliedProject = {
+  /** 応募(match)のID。一覧表示の key に使う */
+  matchId: string;
+  /** 自分の応募の状態 */
+  myStatus: "pending" | "active" | "rejected" | "cancelled";
+  /** カード表示用。ProjectCard を再利用するため HomeProject と同じ形で受け取る */
+  project: HomeProject;
+};
+
+// ▼ 追加: 自分が販売店として応募した request 1件分
+// (request は応募＝即マッチなので myStatus は基本 "active" だが、型は project と揃える)
+export type AppliedRequest = {
+  matchId: string;
+  myStatus: "pending" | "active" | "rejected" | "cancelled";
+  request: HomeRequest;
 };

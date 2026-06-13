@@ -3,15 +3,21 @@
 import { useState } from "react";
 import Link from "next/link"; 
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
-import type { MypageApiResponse} from "@/app/_types/mypage";
+import type { MypageApiResponse, AppliedProject } from "@/app/_types/mypage";
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 
 export default function MyPage() {
   const { data, error, isLoading } = useAuthedFetch<MypageApiResponse>("/api/mypage");
   const [tab, setTab] = useState<"projects" | "requests">("projects");
+  // ▼ 追加: 一覧の表示モード。"posted"=掲載した案件 / "applied"=応募した案件
+  //         統計ボックスのクリックで切り替える
+  const [mode, setMode] = useState<"posted" | "applied">("posted");
   const stats = data?.stats;
   const projects = data?.projects ?? [];
   const requests = data?.requests ?? [];
+  // ▼ 追加: 応募した案件の一覧
+  const appliedProjects = data?.appliedProjects ?? [];
+  const appliedRequests = data?.appliedRequests ?? [];
 
   return (
     <>
@@ -62,30 +68,47 @@ export default function MyPage() {
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
+              {/* ▼ 変更: div → button にして、クリックで一覧モードを切り替える。
+                  選択中のボックスは枠を緑にして「いまどちらを見ているか」を示す */}
+              <button
+                type="button"
+                onClick={() => setMode("posted")}
+                className={`bg-white rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition ${
+                  mode === "posted" ? "border-brand-green" : "border-slate-300 hover:border-slate-400"
+                }`}
+              >
                 <p className="text-sm md:text-base text-slate-600">
                   あなたが<strong>掲載</strong>した案件
                 </p>
                 <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
-                  {stats.projectCount}
+                  {stats.postedCount}
                   <span className="text-xl ml-1">件</span>
                 </p>
-              </div>
+              </button>
 
-              <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-slate-300 card-shadow">
+              <button
+                type="button"
+                onClick={() => setMode("applied")}
+                className={`bg-white rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition ${
+                  mode === "applied" ? "border-brand-green" : "border-slate-300 hover:border-slate-400"
+                }`}
+              >
                 <p className="text-sm md:text-base text-slate-600">
                   あなたが<strong>応募</strong>した案件
                 </p>
                 <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
-                  {stats.applicationCount}
+                  {stats.appliedCount}
                   <span className="text-xl ml-1">件</span>
                 </p>
-              </div>
+              </button>
             </div>
           )}
 
+          {/* ▼ 変更: 見出しを表示モードに合わせて切り替える */}
           <p className="text-center text-slate-600 font-bold">
-            ーーあなたが掲載した案件ーー
+            {mode === "posted"
+              ? "ーーあなたが掲載した案件ーー"
+              : "ーーあなたが応募した案件ーー"}
           </p>
 
           <div className="bg-slate-100 p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto shadow-inner">
@@ -126,7 +149,8 @@ export default function MyPage() {
               </p>
             )}
 
-          {!isLoading && !error && tab === "projects" && (
+          {/* ▼ 変更: mode === "posted" の条件を追加（掲載した案件モードのみ表示） */}
+          {!isLoading && !error && mode === "posted" && tab === "projects" && (
             <div className="space-y-3 md:space-y-5">
               {projects.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
@@ -158,7 +182,8 @@ export default function MyPage() {
             </div>
           )}
 
-          {!isLoading && !error && tab === "requests" && (
+          {/* ▼ 変更: mode === "posted" の条件を追加 */}
+          {!isLoading && !error && mode === "posted" && tab === "requests" && (
             <div className="space-y-3 md:space-y-5">
               {requests.length === 0 ? (
                 <p className="text-center text-slate-500 py-10">
@@ -181,8 +206,71 @@ export default function MyPage() {
             </div>
           )}
 
+          {/* ▼ 追加: 応募した工事案件の一覧。クリックで公開詳細ページへ。
+              詳細ページ側が応募状態(応募中/当選/落選)に応じた表示を出し分ける */}
+          {!isLoading && !error && mode === "applied" && tab === "projects" && (
+            <div className="space-y-3 md:space-y-5">
+              {appliedProjects.length === 0 ? (
+                <p className="text-center text-slate-500 py-10">
+                  応募した案件はありません
+                </p>
+              ) : (
+                appliedProjects.map((item) => (
+                  <Link
+                    key={item.matchId}
+                    href={`/projects/${item.project.id}`}
+                    className="block space-y-1"
+                  >
+                    <AppliedStatusBadge status={item.myStatus} />
+                    <ProjectCard
+                      project={item.project}
+                      hasMatch={item.myStatus === "active"}
+                    />
+                  </Link>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* ▼ 追加: 応募した依頼（お仕事待ちの工事店）の一覧 */}
+          {!isLoading && !error && mode === "applied" && tab === "requests" && (
+            <div className="space-y-3 md:space-y-5">
+              {appliedRequests.length === 0 ? (
+                <p className="text-center text-slate-500 py-10">
+                  応募した依頼はありません
+                </p>
+              ) : (
+                appliedRequests.map((item) => (
+                  <Link
+                    key={item.matchId}
+                    href={`/requests/${item.request.id}`}
+                    className="block space-y-1"
+                  >
+                    <AppliedStatusBadge status={item.myStatus} />
+                    <RequestCard
+                      request={item.request}
+                      hasMatch={item.myStatus === "active"}
+                    />
+                  </Link>
+                ))
+              )}
+            </div>
+          )}
+
         </div>
       </section>
     </>
   );
+}
+
+// ▼ 追加: 応募した案件カードの上に出す自分の応募状態ラベル
+function AppliedStatusBadge({ status }: { status: AppliedProject["myStatus"] }) {
+  if (status === "active") {
+    return <p className="text-xs font-bold text-emerald-700">🎉 マッチング成立</p>;
+  }
+  if (status === "pending") {
+    return <p className="text-xs font-bold text-slate-600">応募中・決定待ち</p>;
+  }
+  // rejected(落選) / cancelled(取下げ)
+  return <p className="text-xs font-bold text-slate-400">不成立</p>;
 }
