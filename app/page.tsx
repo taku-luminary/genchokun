@@ -105,7 +105,7 @@ export default function Home() {
                     : 'text-slate-600 hover:text-slate-800 hover:bg-white/20'
                 }`}
               >
-                お仕事待ちの工事店
+                対応できる工事店枠
               </button>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function Home() {
             <div className="space-y-3 md:space-y-5">
             {!isLoading && activeTab === 'projects' && (
               projects.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">掲載中の案件はありません</p>
+                <p className="text-center text-slate-500 py-10">工事案件はまだありません</p>
               ) : (
                 // 案件カード
                 projects.map((project) => (
@@ -136,7 +136,7 @@ export default function Home() {
 
             {!isLoading && activeTab === 'requests' && (
               requests.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">登録中の工事店はいません</p>
+                <p className="text-center text-slate-500 py-10">対応できる工事店枠はまだありません</p>
               ) : (
                 // 依頼カード
                 requests.map((request) => (
