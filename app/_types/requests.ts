@@ -1,4 +1,4 @@
-import type { CompanyContact } from "./companies";
+import type { CompanyContact, CompanyInfo } from "./companies";
 
 // POST /api/requests に送るリクエストの型
 export type CreateRequestRequest = {
@@ -12,6 +12,9 @@ export type CreateRequestRequest = {
   rewardMinYen?: number;
   paymentCycle?: string;
 };
+// PUT /api/requests/[id] のリクエスト型。
+// 編集フォームの入力項目は新規作成と同じなので CreateRequestRequest を再利用する。
+export type UpdateRequestRequest = CreateRequestRequest;
 
 // POST /api/requests のレスポンス型
 export type CreateRequestResponse = {
@@ -23,6 +26,7 @@ export type RequestDetailResponse = {
   id: string;
   createdAt: string;
   prefecture: { name: string };
+  prefectureId: number;
   city: string | null;
   title: string;
   investigationSummary: string | null;
@@ -32,16 +36,8 @@ export type RequestDetailResponse = {
   rewardMinYen: number | null;
   paymentCycle: string | null;
   status: "open" | "completed";
-  company: {
-    name: string;
-    prefecture: string;
-    city: string | null;
-    address: string | null;
-    representativeName: string | null;
-    employeeCount: number | null;
-    websiteUrl: string | null;
-    description: string | null;
-  } | null;
+  company: CompanyInfo | null;
+
   // ログイン中ユーザー(販売店)が既にこの依頼に応募済みか (自分視点)
   hasApplied: boolean;
   // この依頼が既に誰かとマッチング成立しているか (依頼視点)
@@ -55,4 +51,7 @@ export type RequestDetailResponse = {
   // ▼ 追加: 自分の依頼にマッチが入った場合の「販売店（応募者）」の連絡先。
   //         isMyRequest && isMatched 以外は null。
   salesContact: CompanyContact | null;
+    // ▼ 追加: ログイン中ユーザーがこの依頼を「今」編集/削除できるか。
+  //   投稿者本人 && status === "open"（＝まだマッチが入っていない）のときだけ true。
+  isEditable: boolean;
 };

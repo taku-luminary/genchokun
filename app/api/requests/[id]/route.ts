@@ -64,6 +64,11 @@ export async function GET(
       request.match.salesUserId === user.id &&
       ["pending", "active"].includes(request.match.status)
     );
+     // ▼ 追加: 投稿者本人 && まだマッチが入っていない(open) ときだけ編集/削除可。
+    //   requests は応募＝即マッチで status が completed になるため、open チェックで
+    //   「まだ誰の応募も受けていない」を表現できる。
+    const isEditable = isMyRequest && request.status === "open";
+
 
     // ▼ 連絡先の出し分け
     // requests は即マッチなので match.status は通常 active のみ。
@@ -104,6 +109,8 @@ export async function GET(
       id: request.id.toString(),
       createdAt: request.createdAt.toISOString(),
       prefecture: { name: request.prefecture.name },
+      // ▼ 追加: 編集フォームの初期値用
+      prefectureId: request.prefectureId,
       city: request.city,
       title: request.title,
       investigationSummary: request.investigationSummary,
@@ -130,6 +137,8 @@ export async function GET(
       isMyRequest,
       contractorContact,
       salesContact,
+      // ▼ 追加: 編集/削除ボタンの表示制御用（PUT/DELETE 時にサーバー側でも再チェックする）
+      isEditable,
     });
   } catch (e) {
     console.error(e);

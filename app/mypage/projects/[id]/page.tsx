@@ -151,11 +151,13 @@ export default function MypageProjectDetailPage() {
           </h2>
 
           {pendingApps.length === 0 ? (
-            <p className="text-center text-slate-500 py-10">
-              {matchedApp
-                ? '未対応の応募はありません'
-                : 'まだ応募はありません'}
-            </p>
+            <p className="text-center text-slate-500 font-bold py-10">
+            {matchedApp ? (
+              '未対応の応募はありません'
+            ) : (
+              <> まだ応募はありません。 <br />（応募がある場合はこちらに表示されます） </>
+            )}
+          </p>
           ) : (
             pendingApps.map((app) => {
               // 今mapで表示している応募(app)が、現在送信中の応募かどうかを判定する。

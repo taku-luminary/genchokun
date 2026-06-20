@@ -1,4 +1,5 @@
-import type { CompanyContact } from "./companies";
+import type { CompanyContact, CompanyInfo } from "./companies";
+
 
 export type CreateProjectRequest = {
   prefectureId: number;
@@ -17,11 +18,17 @@ export type CreateProjectResponse = {
   id: string;
 };
 
+// PUT /api/projects/[id] のリクエスト型。
+// 編集フォームの入力項目は新規作成と同じなので CreateProjectRequest を再利用する。
+export type UpdateProjectRequest = CreateProjectRequest;
+
 // GET /api/projects/[id] のレスポンス型
 export type ProjectDetailResponse = {
   id: string;
   createdAt: string;
   prefecture: { name: string };
+  // ▼ 追加: 編集フォームの都道府県プルダウンの初期選択に使う
+  prefectureId: number;
   city: string | null;
   title: string;
   investigationSummary: string | null;
@@ -31,16 +38,7 @@ export type ProjectDetailResponse = {
   rewardYen: number | null;
   paymentCycle: string | null;
   status: "open" | "completed";
-  company: {
-    name: string;
-    prefecture: string;
-    city: string | null;
-    address: string | null;
-    representativeName: string | null;
-    employeeCount: number | null;
-    websiteUrl: string | null;
-    description: string | null;
-  } | null;
+  company: CompanyInfo | null;
   // ▼ 変更: hasApplied を廃止し、ログイン中ユーザーの match 状態を4値で持つ。
   //   null:      未応募
   //   pending:   応募済み、販売店の決定待ち
@@ -52,4 +50,8 @@ export type ProjectDetailResponse = {
   // ▼ 追加: myMatchStatus === "active" のときだけ、案件投稿者（販売店）の連絡先を入れる。
   //         他の状態では null（プライバシー保護）。
   salesContact: CompanyContact | null;
+  // ▼ 追加: ログイン中ユーザーがこの案件を「今」編集できるか。
+  //   投稿者本人 && status === "open" && 応募が1件も無い、のときだけ true。
+  //   詳細ページの編集/削除ボタンの表示制御に使う（サーバー側でも必ず再チェックする）。
+  isEditable: boolean;
 };

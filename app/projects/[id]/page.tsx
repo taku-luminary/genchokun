@@ -5,16 +5,14 @@ import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
+import { InvestigationCard } from '@/app/_components/InvestigationCard';
+import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-    // useParams<{ id: string }>() は、URLの動的パラメータを取得する関数。
-    // <{ id: string }> は、「useParams() の結果は、id というプロパティを持ち、その id は string 型です」と TS に教えている部分。
-    // useParams() の結果は params のようなオブジェクトで、その中から分割代入 const { id } = ... によって id だけを取り出している。
-    // つまり、URLの [id] に入っている値を、string 型の id 変数として使えるようにしている。
 
   const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
 
@@ -58,17 +56,13 @@ export default function ProjectDetailPage() {
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
 
-        {/* 案件カード（クリック無効） */}
-        <div className="pointer-events-none">
-          <ProjectCard project={homeProject} />
-        </div>
+        {/* ▼ 並び替え: ステータス/誘導カードを最上部にまとめる */}
 
-        {/* ▼ 追加: 掲載者本人向けの案内。応募状況・連絡先は管理ページに集約しているため、
-            ここでは表示せず管理ページへ誘導する */}
+        {/* 掲載者本人向けの案内（最上部）。応募状況・連絡先は管理ページに集約しているため誘導する */}
         {data.isMyProject && (
           <section className="bg-neutral-50 border-1 border-neutral-100 rounded-2xl p-6 space-y-3">
             <p className="text-sm font-black text-neutral-700">
-               これはあなたが掲載した案件です
+              これはあなたが掲載した案件です
             </p>
             <p className="text-sm text-neutral-600">
               応募状況・マッチング状況・マッチ相手の連絡先は管理ページで確認できます。
@@ -82,7 +76,7 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* ▼ 追加: 自分が選ばれた時の「マッチング成立」セクション（最優先で目立たせる） */}
+        {/* 自分が選ばれた時の「マッチング成立」セクション */}
         {isWon && (
           <MatchedContactCard
             title="🎉 あなたが選ばれました"
@@ -92,7 +86,7 @@ export default function ProjectDetailPage() {
           />
         )}
 
-        {/* ▼ 追加: 落選通知（地味めに表示） */}
+        {/* 落選通知（地味めに表示） */}
         {isLost && (
           <section className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5">
             <p className="text-sm text-slate-600">
@@ -101,28 +95,19 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* 詳細カード・応募ボタン */}
-        <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">
-          <div className="p-6 space-y-4">
-            <p className="font-bold text-slate-700">調査内容</p>
-            {data.investigationSummary ? (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">概要</p>
-                <p className="text-slate-700">{data.investigationSummary}</p>
-              </div>
-            ) : (
-              <p className="text-slate-400">概要の記載なし</p>
-            )}
-            {data.investigationDetails && (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">詳細</p>
-                <p className="text-slate-700 whitespace-pre-wrap">{data.investigationDetails}</p>
-              </div>
-            )}
-          </div>
+        {/* ▼ 連続ブロック: 案件カード → 調査内容 → 投稿元情報 */}
 
-          {/* 応募可能: 応募ページへの遷移リンク
-              優先順位の末尾 = 掲載者本人ではない かつ 未応募 かつ 案件オープン かつ 期限内 */}
+        {/* 案件カード（クリック無効） */}
+        <div className="pointer-events-none">
+          <ProjectCard project={homeProject} />
+        </div>
+
+        {/* 調査内容（共通カード）。応募ボタン群は children として差し込む */}
+        <InvestigationCard
+          summary={data.investigationSummary}
+          details={data.investigationDetails}
+        >
+          {/* 応募可能: 掲載者本人ではない && 未応募 && オープン && 期限内 */}
           {!data.isMyProject && !isApplied && !isClosed && !isExpired && (
             <div className="px-6 pb-6">
               <Link
@@ -146,7 +131,7 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* 自分が選ばれた (active) — ボタン領域は静かに「マッチ成立済み」表示 */}
+          {/* 自分が選ばれた (active) */}
           {isWon && (
             <div className="px-6 pb-6">
               <button
@@ -158,8 +143,7 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* 募集が手動終了 (status=completed) かつ未応募 かつ 掲載者本人ではない
-              isClosed && isExpired の両方が true の場合もここでカバーする */}
+          {/* 募集が手動終了 (status=completed) かつ未応募 かつ 掲載者本人ではない */}
           {!data.isMyProject && !isApplied && isClosed && (
             <div className="px-6 pb-6">
               <button
@@ -182,54 +166,17 @@ export default function ProjectDetailPage() {
               </button>
             </div>
           )}
-        </div>
+        </InvestigationCard>
 
-        {/* 発注者の自社情報 */}
+        {/* 投稿元の販売店情報（共通カード） */}
         {data.company && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
-            <div className="pb-2 flex items-center gap-2">
-              <p className="text-m font-bold text-slate-700">投稿元の販売店情報</p>
-              <p className="text-xs text-slate-400">販売店が掲載している情報です</p>
-            </div>
-
-            <CompanyRow label="会社名" value={data.company.name} />
-
-            <CompanyRow
-              label="所在地"
-              value={[data.company.prefecture, data.company.city, data.company.address].filter(Boolean).join(" ")}
-            />
-            
-            {data.company.representativeName && <CompanyRow label="代表者" value={data.company.representativeName} />}
-
-            {data.company.employeeCount && <CompanyRow label="従業員数" value={`${data.company.employeeCount}名`} />}
-
-            {data.company.websiteUrl && (
-              <div className="flex gap-2">
-                <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">Webサイト</p>
-                <a href={data.company.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-brand-green underline break-all">
-                  {data.company.websiteUrl}
-                </a>
-              </div>
-            )}
-
-            {data.company.description && (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">会社紹介</p>
-                <p className="text-slate-700 whitespace-pre-wrap">{data.company.description}</p>
-              </div>
-            )}
-          </div>
+          <CompanyInfoCard
+            title="投稿元の販売店情報"
+            subtitle="販売店が掲載している情報です"
+            company={data.company}
+          />
         )}
       </div>
     </div>
   );
-
-function CompanyRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">{label}</p>
-      <p className="text-slate-700">{value}</p>
-    </div>
-  );
-}
 }
