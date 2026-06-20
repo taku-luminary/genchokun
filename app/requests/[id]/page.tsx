@@ -77,10 +77,24 @@ export default function RequestDetailPage() {
 
         {/* ▼ 連続ブロック: 依頼カード → 調査内容 → 投稿元情報 */}
 
+        {/* 編集ボタン（依頼カードの枠外・右上）。投稿者本人 && 未マッチ(open)のときだけ表示。
+            ※削除ボタンは次のPRでこの隣に追加する */}
+        {data.isEditable && (
+          <div className="flex justify-end gap-2">
+            <Link
+              href={`/requests/${data.id}/edit`}
+              className="px-4 py-2 rounded-xl border-2 border-neutral-400 text-neutral-700 text-sm font-bold hover:bg-neutral-100 transition"
+            >
+              編集
+            </Link>
+          </div>
+        )}
+
         {/* 依頼カード — マッチ成立済みなら右上バッジが「終了」灰色に */}
         <div className="pointer-events-none">
           <RequestCard request={homeRequest} />
         </div>
+
 
         {/* 調査内容（共通カード）。マッチングボタン群は children として差し込む */}
         <InvestigationCard

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
-import type { RequestDetailResponse } from "@/app/_types/requests";
+import type { RequestDetailResponse, UpdateRequestRequest } from "@/app/_types/requests";
 import type { CompanyContact } from "@/app/_types/companies";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
@@ -145,3 +145,59 @@ export async function GET(
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<{ success: true } | ErrorResponse>> {
+  const { id } = await params;
+
+  try {
+    // 1. ログイン確認
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 2. 所有者＋存在確認（本人の依頼だけがヒット。他人/削除済みは 404）
+    const target = await prisma.requests.findFirst({
+      where: { id: BigInt(id), contractorUserId: user.id, deletedAt: null },
+      select: { id: true, status: true },
+    });
+    if (!target) {
+      return NextResponse.json({ error: "依頼が見つかりません" }, { status: 404 });
+    }
+
+    // 3. 編集可否をサーバー側で再チェック。
+    //    requests は応募＝即マッチで status が completed になるため、open 以外は編集不可。
+    if (target.status !== "open") {
+      return NextResponse.json(
+        { error: "マッチング済みのため編集できません" },
+        { status: 409 }
+      );
+    }
+
+    // 4. 更新。正規化ルールは新規作成API(/api/requests)と同じ。
+    const body: UpdateRequestRequest = await request.json();
+    await prisma.requests.update({
+      where: { id: target.id },
+      data: {
+        prefectureId: body.prefectureId,
+        city: body.city ?? null,
+        title: body.title,
+        investigationSummary: body.investigationSummary ?? null,
+        investigationDetails: body.investigationDetails ?? null,
+        availableStartDate: body.availableStartDate ? new Date(body.availableStartDate) : null,
+        availableEndDate: body.availableEndDate ? new Date(body.availableEndDate) : null,
+        rewardMinYen: body.rewardMinYen ?? null,
+        paymentCycle: body.paymentCycle ?? null,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "更新に失敗しました" }, { status: 500 });
+  }
+}
+

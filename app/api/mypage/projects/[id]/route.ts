@@ -53,6 +53,12 @@ export async function GET(
       },
       include: {
         prefecture: true,
+        // ▼ 追加: 自社情報カード用に、投稿者(=自分)の会社情報を取得する
+        salesUser: {
+          include: {
+            company: { include: { prefecture: true } },
+          },
+        },
         matches: {
           where: { status: { in: ["pending", "active"] } },
           orderBy: { createdAt: "asc" },
@@ -71,6 +77,8 @@ export async function GET(
     if (!project) {
       return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });
     }
+    // ▼ 追加: 投稿者(自分)の会社情報
+    const c = project.salesUser.company;
 
     // 3. レスポンス整形（BigInt は文字列化、Date は ISO 文字列化）
     return NextResponse.json({
@@ -83,10 +91,13 @@ export async function GET(
         workStartDate: project.workStartDate?.toISOString() ?? null,
         workEndDate: project.workEndDate?.toISOString() ?? null,
         investigationSummary: project.investigationSummary, 
+        // ▼ 追加: 調査詳細（詳細ページの調査内容カードで表示する）
+        investigationDetails: project.investigationDetails,
         paymentCycle: project.paymentCycle,
         rewardYen: project.rewardYen === null ? null : Number(project.rewardYen),
         status: project.status,
-        companyName: null,        
+        // ▼ 変更: null固定 → 自社名（ProjectCard の会社名表示用）
+        companyName: c?.name ?? null,        
 
         // ＝＝＝matches: project.matches.map((m) => ({ status: m.status })), の意味＝＝＝
         // 応募一覧を1件ずつ見て、それぞれの status だけを取り出した新しい配列を作るという意味
@@ -106,7 +117,22 @@ export async function GET(
         // ProjectCard や一覧ページでは matches の status から
         // 「応募あり」「成立済み」などを判定するため、status だけを返す。
         matches: project.matches.map((m) => ({ status: m.status })), 
+
+        // ▼ 追加: 投稿元(自社)情報カード用。CompanyInfo 型に合わせて整形する。
+        company: c
+          ? {
+              name: c.name,
+              prefecture: c.prefecture.name,
+              city: c.city,
+              address: c.address,
+              representativeName: c.representativeName,
+              employeeCount: c.employeeCount,
+              websiteUrl: c.websiteUrl,
+              description: c.description,
+            }
+          : null,
       },
+
       applications: project.matches.map((m) => ({
         matchId: m.id.toString(),
         status: m.status,
