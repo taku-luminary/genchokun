@@ -88,9 +88,12 @@ export default function ProjectDetailPage() {
 
         {/* 落選通知（地味めに表示） */}
         {isLost && (
-          <section className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-5">
-            <p className="text-sm text-slate-600">
-              この案件は他の応募者でマッチング成立しました
+          <section className="bg-slate-100 border-2 border-slate-300 rounded-2xl p-6 space-y-1">
+            <p className="text-xl font-bold text-slate-700">
+              この案件は終了しました
+            </p>
+            <p className="text-slate-600 font-medium">
+              他の応募者とマッチングが成立したため、応募は締め切られました。
             </p>
           </section>
         )}
@@ -136,7 +139,7 @@ export default function ProjectDetailPage() {
             <div className="px-6 pb-6">
               <button
                 disabled
-                className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-black text-lg cursor-not-allowed"
+                className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg cursor-not-allowed"
               >
                 マッチング成立済み
               </button>
