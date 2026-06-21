@@ -70,7 +70,8 @@ export default function RequestDetailPage() {
         setDeleteError(json.error ?? '削除に失敗しました');
         return;
       }
-      router.push('/mypage');
+      // 削除済みの個別ページに「戻る」で戻れないよう push ではなく replace を使う。
+      router.replace('/mypage');    
     } catch {
       setDeleteError('通信エラーが発生しました。時間をおいて再度お試しください。');
     } finally {
