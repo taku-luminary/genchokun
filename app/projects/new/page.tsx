@@ -27,22 +27,32 @@
       // 前回のサーバーエラーをクリア (root.serverError は予約名 root の下位キー)
       clearErrors('root.serverError');
   
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      try {
+        const res = await fetch("/api/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
   
-      if (!res.ok) {
-        const json = await res.json();
+        if (!res.ok) {
+          // エラー応答が JSON でない場合に備え、json() 失敗時は空オブジェクト扱いにする
+          const json = await res.json().catch(() => ({}));
+          setError('root.serverError', {
+            type: 'server',
+            message: json.error ?? "投稿に失敗しました",
+          });
+          return;
+        }
+        router.push("/mypage");
+      } catch {
+        // fetch 自体の失敗（オフライン・通信断など）をここで拾う
         setError('root.serverError', {
           type: 'server',
-          message: json.error ?? "投稿に失敗しました",
+          message: "通信エラーが発生しました。時間をおいて再度お試しください。",
         });
-        return;
       }
-      router.push("/mypage");
     };
+  
 
     return (
       <div className="max-w-xl mx-auto px-4 py-10">
