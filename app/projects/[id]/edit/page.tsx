@@ -68,22 +68,31 @@ export default function EditProjectPage() {
   const updateProject = async (formData: CreateProjectRequest) => {
     clearErrors("root.serverError");
 
-    const res = await fetch(`/api/projects/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (!res.ok) {
-      const json = await res.json();
+      if (!res.ok) {
+        // エラー応答が JSON でない場合に備え、json() 失敗時は空オブジェクト扱いにする
+        const json = await res.json().catch(() => ({}));
+        setError("root.serverError", {
+          type: "server",
+          message: json.error ?? "更新に失敗しました",
+        });
+        return;
+      }
+      // 保存できたら詳細ページに戻る
+      router.push(`/projects/${id}`);
+    } catch {
+      // fetch 自体の失敗（オフライン・通信断など）をここで拾う
       setError("root.serverError", {
         type: "server",
-        message: json.error ?? "更新に失敗しました",
+        message: "通信エラーが発生しました。時間をおいて再度お試しください。",
       });
-      return;
     }
-    // 保存できたら詳細ページに戻る
-    router.push(`/projects/${id}`);
   };
 
   if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
