@@ -195,16 +195,11 @@ export default function MyPage() {
                         applicationCount={applicationCount}
                         isFinished={isFinished}
                       />
-                      <ProjectCard
-                        project={project}
-                        hasMatch={hasMatch}
-                        applicationCount={applicationCount}
-                      />
+                      <ProjectCard project={project} isMatched={hasMatch} applicationCount={applicationCount} />
                     </Link>
+
                   );
                 })
-
-
               )}
             </div>
           )}
@@ -232,12 +227,11 @@ export default function MyPage() {
                       className="block space-y-1"
                     >
                       <PostedStatusBadge hasMatch={hasMatch} isFinished={isFinished} />
-                      <RequestCard request={request} hasMatch={hasMatch} />
+                      <RequestCard request={request} isMatched={hasMatch} />
                     </Link>
+
                   );
                 })
-
-
               )}
             </div>
           )}
@@ -258,11 +252,9 @@ export default function MyPage() {
                     className="block space-y-1"
                   >
                     <AppliedStatusBadge status={item.myStatus} />
-                    <ProjectCard
-                      project={item.project}
-                      hasMatch={item.myStatus === "active"}
-                    />
+                    <ProjectCard project={item.project} isMatched={item.myStatus === "active"} />
                   </Link>
+
                 ))
               )}
             </div>
@@ -283,10 +275,7 @@ export default function MyPage() {
                     className="block space-y-1"
                   >
                     <AppliedStatusBadge status={item.myStatus} />
-                    <RequestCard
-                      request={item.request}
-                      hasMatch={item.myStatus === "active"}
-                    />
+                    <RequestCard request={item.request} isMatched={item.myStatus === "active"} />
                   </Link>
                 ))
               )}

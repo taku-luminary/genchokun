@@ -6,11 +6,11 @@ import { formatDate, formatJpDate, calcDaysLeft } from '@/app/_utils/format';
 // ─── ProjectCard ───────────────────────────────────────────
 interface ProjectCardProps {
   project: HomeProject | MypageProject;
-  hasMatch?: boolean;
+  isMatched?: boolean;
   applicationCount?: number; // マイページ用: 応募の総件数 (pending+active)
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch, applicationCount }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, applicationCount }) => {
   const daysLeft = calcDaysLeft(project.workEndDate);
 
   let daysLeftLabel: string | null;
@@ -29,7 +29,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch, app
 
   const isCompleted =
     project.status === 'completed' ||
-    hasMatch === true ||
+    isMatched === true ||  
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
   const date = formatDate(project.createdAt);
@@ -43,12 +43,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch, app
   // 応募ありかどうか (件数が1以上)
   const hasApplications = applicationCount !== undefined && applicationCount > 0;
   // 右上ボックスを出す条件: マッチング済み or 応募あり
-  const showStatusBox = hasMatch || hasApplications;
+  const showStatusBox = isMatched || hasApplications;
   // 右上ボックスのラベル: マッチが優先
-  const statusLabel = hasMatch ? 'マッチング' : '応募あり';
+  const statusLabel = isMatched ? 'マッチング' : '応募あり';
   // テーマ: マッチ成立=緑 / 応募ありのみ=赤（「やること」と同じ“要対応”の意味で赤）
-  const isMatched = hasMatch === true;
-  const isPending = !hasMatch && hasApplications;
+  const isPending = !isMatched && hasApplications;
 
 
   return (
@@ -117,15 +116,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, hasMatch, app
 // ─── RequestCard ───────────────────────────────────────────
 interface RequestCardProps {
   request: HomeRequest | MypageRequest;
-  hasMatch?: boolean;
+  isMatched?: boolean;
 }
 
-export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) => {
+export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) => {
   const daysLeft = calcDaysLeft(request.availableEndDate);
 
   const isCompleted =
     request.status === 'completed' ||
-    hasMatch === true ||
+    isMatched === true ||
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
   const date = formatDate(request.createdAt);
@@ -140,13 +139,12 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) =
         ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
         : request.paymentCycle
       : "—";
-
-  // 依頼待ちは「応募＝即マッチング」なので、ハイライト条件は hasMatch のみ
-  const isHighlighted = hasMatch === true;
-
+      
   return (
+    // 依頼待ちは「応募＝即マッチング」なので、ハイライト条件は isMatched のみ
+    //（ProjectCard と違い「応募あり」状態が無いため）
     <div className={`rounded-2xl p-6 card-shadow relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer ${
-      isHighlighted ? 'bg-brand-bg border-2 border-brand-green' : 'bg-white border border-slate-50'
+      isMatched ? 'bg-brand-bg border-2 border-brand-green' : 'bg-white border border-slate-50'
     }`}>
       <div className="flex justify-between items-start mb-4">
         <div className="space-y-1">
@@ -179,7 +177,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, hasMatch }) =
           </div>
         </div>
 
-        {hasMatch && (
+        {isMatched && ( 
           <div className="flex-shrink-0 w-24 bg-brand-green border-2 border-brand-green rounded-xl flex items-center justify-center px-1 py-2">
             <p className="text-sm font-bold text-white text-center leading-snug">
               マッチング

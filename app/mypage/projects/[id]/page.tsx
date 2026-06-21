@@ -259,11 +259,9 @@ export default function MypageProjectDetailPage() {
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
-          <ProjectCard
-            project={project}
-            hasMatch={!!matchedApp}
-            applicationCount={applications.length}
-          />
+        <ProjectCard project={project}
+         isMatched={!!matchedApp}
+         applicationCount={applications.length} />
         </div>
 
         {/* 調査内容（共通カード・ボタンなし） */}
