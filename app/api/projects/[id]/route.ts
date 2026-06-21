@@ -195,3 +195,50 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<{ success: true } | { error: string }>> {
+  const { id } = await params;
+
+  try {
+    // 1. ログイン確認
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 2. 所有者＋存在確認（本人の案件だけがヒット。他人/削除済みは 404）
+    const project = await prisma.projects.findFirst({
+      where: { id: BigInt(id), salesUserId: user.id, deletedAt: null },
+      select: { id: true, status: true },
+    });
+    if (!project) {
+      return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });
+    }
+
+    // 3. 削除可否をサーバー側で再チェック（編集と同一ルール）
+    if (project.status !== "open") {
+      return NextResponse.json({ error: "この案件は削除できません" }, { status: 409 });
+    }
+    const applicationCount = await prisma.matches.count({
+      where: { projectId: project.id, status: { in: ["pending", "active"] } },
+    });
+    if (applicationCount > 0) {
+      return NextResponse.json({ error: "応募が来ているため削除できません" }, { status: 409 });
+    }
+
+    // 4. 論理削除: 物理削除せず deletedAt に日時をセット。
+    //    一覧/詳細クエリは deletedAt: null で絞っているため、これで一覧から消える。
+    await prisma.projects.update({
+      where: { id: project.id },
+      data: { deletedAt: new Date() },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "削除に失敗しました" }, { status: 500 });
+  }
+}

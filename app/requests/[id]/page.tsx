@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
@@ -13,6 +14,9 @@ import type { HomeRequest } from '@/app/_types/home';
 
 export default function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { data, isLoading, error } = useAuthedFetch<RequestDetailResponse>(`/api/requests/${id}`);
 
   if (isLoading) {
@@ -49,6 +53,33 @@ export default function RequestDetailPage() {
     companyName: data.company?.name ?? null,
   };
 
+  const handleEdit = () => {
+    router.push(`/requests/${data.id}/edit`);
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('この依頼を削除します。よろしいですか？')) {
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/requests/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setDeleteError(json.error ?? '削除に失敗しました');
+        return;
+      }
+      // 削除済みの個別ページに「戻る」で戻れないよう push ではなく replace を使う。
+      router.replace('/mypage');    
+    } catch {
+      setDeleteError('通信エラーが発生しました。時間をおいて再度お試しください。');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
@@ -77,18 +108,41 @@ export default function RequestDetailPage() {
 
         {/* ▼ 連続ブロック: 依頼カード → 調査内容 → 投稿元情報 */}
 
-        {/* 編集ボタン（依頼カードの枠外・右上）。投稿者本人 && 未マッチ(open)のときだけ表示。
-            ※削除ボタンは次のPRでこの隣に追加する */}
-        {data.isEditable && (
-          <div className="flex justify-end gap-2">
-            <Link
-              href={`/requests/${data.id}/edit`}
-              className="px-4 py-2 rounded-xl border-2 border-neutral-400 text-neutral-700 text-sm font-bold hover:bg-neutral-100 transition"
-            >
-              編集
-            </Link>
+        {/* 編集/削除ボタン（自分の依頼なら常に表示）。
+            マッチ済みだと disabled（グレーアウト）になり、下に理由を常時表示する */}
+        {data.isMyRequest && (
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleEdit}
+                disabled={!data.isEditable}
+                className="px-5 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-sm hover:bg-slate-200 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
+              >
+                編集
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={!data.isEditable || deleting}
+                className="px-5 py-1.5 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm hover:bg-red-100 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? '削除中...' : '削除'}
+              </button>
+            </div>
+            {!data.isEditable && (
+              <p className="text-slate-500 text-sm">
+                {data.isMatched
+                  ? 'マッチングが成立しているため編集・削除できません'
+                  : '募集が終了しているため編集・削除できません'}
+              </p>
+            )}
+            {deleteError && (
+              <p className="text-red-500 text-sm">{deleteError}</p>
+            )}
           </div>
         )}
+
 
         {/* 依頼カード — マッチ成立済みなら右上バッジが「終了」灰色に */}
         <div className="pointer-events-none">

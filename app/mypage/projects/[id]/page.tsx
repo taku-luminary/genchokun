@@ -4,7 +4,7 @@ import { InvestigationCard } from '@/app/_components/InvestigationCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
 import type { MypageProjectDetailResponse } from '@/app/_types/mypage';
@@ -15,6 +15,12 @@ import type {
 
 export default function MypageProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
+
+  const router = useRouter();
+  // 削除処理中フラグ（二重クリック防止＋ボタン表示の出し分け）
+  const [deleting, setDeleting] = useState(false);
+  // 削除失敗（通信断・409など）のメッセージ
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { data, isLoading, error, mutate } =
     useAuthedFetch<MypageProjectDetailResponse>(`/api/mypage/projects/${id}`);
@@ -82,6 +88,34 @@ export default function MypageProjectDetailPage() {
       setServerError('通信エラーが発生しました');
     } finally {
       setSubmittingId(null);
+    }
+  };
+
+  // 「編集」ボタン（disabled のときは発火しないので guard 不要）
+  const handleEdit = () => {
+    router.push(`/projects/${project.id}/edit`);
+  };
+
+  // 「削除」ボタン（論理削除）
+  const handleDelete = async () => {
+    if (!window.confirm('この案件を削除します。よろしいですか？')) {
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setDeleteError('error' in json ? json.error : '削除に失敗しました');
+        return;
+      }
+      // 削除済みの個別ページに「戻る」で戻れないよう push ではなく replace を使う。
+      router.replace('/mypage');
+    } catch {
+      setDeleteError('通信エラーが発生しました。時間をおいて再度お試しください。');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -175,18 +209,38 @@ export default function MypageProjectDetailPage() {
 
         {/* ▼ 連続ブロック: 案件カード → 調査内容 → 投稿元情報 */}
 
-        {/* 編集ボタン（案件カードの枠外・右上）。応募ゼロ && open のときだけ表示。
-            ※削除ボタンは次のPRでこの隣に追加する */}
-        {isEditable && (
+        {/* 編集/削除ボタン（自分の案件なので常に表示）。
+            応募が来ていると disabled（グレーアウト）になり、下に理由を常時表示する */}
+        <div className="flex flex-col items-end gap-2">
           <div className="flex justify-end gap-2">
-            <Link
-              href={`/projects/${project.id}/edit`}
-              className="px-4 py-2 rounded-xl border-2 border-neutral-400 text-neutral-700 text-sm font-bold hover:bg-neutral-100 transition"
+            <button
+              type="button"
+              onClick={handleEdit}
+              disabled={!isEditable}
+              className="px-5 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-sm hover:bg-slate-200 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
             >
               編集
-            </Link>
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={!isEditable || deleting}
+              className="px-5 py-1.5 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm hover:bg-red-100 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? '削除中...' : '削除'}
+            </button>
           </div>
-        )}
+          {!isEditable && (
+            <p className="text-slate-500 text-sm">
+              {applications.length > 0
+                ? '応募が来ているため編集・削除できません'
+                : '募集が終了しているため編集・削除できません'}
+            </p>
+          )}
+          {deleteError && (
+            <p className="text-red-500 text-sm">{deleteError}</p>
+          )}
+        </div>
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
