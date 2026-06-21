@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
+import { InvestigationCard } from '@/app/_components/InvestigationCard';
+import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
@@ -31,11 +33,7 @@ export default function RequestDetailPage() {
   const isCompleted = isClosed || isExpired || data.isMatched;
 
   // RequestCard 用にデータを整形
-  // - hasMatch は渡さない (横の「マッチング済み」ラベルを表示しないため)
-  // - 代わりに status をマッチング済みなら "completed" で上書きして
-  //   右上バッジを「終了」灰色にする
-  //   (応募API側でDBの requests.status も "completed" に更新済みなので
-  //    通常は data.status === "completed" だが、保険として明示的に上書き)
+  // - マッチング成立済みなら表示上 "completed" として右上バッジを「終了」灰色にする
   const homeRequest: HomeRequest = {
     id: data.id,
     createdAt: data.createdAt,
@@ -47,9 +45,6 @@ export default function RequestDetailPage() {
     investigationSummary: data.investigationSummary,
     paymentCycle: data.paymentCycle,
     rewardMinYen: data.rewardMinYen,
-    // マッチング成立済みなら表示上は "completed" として扱い、右上バッジを「終了」に
-    // (DBも変更1で completed に更新されるが、応募直後の data はまだ古い値の可能性があるため
-    //  画面表示としても明示的に上書きしておく)
     status: data.isMatched ? "completed" : data.status,
     companyName: data.company?.name ?? null,
   };
@@ -58,12 +53,9 @@ export default function RequestDetailPage() {
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
 
-        {/* 依頼カード — マッチ成立済みなら右上バッジが「終了」灰色に */}
-        <div className="pointer-events-none">
-          <RequestCard request={homeRequest} />
-        </div>
+        {/* ▼ 並び替え: マッチ成立の連絡先カードを最上部にまとめる */}
 
-        {/* ▼ 追加: 応募者視点 — 自分が応募してマッチ成立済み → 工事店の連絡先 */}
+        {/* 応募者視点 — 自分が応募してマッチ成立済み → 工事店の連絡先 */}
         {data.hasApplied && data.isMatched && (
           <MatchedContactCard
             title="🎉 マッチング成立済み"
@@ -73,7 +65,7 @@ export default function RequestDetailPage() {
           />
         )}
 
-        {/* ▼ 追加: 投稿者視点 — 自分の依頼にマッチが入った → 販売店の連絡先 */}
+        {/* 投稿者視点 — 自分の依頼にマッチが入った → 販売店の連絡先 */}
         {data.isMyRequest && data.isMatched && (
           <MatchedContactCard
             title="🎉 あなたの依頼にマッチが入りました"
@@ -83,29 +75,32 @@ export default function RequestDetailPage() {
           />
         )}
 
+        {/* ▼ 連続ブロック: 依頼カード → 調査内容 → 投稿元情報 */}
 
-        {/* 詳細カード・マッチングボタン */}
-        <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">
-          <div className="p-6 space-y-4">
-            <p className="font-bold text-slate-700">調査内容</p>
-
-            {data.investigationSummary ? (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">概要</p>
-                <p className="text-slate-700">{data.investigationSummary}</p>
-              </div>
-            ) : (
-              <p className="text-slate-400">概要の記載なし</p>
-            )}
-
-            {data.investigationDetails && (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">詳細</p>
-                <p className="text-slate-700 whitespace-pre-wrap">{data.investigationDetails}</p>
-              </div>
-            )}
+        {/* 編集ボタン（依頼カードの枠外・右上）。投稿者本人 && 未マッチ(open)のときだけ表示。
+            ※削除ボタンは次のPRでこの隣に追加する */}
+        {data.isEditable && (
+          <div className="flex justify-end gap-2">
+            <Link
+              href={`/requests/${data.id}/edit`}
+              className="px-4 py-2 rounded-xl border-2 border-neutral-400 text-neutral-700 text-sm font-bold hover:bg-neutral-100 transition"
+            >
+              編集
+            </Link>
           </div>
+        )}
 
+        {/* 依頼カード — マッチ成立済みなら右上バッジが「終了」灰色に */}
+        <div className="pointer-events-none">
+          <RequestCard request={homeRequest} />
+        </div>
+
+
+        {/* 調査内容（共通カード）。マッチングボタン群は children として差し込む */}
+        <InvestigationCard
+          summary={data.investigationSummary}
+          details={data.investigationDetails}
+        >
           {/* 応募可能: 応募ページへの遷移リンク */}
           {!isCompleted && !data.hasApplied && !data.isMyRequest && (
             <div className="px-6 pb-6">
@@ -130,10 +125,7 @@ export default function RequestDetailPage() {
             </div>
           )}
 
-          {/* 他人がマッチング済み (自分は未応募)
-              isClosed/isExpired の条件は外して、「マッチが成立している」
-              事実を最優先で見せる。応募API側で status も completed に更新されるため
-              この分岐は isClosed=true でも発火する必要がある。 */}
+          {/* 他人がマッチング済み (自分は未応募) */}
           {!data.hasApplied && !data.isMyRequest && data.isMatched && (
             <div className="px-6 pb-6">
               <button
@@ -145,8 +137,7 @@ export default function RequestDetailPage() {
             </div>
           )}
 
-          {/* 募集が手動終了 (status=completed) かつマッチ無し
-              isClosed && isExpired の両方が true の場合もここでカバーする */}
+          {/* 募集が手動終了 (status=completed) かつマッチ無し */}
           {!data.hasApplied && !data.isMyRequest && !data.isMatched && isClosed && (
             <div className="px-6 pb-6">
               <button
@@ -169,61 +160,17 @@ export default function RequestDetailPage() {
               </button>
             </div>
           )}
-        </div>
+        </InvestigationCard>
 
-        {/* 依頼者の自社情報 */}
+        {/* 投稿元の工事店情報（共通カード） */}
         {data.company && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
-            <div className="pb-2 space-y-1 flex items-center gap-2">
-              <p className="text-m font-bold text-slate-700">投稿元の工事店情報</p>
-              <p className="text-xs text-slate-400">工事店が掲載している情報です</p>
-            </div>
-
-            <CompanyRow label="会社名" value={data.company.name} />
-            <CompanyRow
-              label="所在地"
-              value={[data.company.prefecture, data.company.city, data.company.address]
-                .filter(Boolean)
-                .join(" ")}
-            />
-            {data.company.representativeName && (
-              <CompanyRow label="代表者" value={data.company.representativeName} />
-            )}
-            {data.company.employeeCount && (
-              <CompanyRow label="従業員数" value={`${data.company.employeeCount}名`} />
-            )}
-            {data.company.websiteUrl && (
-              <div className="flex gap-2">
-                <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">Webサイト</p>
-                <a
-                  href={data.company.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brand-green underline break-all"
-                >
-                  {data.company.websiteUrl}
-                </a>
-              </div>
-            )}
-            {data.company.description && (
-              <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">会社紹介</p>
-                <p className="text-slate-700 whitespace-pre-wrap">{data.company.description}</p>
-              </div>
-            )}
-          </div>
+          <CompanyInfoCard
+            title="投稿元の工事店情報"
+            subtitle="工事店が掲載している情報です"
+            company={data.company}
+          />
         )}
-
       </div>
     </div>
   );
-
-function CompanyRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">{label}</p>
-      <p className="text-slate-700">{value}</p>
-    </div>
-  );
-}
 }

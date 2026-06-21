@@ -1,4 +1,4 @@
-import type { CompanyContact } from "./companies";
+import type { CompanyContact, CompanyInfo } from "./companies";
 // ▼ 追加: 応募した案件一覧はホームと同じカード型を使い回す
 import type { HomeProject, HomeRequest } from "./home";
 // /api/mypage が返すデータ全体の型
@@ -51,11 +51,18 @@ export type MypageRequest = {
   match: { status: string } | null;
 };
 
-// 詳細レスポンスでも一覧と同じ MypageProject を使う
-// (ProjectCard をそのまま再利用するため)
+
+// 詳細ページ専用: 一覧用 MypageProject に「調査詳細」と「投稿元(自社)情報」を足したもの。
+// 一覧API/ProjectCard に影響を出さないよう、一覧型は変えず詳細だけ拡張する。
+export type MypageProjectDetail = MypageProject & {
+  investigationDetails: string | null;
+  company: CompanyInfo | null;
+};
+
+// 詳細レスポンスは MypageProjectDetail を使う（ProjectCard には上位互換でそのまま渡せる）
 export type MypageProjectDetailResponse =
   | {
-      project: MypageProject;
+      project: MypageProjectDetail;
       applications: ProjectApplication[];
     }
   | { error: string };

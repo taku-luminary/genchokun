@@ -45,3 +45,16 @@ export type CompanyContact = {
   lineId: string | null;
   note: string | null;
 };
+
+// 詳細ページなどで表示する「投稿元の会社情報」カード用の共通型。
+// projects/[id]・requests/[id]・mypage/projects/[id] で共用する。
+export type CompanyInfo = {
+  name: string;
+  prefecture: string; // 都道府県名（表示用）
+  city: string | null;
+  address: string | null;
+  representativeName: string | null;
+  employeeCount: number | null;
+  websiteUrl: string | null;
+  description: string | null;
+};
