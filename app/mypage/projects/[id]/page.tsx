@@ -217,7 +217,7 @@ export default function MypageProjectDetailPage() {
               type="button"
               onClick={handleEdit}
               disabled={!isEditable}
-              className="px-4 py-2 rounded-xl border-2 border-neutral-400 text-neutral-700 text-sm font-bold hover:bg-neutral-100 transition disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+              className="px-5 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-sm hover:bg-slate-200 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
             >
               編集
             </button>
@@ -225,7 +225,7 @@ export default function MypageProjectDetailPage() {
               type="button"
               onClick={handleDelete}
               disabled={!isEditable || deleting}
-              className="px-4 py-2 rounded-xl border-2 border-red-300 text-red-600 text-sm font-bold hover:bg-red-50 transition disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+              className="px-5 py-1.5 rounded-xl bg-red-50 text-red-600 border border-red-100 text-sm hover:bg-red-100 transition disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-slate-50 disabled:cursor-not-allowed"
             >
               {deleting ? '削除中...' : '削除'}
             </button>

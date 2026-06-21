@@ -60,18 +60,18 @@ export default function ProjectDetailPage() {
 
         {/* 掲載者本人向けの案内（最上部）。応募状況・連絡先は管理ページに集約しているため誘導する */}
         {data.isMyProject && (
-          <section className="bg-neutral-50 border-1 border-neutral-100 rounded-2xl p-6 space-y-3">
-            <p className="text-sm font-black text-neutral-700">
-              これはあなたが掲載した案件です
+          <section className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3">
+            <p className="font-bold text-slate-700">
+              こちらはあなたが掲載した案件です
             </p>
-            <p className="text-sm text-neutral-600">
-              応募状況・マッチング状況・マッチ相手の連絡先は管理ページで確認できます。
+            <p className="text-sm text-slate-600">
+              応募状況・マッチング状況・マッチ相手の連絡先はマイページで確認できます。
             </p>
             <Link
               href={`/mypage/projects/${data.id}`}
-              className="block w-full py-3 rounded-2xl bg-neutral-600 text-white font-black text-center shadow hover:opacity-90 transition"
+              className="block w-120 mx-auto py-1 rounded-2xl bg-neutral-500 text-white text-center shadow hover:opacity-90 transition"
             >
-              管理ページを開く
+              マイページを開く
             </Link>
           </section>
         )}
