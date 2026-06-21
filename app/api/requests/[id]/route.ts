@@ -201,3 +201,42 @@ export async function PUT(
   }
 }
 
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<{ success: true } | ErrorResponse>> {
+  const { id } = await params;
+
+  try {
+    // 1. ログイン確認
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 2. 所有者＋存在確認（本人の依頼だけがヒット。他人/削除済みは 404）
+    const target = await prisma.requests.findFirst({
+      where: { id: BigInt(id), contractorUserId: user.id, deletedAt: null },
+      select: { id: true, status: true },
+    });
+    if (!target) {
+      return NextResponse.json({ error: "依頼が見つかりません" }, { status: 404 });
+    }
+
+    // 3. 削除可否を再チェック。requests は応募＝即マッチで status が completed になるため open 以外は不可。
+    if (target.status !== "open") {
+      return NextResponse.json({ error: "マッチング済みのため削除できません" }, { status: 409 });
+    }
+
+    // 4. 論理削除
+    await prisma.requests.update({
+      where: { id: target.id },
+      data: { deletedAt: new Date() },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "削除に失敗しました" }, { status: 500 });
+  }
+}
