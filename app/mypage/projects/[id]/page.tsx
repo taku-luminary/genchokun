@@ -150,18 +150,20 @@ export default function MypageProjectDetailPage() {
         )}
 
         {/* 2. 届いている応募 */}
+        {!matchedApp && (
         <section className="space-y-3">
-          <h2 className="text-center text-slate-700 font-bold">
-            ーー届いている応募ーー
-          </h2>
+          {/* ▼ 変更: ーー を両サイドのラインに */}
+          <div className="flex items-center gap-3 max-w-3xl mx-auto">
+            <span className="flex-1 h-px bg-slate-400" />
+            <h2 className="font-bold text-slate-700 whitespace-nowrap">
+              届いている応募
+            </h2>
+            <span className="flex-1 h-px bg-slate-400" />
+          </div>
 
           {pendingApps.length === 0 ? (
             <p className="text-center text-slate-500 font-bold py-10">
-              {matchedApp ? (
-                '未対応の応募はありません'
-              ) : (
-                <> まだ応募はありません。 <br />（応募がある場合はこちらに表示されます） </>
-              )}
+              まだ応募はありません。 <br />（応募がある場合はこちらに表示されます）
             </p>
           ) : (
             pendingApps.map((app) => {
@@ -171,24 +173,35 @@ export default function MypageProjectDetailPage() {
               return (
                 <article
                   key={app.matchId}
-                  className="bg-white rounded-2xl p-5 space-y-3 border border-slate-100"
+                  className="bg-white rounded-2xl p-5 space-y-3 border-2 border-brand-green"
                 >
-                  <p className="text-lg font-bold text-slate-800">
-                    {app.contractor.companyName ?? '（会社名未登録）'}
-                  </p>
+
+                  {/* 企業名: 応募が来ていることが目立つよう brand-green ＋ タイトル相当のサイズに。
+                      未登録のときだけグレーにして区別する */}
+                  {app.contractor.companyName ? (
+                    <p className="text-xl font-bold text-brand-green">
+                      {app.contractor.companyName}
+                    </p>
+                  ) : (
+                    <p className="text-xl font-bold text-slate-400">（会社名未登録）</p>
+                  )}
+
                   {app.contractor.prefecture && (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-slate-500">
                       {app.contractor.prefecture}
                     </p>
                   )}
-                  <p className="text-xs text-slate-400">
+
+                  <p className="text-sm font-medium text-slate-400">
                     応募日時: {new Date(app.appliedAt).toLocaleString('ja-JP')}
                   </p>
+
                   {app.message && (
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                    <p className="text-slate-700 font-medium whitespace-pre-wrap">
                       {app.message}
                     </p>
                   )}
+
                   {canDecide && (
                     <button
                       type="button"
@@ -196,16 +209,18 @@ export default function MypageProjectDetailPage() {
                         handleDecide(app.matchId, app.contractor.companyName)
                       }
                       disabled={submittingId !== null}
-                      className="w-full py-3 rounded-2xl bg-brand-green text-white font-black shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                      className="w-full py-3 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                       {isThisSubmitting ? '送信中...' : 'この工事店に決定'}
                     </button>
                   )}
                 </article>
+
               );
             })
           )}
         </section>
+        )}
 
         {/* ▼ 連続ブロック: 案件カード → 調査内容 → 投稿元情報 */}
 
@@ -244,11 +259,9 @@ export default function MypageProjectDetailPage() {
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
-          <ProjectCard
-            project={project}
-            hasMatch={!!matchedApp}
-            applicationCount={applications.length}
-          />
+        <ProjectCard project={project}
+         isMatched={!!matchedApp}
+         applicationCount={applications.length} />
         </div>
 
         {/* 調査内容（共通カード・ボタンなし） */}

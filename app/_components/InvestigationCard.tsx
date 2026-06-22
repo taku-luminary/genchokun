@@ -9,7 +9,7 @@ type Props = {
 
 export function InvestigationCard({ summary, details, children }: Props) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border-2 border-brand-green">
+    <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
       <div className="p-6 space-y-4">
         <p className="font-bold text-slate-700">調査内容</p>
 

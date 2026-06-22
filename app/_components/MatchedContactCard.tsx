@@ -38,12 +38,15 @@ export function MatchedContactCard({
   children,
 }: MatchedContactCardProps) {
   return (
-    <section className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 space-y-3">
-      <p className="text-sm font-black text-emerald-700">{title}</p>
-      {description && <p className="text-sm text-slate-700">{description}</p>}
-      <div className="border-t border-emerald-200 pt-3 mt-3">
-      {children && <div className="mb-3">{children}</div>}
-        <p className="text-xs text-slate-700 mb-4">
+    <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
+      {/* タイトル: 案件カードのタイトルと同じ text-2xl に */}
+      <p className="text-2xl font-bold text-brand-green">{title}</p>
+      {/* 説明: 案件カードの本文と同じ ベースサイズ font-medium に */}
+      {description && <p className="text-slate-700 font-medium">{description}</p>}
+      <div className="border-t border-brand-green/30 pt-3 mt-3">
+        {children && <div className="mb-3">{children}</div>}
+        {/* 連絡先ラベル: ラベル基準の text-sm font-bold に */}
+        <p className="text-sm font-bold text-slate-700 mb-4">
           ━ {contactLabel} ━
         </p>
         <ContactInfo
@@ -55,4 +58,6 @@ export function MatchedContactCard({
       </div>
     </section>
   );
+
+
 }

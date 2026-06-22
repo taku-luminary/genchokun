@@ -1,5 +1,6 @@
 "use client";
 
+import { calcDaysLeft } from "@/app/_utils/format";
 import { useState } from "react";
 import Link from "next/link"; 
 import { ProjectCard, RequestCard } from "@/app/_components/Cards";
@@ -46,16 +47,16 @@ export default function MyPage() {
             <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
 
               <div
-                className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between border-2 card-shadow 
+                className={`rounded-2xl p-4 md:p-6 row-span-2 flex flex-col justify-between card-shadow 
                   ${stats.todoCount > 0
                     ? "bg-red-50 border-red-100"
                     : "bg-white border-slate-300"
                 }`}
               >
                 <div>
-                  <p className="font-black text-slate-700">やること</p>
-                  <p className="text-xs md:text-sm text-slate-500 mt-1">
-                    マッチング・応募されている案件
+                  <p className="font-black text-slate-700">お知らせ</p>
+                  <p className="text-xs md:text-sm text-slate-600 mt-1">
+                    応募されている案件
                   </p>
                 </div>
                 <p
@@ -73,43 +74,56 @@ export default function MyPage() {
               <button
                 type="button"
                 onClick={() => setMode("posted")}
-                className={`bg-white rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition ${
-                  mode === "posted" ? "border-brand-green" : "border-slate-300 hover:border-slate-400"
+                className={`rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition active:scale-[0.98] ${
+                  mode === "posted"
+                    ? "bg-brand-green border-brand-green"
+                    : "bg-slate-100 border-slate-200 hover:bg-slate-200"
                 }`}
               >
-                <p className="text-sm md:text-base text-slate-600">
+                <p className={`text-sm md:text-base ${mode === "posted" ? "text-white" : "text-slate-600"}`}>
                   あなたが<strong>掲載</strong>した案件
                 </p>
-                <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
+                <p className={`text-3xl md:text-4xl font-black mt-2 ${mode === "posted" ? "text-white" : "text-slate-800"}`}>
                   {stats.postedCount}
                   <span className="text-xl ml-1">件</span>
                 </p>
               </button>
 
+
               <button
                 type="button"
                 onClick={() => setMode("applied")}
-                className={`bg-white rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition ${
-                  mode === "applied" ? "border-brand-green" : "border-slate-300 hover:border-slate-400"
+                className={`rounded-2xl p-4 md:p-5 border-2 card-shadow text-left transition active:scale-[0.98] ${
+                  mode === "applied"
+                    ? "bg-brand-green border-brand-green"
+                    : "bg-slate-100 border-slate-200 hover:bg-slate-200"
                 }`}
               >
-                <p className="text-sm md:text-base text-slate-600">
+                <p className={`text-sm md:text-base ${mode === "applied" ? "text-white" : "text-slate-600"}`}>
                   あなたが<strong>応募</strong>した案件
                 </p>
-                <p className="text-3xl md:text-4xl font-black text-slate-800 mt-2">
+                <p className={`text-3xl md:text-4xl font-black mt-2 ${mode === "applied" ? "text-white" : "text-slate-800"}`}>
                   {stats.appliedCount}
                   <span className="text-xl ml-1">件</span>
                 </p>
               </button>
+
+
             </div>
           )}
 
-          {/* ▼ 変更: 見出しを表示モードに合わせて切り替える */}
-          <p className="text-center text-slate-600 font-bold">
-            {mode === "posted"
-              ? "ーーあなたが掲載した案件ーー"
-              : "ーーあなたが応募した案件ーー"}
-          </p>
+          {/* ▼ 変更: ーー を両サイドのラインに。掲載/応募を大きめ＆緑で強調 */}
+          <div className="flex items-center gap-4 max-w-4xl mx-auto">
+            <span className="flex-1 h-px bg-slate-400" />
+            <p className="font-bold text-slate-600 whitespace-nowrap">
+              あなたが
+              <span className="text-xl text-brand-green mx-0.5">
+                {mode === "posted" ? "掲載" : "応募"}
+              </span>
+              した案件
+            </p>
+            <span className="flex-1 h-px bg-slate-400" />
+          </div>
 
           <div className="bg-slate-100 p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto shadow-inner">
             <button
@@ -158,24 +172,32 @@ export default function MyPage() {
                 </p>
               ) : (
                 projects.map((project) => {
+                  const hasMatch = project.matches.some((m) => m.status === "active");
                   // 「生きてる応募」の件数 = pending(未決定) + active(決定済)
                   // rejected/cancelled は数えない
                   const applicationCount = project.matches.filter(
                     (m) => m.status === "pending" || m.status === "active"
                   ).length;
-                
+                  // ▼ 追加: 終了判定（カード内タグと同じ: 完了 or 期限切れ）
+                  const daysLeft = calcDaysLeft(project.workEndDate);
+                  const isFinished =
+                    project.status === "completed" ||
+                    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+
                   return (
                     <Link
                       key={project.id}
                       href={`/mypage/projects/${project.id}`}
-                      className="block"
+                      className="block space-y-1"
                     >
-                      <ProjectCard
-                        project={project}
-                        hasMatch={project.matches.some((m) => m.status === "active")}
+                      <PostedStatusBadge
+                        hasMatch={hasMatch}
                         applicationCount={applicationCount}
+                        isFinished={isFinished}
                       />
+                      <ProjectCard project={project} isMatched={hasMatch} applicationCount={applicationCount} />
                     </Link>
+
                   );
                 })
               )}
@@ -190,18 +212,26 @@ export default function MyPage() {
                   掲載した工事店枠はありません
                 </p>
               ) : (
-                requests.map((request) => (
-                  <Link
-                    key={request.id}
-                    href={`/requests/${request.id}`}
-                    className="block"
-                  >
-                    <RequestCard
-                      request={request}
-                      hasMatch={request.match?.status === "active"}
-                    />
-                  </Link>
-                ))
+                requests.map((request) => {
+                  const hasMatch = request.match?.status === "active";
+                  // ▼ 追加: 終了判定（完了 or 期限切れ）
+                  const daysLeft = calcDaysLeft(request.availableEndDate);
+                  const isFinished =
+                    request.status === "completed" ||
+                    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+
+                  return (
+                    <Link
+                      key={request.id}
+                      href={`/requests/${request.id}`}
+                      className="block space-y-1"
+                    >
+                      <PostedStatusBadge hasMatch={hasMatch} isFinished={isFinished} />
+                      <RequestCard request={request} isMatched={hasMatch} />
+                    </Link>
+
+                  );
+                })
               )}
             </div>
           )}
@@ -222,11 +252,9 @@ export default function MyPage() {
                     className="block space-y-1"
                   >
                     <AppliedStatusBadge status={item.myStatus} />
-                    <ProjectCard
-                      project={item.project}
-                      hasMatch={item.myStatus === "active"}
-                    />
+                    <ProjectCard project={item.project} isMatched={item.myStatus === "active"} />
                   </Link>
+
                 ))
               )}
             </div>
@@ -247,10 +275,7 @@ export default function MyPage() {
                     className="block space-y-1"
                   >
                     <AppliedStatusBadge status={item.myStatus} />
-                    <RequestCard
-                      request={item.request}
-                      hasMatch={item.myStatus === "active"}
-                    />
+                    <RequestCard request={item.request} isMatched={item.myStatus === "active"} />
                   </Link>
                 ))
               )}
@@ -266,11 +291,35 @@ export default function MyPage() {
 // ▼ 追加: 応募した案件カードの上に出す自分の応募状態ラベル
 function AppliedStatusBadge({ status }: { status: AppliedProject["myStatus"] }) {
   if (status === "active") {
-    return <p className="text-xs font-bold text-emerald-700">🎉 マッチング成立</p>;
+    return <p className="text-sm font-bold text-brand-green">🎉 マッチング成立</p>;
   }
   if (status === "pending") {
-    return <p className="text-xs font-bold text-slate-600">応募中・決定待ち</p>;
+    return <p className="text-sm font-bold text-slate-600">応募中・決定待ち</p>;
   }
   // rejected(落選) / cancelled(取下げ)
-  return <p className="text-xs font-bold text-slate-400">不成立</p>;
+  return <p className="text-sm font-bold text-slate-600">不成立</p>;
 }
+
+
+// ▼ 追加: 掲載した案件カードの上に出す、掲載者視点のステータスラベル
+function PostedStatusBadge({
+  hasMatch,
+  applicationCount = 0,
+  isFinished,
+}: {
+  hasMatch?: boolean;
+  applicationCount?: number;
+  isFinished?: boolean;
+}) {
+  if (hasMatch) {
+    return <p className="text-sm font-bold text-brand-green">🎉 マッチング成立</p>;
+  }
+  if (applicationCount > 0) {
+    return <p className="text-sm font-bold text-red-600">応募あり・要対応</p>;
+  }
+  if (isFinished) {
+    return <p className="text-sm font-bold text-slate-500">終了</p>;
+  }
+  return <p className="text-sm font-bold text-slate-600">募集中</p>;
+}
+
