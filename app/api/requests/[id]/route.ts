@@ -122,6 +122,7 @@ export async function GET(
       status: request.status,
       company: c
         ? {
+            id: c.id.toString(), 
             name: c.name,
             prefecture: c.prefecture.name,
             city: c.city,

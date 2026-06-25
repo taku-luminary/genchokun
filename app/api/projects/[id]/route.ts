@@ -3,8 +3,6 @@ import { prisma } from "@/app/_libs/prisma";
 import type { ProjectDetailResponse, UpdateProjectRequest } from "@/app/_types/projects";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 
-
-
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -88,6 +86,7 @@ export async function GET(
       status: project.status,
       company: c
         ? {
+            id: c.id.toString(),        // ← 追加
             name: c.name,
             prefecture: c.prefecture.name,
             city: c.city,

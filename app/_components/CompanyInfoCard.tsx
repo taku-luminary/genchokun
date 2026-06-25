@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CompanyInfo } from "@/app/_types/companies";
 
 type Props = {
@@ -16,7 +17,16 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
         <p className="text-xs text-slate-400">{subtitle}</p>
       </div>
 
-      <CompanyRow label="会社名" value={company.name} />
+      <div className="flex gap-2">
+        <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">会社名</p>
+        <Link
+          href={`/companies/${company.id}`}
+          className="text-brand-green font-bold underline hover:opacity-80 transition break-all"
+        >
+          {company.name}
+        </Link>
+      </div>
+
       <CompanyRow
         label="所在地"
         value={[company.prefecture, company.city, company.address].filter(Boolean).join(" ")}

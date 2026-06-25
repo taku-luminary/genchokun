@@ -49,12 +49,23 @@ export type CompanyContact = {
 // 詳細ページなどで表示する「投稿元の会社情報」カード用の共通型。
 // projects/[id]・requests/[id]・mypage/projects/[id] で共用する。
 export type CompanyInfo = {
+  id: string;          // ← 追加: 企業ページ /companies/[id] へのリンク用
   name: string;
-  prefecture: string; // 都道府県名（表示用）
+  prefecture: string;
   city: string | null;
   address: string | null;
   representativeName: string | null;
   employeeCount: number | null;
   websiteUrl: string | null;
   description: string | null;
+};
+
+// GET /api/companies/[id] のレスポンス型（公開企業ページ用）
+// 連絡先（contactPhone/Email/LineId/Note）は公開しないので含めない。
+// 表示は既存の CompanyInfoCard を再利用するため、CompanyInfo をそのまま使う。
+export type CompanyPublicResponse = {
+  id: string;
+  company: CompanyInfo;
+  logoImageUrl: string | null;
+  isMyCompany: boolean;        // ←  閲覧者がこの企業のオーナー本人か
 };
