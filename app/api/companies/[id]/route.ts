@@ -14,11 +14,8 @@ export async function GET(
   try {
     const { id } = await params;
 
-    if (!/^\d+$/.test(id)) {
-      return NextResponse.json({ error: "企業が見つかりません" }, { status: 404 });
-    }
-
     const company = await prisma.companies.findUnique({
+
       where: { id: BigInt(id) },
       include: { prefecture: true },
     });
