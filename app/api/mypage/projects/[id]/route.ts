@@ -121,6 +121,7 @@ export async function GET(
         // ▼ 追加: 投稿元(自社)情報カード用。CompanyInfo 型に合わせて整形する。
         company: c
           ? {
+              id: c.id.toString(),
               name: c.name,
               prefecture: c.prefecture.name,
               city: c.city,
@@ -140,6 +141,7 @@ export async function GET(
         appliedAt: m.createdAt.toISOString(),
         contractor: {
           userId: m.contractorUserId,
+          companyId: m.contractorUser.company?.id.toString() ?? null,   // ← 追加
           companyName: m.contractorUser.company?.name ?? null,
           prefecture: m.contractorUser.company?.prefecture?.name ?? null,
           // ▼ 追加: マッチ成立済み（status === "active"）の応募者にだけ連絡先を返す。

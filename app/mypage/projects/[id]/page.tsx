@@ -179,9 +179,18 @@ export default function MypageProjectDetailPage() {
                   {/* 企業名: 応募が来ていることが目立つよう brand-green ＋ タイトル相当のサイズに。
                       未登録のときだけグレーにして区別する */}
                   {app.contractor.companyName ? (
-                    <p className="text-xl font-bold text-brand-green">
-                      {app.contractor.companyName}
-                    </p>
+                    app.contractor.companyId ? (
+                      <Link
+                        href={`/companies/${app.contractor.companyId}`}
+                        className="text-xl font-bold text-brand-green underline hover:opacity-80 transition"
+                      >
+                        {app.contractor.companyName}
+                      </Link>
+                    ) : (
+                      <p className="text-xl font-bold text-brand-green">
+                        {app.contractor.companyName}
+                      </p>
+                    )
                   ) : (
                     <p className="text-xl font-bold text-slate-400">（会社名未登録）</p>
                   )}

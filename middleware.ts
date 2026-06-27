@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";                                            
   import { createServerClient } from "@supabase/ssr";
 
-  const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth/callback", "/api/auth/signup",  
-    "/api/auth/login","/api/home",];  
+  const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth/callback", "/api/auth/signup",
+    "/api/auth/login","/api/home",];
+  
+  // 数字IDの企業ページ・企業APIだけを公開許可する。
+  // 例: /companies/123, /api/companies/123 → 許可
+  //     /api/companies/me は数字ではないので対象外（＝認証必須のまま）
+  const isPublicCompanyPath = (pathname: string) =>
+    /^\/companies\/\d+$/.test(pathname) || /^\/api\/companies\/\d+$/.test(pathname);
   
   export const middleware = async (request: NextRequest) => {                                              
     const ref = { response: NextResponse.next({ request }) };
@@ -32,8 +38,11 @@ import { type NextRequest, NextResponse } from "next/server";
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user && !PUBLIC_PATHS.includes(request.nextUrl.pathname)) {                                       
-      const url = request.nextUrl.clone();
+    if (
+      !user &&
+      !PUBLIC_PATHS.includes(request.nextUrl.pathname) &&
+      !isPublicCompanyPath(request.nextUrl.pathname)
+    ) {      const url = request.nextUrl.clone();
       url.pathname = "/login";                                                                             
       ref.response = NextResponse.redirect(url);
     }

@@ -1,12 +1,24 @@
-  import React from "react";
-  import { createClient } from "@/app/_libs/supabase/server";
-  import { LogoutButton } from "./LogoutButton";
-  import Link from "next/link";
+import React from "react";
+import { createClient } from "@/app/_libs/supabase/server";
+import { prisma } from "@/app/_libs/prisma";          // ← 追加
+import { LogoutButton } from "./LogoutButton";
+import Link from "next/link";
 
-  export const Header = async () => {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+export const Header = async () => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  // ログイン中なら自社の企業IDを取得（未登録なら null）
+  let companyId: string | null = null;
+  if (user) {
+    const company = await prisma.companies.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    companyId = company ? company.id.toString() : null;
+  }
+  // 企業ページがあればそこへ、なければ登録（編集）ページへ
+  const companyHref = companyId ? `/companies/${companyId}` : "/mypage/settings/company";
     return (
       <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 px-4 py-3 md:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -32,7 +44,7 @@
               >
                 マイページ
               </Link>
-              <Link href="/mypage/settings/company" className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">
+              <Link href={companyHref} className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">
                 自社情報
               </Link>
               <LogoutButton />
