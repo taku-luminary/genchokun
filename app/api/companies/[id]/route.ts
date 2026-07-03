@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
-import { getAuthUser } from "@/app/_libs/getAuthUser";   // ← 追加
+import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { CompanyPublicResponse } from "@/app/_types/companies";
+import type { InterviewArticlePublic } from "@/app/_types/articles";
 
-type ErrorResponse = {
-  error: string;
-};
+type ErrorResponse = { error: string };
 
 export async function GET(
   _request: NextRequest,
@@ -15,18 +14,50 @@ export async function GET(
     const { id } = await params;
 
     const company = await prisma.companies.findUnique({
-
       where: { id: BigInt(id) },
-      include: { prefecture: true },
+      include: {
+        prefecture: true,
+        // 記事とそのブロックも一緒に取得（1企業1記事）
+        interviewArticle: { include: { blocks: true } },
+      },
     });
 
     if (!company) {
       return NextResponse.json({ error: "企業が見つかりません" }, { status: 404 });
     }
 
-    // 閲覧者がこの企業のオーナー本人か（未ログインなら false）
+    // 閲覧者の状態（未ログインなら両方 false）
     const user = await getAuthUser();
-    const isMyCompany = user ? user.id === company.userId : false;
+    let isMyCompany = false;
+    let isAdmin = false;
+    if (user) {
+      isMyCompany = user.id === company.userId;
+      const dbUser = await prisma.users.findUnique({
+        where: { id: user.id },
+        select: { isAdmin: true },
+      });
+      isAdmin = dbUser?.isAdmin ?? false;
+    }
+
+    // 公開中（published）の記事だけを、セクションごとの本文に均して返す
+    let article: InterviewArticlePublic | null = null;
+    const a = company.interviewArticle;
+    if (a && a.status === "published") {
+      const companyIntroText =
+        a.blocks.find(
+          (b) => b.sectionKey === "company_intro" && b.blockType === "text"
+        )?.textContent ?? null;
+      const workStyleText =
+        a.blocks.find(
+          (b) => b.sectionKey === "work_style" && b.blockType === "text"
+        )?.textContent ?? null;
+      article = {
+        title: a.title,
+        introText: a.introText,
+        companyIntroText,
+        workStyleText,
+      };
+    }
 
     return NextResponse.json({
       id: company.id.toString(),
@@ -42,7 +73,9 @@ export async function GET(
         description: company.description,
       },
       logoImageUrl: company.logoImageUrl,
-      isMyCompany,           // ← 追加
+      isMyCompany,
+      isAdmin,
+      article,
     });
   } catch (e) {
     console.error(e);

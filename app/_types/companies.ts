@@ -1,3 +1,5 @@
+import type { InterviewArticlePublic } from "./articles"; 
+
 // PUT /api/companies/me のリクエスト型（フォームの送信内容）
 export type UpdateCompanyRequest = {
   name: string;          // 必須
@@ -68,4 +70,6 @@ export type CompanyPublicResponse = {
   company: CompanyInfo;
   logoImageUrl: string | null;
   isMyCompany: boolean;        // ←  閲覧者がこの企業のオーナー本人か
+  isAdmin: boolean;                        //  管理者に編集導線を出すため
+  article: InterviewArticlePublic | null;  //  公開中の記事（published のみ）
 };

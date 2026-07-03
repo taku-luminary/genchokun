@@ -20,9 +20,13 @@ import { type NextRequest, NextResponse } from "next/server";
         cookies: {
           getAll: () => request.cookies.getAll(),                                                          
           setAll: (cookiesToSet) => {
+            // cookiesToSet はSupabaseが「ブラウザに保存し直してほしい」と渡してくるCookieの一覧
             ref.response = NextResponse.next({ request });
+            // このリクエストはそのまま通してOKですというCookieをブラウザに返すためのレスポンス（オブジェクト）を作る
             cookiesToSet.forEach(({ name, value, options }) =>
-              ref.response.cookies.set(name, value, {                                                      
+            // Supabaseから渡されたCookie一覧を1つずつ処理する
+              ref.response.cookies.set(name, value, {   
+              // ブラウザに保存してほしいCookieを、レスポンスに追加する                              
                 ...options,
                 httpOnly: true,                                                                            
                 secure: process.env.NODE_ENV === "production",
