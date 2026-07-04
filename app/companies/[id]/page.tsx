@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/app/_libs/prisma";
@@ -6,6 +8,52 @@ import { CompanyInfoCard } from "@/app/_components/CompanyInfoCard";
 import { InterviewArticle } from "@/app/_components/InterviewArticle";
 import type { InterviewArticlePublic } from "@/app/_types/articles";
 
+// DB取得を cache() で包む。同じリクエスト内なら generateMetadata と
+// ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
+const getCompany = cache(async (id: string) => {
+  return prisma.companies.findUnique({
+    where: { id: BigInt(id) },
+    include: {
+      prefecture: true,
+      interviewArticle: { include: { blocks: true } },
+    },
+  });
+});
+
+// ページの <head>（title / description / OGP）を企業ごとに生成する
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const company = await getCompany(id);
+
+  if (!company) {
+    return { title: "企業が見つかりません | 現調くん" };
+  }
+
+  const location = [company.prefecture.name, company.city]
+    .filter(Boolean)
+    .join(" ");
+  // description は説明文があれば先頭120文字、なければ定型文
+  const description = company.description
+    ? company.description.slice(0, 120)
+    : `${company.name}（${location}）の企業情報を掲載中。現調くん（調査・工事のマッチングサービス）`;
+
+  const title = `${company.name} | 現調くん`;
+
+  return {
+    title,
+    description,
+    // SNSでシェアされた時のカード表示用
+    openGraph: {
+      title,
+      description,
+    },
+  };
+}
+
 export default async function CompanyPublicPage({
   params,
 }: {
@@ -13,16 +61,9 @@ export default async function CompanyPublicPage({
 }) {
   const { id } = await params;
 
-  // サーバー上でDBから直接取得（ブラウザのJSではない）
-  const company = await prisma.companies.findUnique({
-    where: { id: BigInt(id) },
-    include: {
-      prefecture: true,
-      interviewArticle: { include: { blocks: true } },
-    },
-  });
+  // ↑の generateMetadata と同じ関数を呼ぶが、cache により実DBアクセスは1回
+  const company = await getCompany(id);
 
-  // 存在しない企業IDなら Next.js 標準の404へ
   if (!company) notFound();
 
   // 閲覧者の状態（未ログインなら両方 false）
@@ -58,7 +99,6 @@ export default async function CompanyPublicPage({
     };
   }
 
-  // CompanyInfoCard に渡す形に整形
   const companyInfo = {
     id: company.id.toString(),
     name: company.name,
@@ -75,7 +115,6 @@ export default async function CompanyPublicPage({
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
 
-        {/* 編集ボタン群（本人＝自社情報編集 / 管理者＝記事編集） */}
         {(isMyCompany || isAdmin) && (
           <div className="flex justify-end gap-2">
             {isMyCompany && (
