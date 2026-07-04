@@ -109,6 +109,88 @@ export default function AdminArticleEditPage() {
       </p>
 
       <form onSubmit={handleSubmit(saveArticle)} className="space-y-5">
+  {/*
+    === このフォーム送信の流れ ===
+
+    ① 画面描画時
+    ReactがこのJSXを読むタイミングで、handleSubmit(saveArticle) は実行される。
+    ただし、この時点で saveArticle はまだ実行されない。
+    saveArticle に () が付いていないので、「あとで呼ぶための関数」として handleSubmit に渡しているだけ。
+     →イメージ:const submitHandler = handleSubmit(saveArticle);
+    つまり最終的には、Reactにこう登録しているイメージ: <form onSubmit={submitHandler}>
+
+        〜〜〜 handleSubmit(saveArticle) の超簡略イメージ 〜〜〜
+        ※上記の通り、ReactがこのJSXを読むタイミングで、
+        function handleSubmit(callback)の戻り値である、async function submitHandler(event) {...以下になり、
+        callbackもsaveArticleとなる
+
+        function handleSubmit(callback) {
+          return async function submitHandler(event) {
+            event.preventDefault();
+
+            const formData = {
+              title: titleInput.value,
+              introText: introTextTextarea.value,
+              companyIntroText: companyIntroTextTextarea.value,
+              workStyleText: workStyleTextTextarea.value,
+              status: statusSelect.value,
+            };
+
+            if (!formData.title) {
+              errors.title = {
+                message: "記事タイトルを入力してください",
+              };
+              return;
+            }
+
+            await callback(formData);
+            // callback は saveArticle のことで、つまり await saveArticle(formData); と同じ
+          };
+        }
+
+    ② ユーザーが更新ボタンをクリック
+    <Button type="submit"> を押すと、ボタン自身がfetchするのではなく、親の form に submit イベントが発生する。
+
+    ③ Reactが onSubmit に登録していた関数を実行
+    画面描画時に handleSubmit(saveArticle) が返した関数が、submitイベントによって実行される。
+     上記の超簡略イメージの通り:submitHandler(event);
+
+    ④ submitHandler（上記の超簡略イメージ） の中でRHFがやること
+    - event.preventDefault() でページリロードを防ぐ
+    - registerされた入力欄から値を集める
+    - requiredなどのバリデーションをする
+    - エラーがあれば errors に入れて処理を止める
+    - エラーがなければ formData を作る
+
+    ⑤ バリデーションOKなら saveArticle(formData) が実行される
+    handleSubmit に渡した saveArticle が callback として呼ばれる。
+     上記の超簡略イメージの通り:await callback(formData);
+      この callback は saveArticle なので、実際には:await saveArticle(formData);
+
+
+    ⑥ saveArticle の中で fetch が実行される
+    formData が JSON.stringify(formData) でJSON文字列に変換され、
+    PUTリクエストの body としてAPIに送られる。
+    イメージ: body: JSON.stringify(formData)
+
+
+    === メモ ===
+
+    handleSubmit(saveArticle)
+      → 画面描画時に実行される
+      → submit用の関数を返す
+      → saveArticle自体はまだ実行されない
+
+    ユーザーが<Button type="submit">をクリック
+      → formのsubmitイベント発生
+      → handleSubmit(saveArticle) が返した関数が実行される
+      → RHFが入力値を集める
+      → formDataを作る
+      → saveArticle(formData) が実行される
+      → fetchでAPIに送信される
+
+  */}
+
         {/* 記事タイトル */}
         <div>
           <Label htmlFor="title">記事タイトル *</Label>

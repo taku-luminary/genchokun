@@ -16,7 +16,7 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
         {/* タイトル＋導入文 */}
         <div>
-          <h3 className="text-xl font-bold text-slate-800">{article.title}</h3>
+          <h1 className="text-xl font-bold text-slate-800">{article.title}</h1>
           {article.introText && (
             <p className="text-slate-700 whitespace-pre-wrap mt-2">
               {article.introText}

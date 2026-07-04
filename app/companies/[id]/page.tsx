@@ -1,30 +1,84 @@
-'use client';
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { prisma } from "@/app/_libs/prisma";
+import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { CompanyInfoCard } from "@/app/_components/CompanyInfoCard";
+import { InterviewArticle } from "@/app/_components/InterviewArticle";
+import type { InterviewArticlePublic } from "@/app/_types/articles";
 
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
-import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
-import { InterviewArticle } from '@/app/_components/InterviewArticle';   // ← 追加
-import type { CompanyPublicResponse } from '@/app/_types/companies';
+export default async function CompanyPublicPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-export default function CompanyPublicPage() {
-  const { id } = useParams<{ id: string }>();
+  // サーバー上でDBから直接取得（ブラウザのJSではない）
+  const company = await prisma.companies.findUnique({
+    where: { id: BigInt(id) },
+    include: {
+      prefecture: true,
+      interviewArticle: { include: { blocks: true } },
+    },
+  });
 
-  const { data, isLoading, error } = useAuthedFetch<CompanyPublicResponse>(
-    `/api/companies/${id}`
-  );
+  // 存在しない企業IDなら Next.js 標準の404へ
+  if (!company) notFound();
 
-  if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
-  if (error || !data) return <p className="text-center text-red-500 py-20">企業情報の取得に失敗しました</p>;
+  // 閲覧者の状態（未ログインなら両方 false）
+  const user = await getAuthUser();
+  let isMyCompany = false;
+  let isAdmin = false;
+  if (user) {
+    isMyCompany = user.id === company.userId;
+    const dbUser = await prisma.users.findUnique({
+      where: { id: user.id },
+      select: { isAdmin: true },
+    });
+    isAdmin = dbUser?.isAdmin ?? false;
+  }
+
+  // 公開中(published)の記事だけをセクション本文に均す
+  let article: InterviewArticlePublic | null = null;
+  const a = company.interviewArticle;
+  if (a && a.status === "published") {
+    const companyIntroText =
+      a.blocks.find(
+        (b) => b.sectionKey === "company_intro" && b.blockType === "text"
+      )?.textContent ?? null;
+    const workStyleText =
+      a.blocks.find(
+        (b) => b.sectionKey === "work_style" && b.blockType === "text"
+      )?.textContent ?? null;
+    article = {
+      title: a.title,
+      introText: a.introText,
+      companyIntroText,
+      workStyleText,
+    };
+  }
+
+  // CompanyInfoCard に渡す形に整形
+  const companyInfo = {
+    id: company.id.toString(),
+    name: company.name,
+    prefecture: company.prefecture.name,
+    city: company.city,
+    address: company.address,
+    representativeName: company.representativeName,
+    employeeCount: company.employeeCount,
+    websiteUrl: company.websiteUrl,
+    description: company.description,
+  };
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
 
         {/* 編集ボタン群（本人＝自社情報編集 / 管理者＝記事編集） */}
-        {(data.isMyCompany || data.isAdmin) && (
+        {(isMyCompany || isAdmin) && (
           <div className="flex justify-end gap-2">
-            {data.isMyCompany && (
+            {isMyCompany && (
               <Link
                 href="/mypage/settings/company"
                 className="px-5 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-sm hover:bg-slate-200 transition"
@@ -32,7 +86,7 @@ export default function CompanyPublicPage() {
                 自社情報を編集
               </Link>
             )}
-            {data.isAdmin && (
+            {isAdmin && (
               <Link
                 href={`/admin/companies/${id}/article/edit`}
                 className="px-5 py-1.5 rounded-xl bg-brand-green text-white border border-brand-green text-sm hover:opacity-90 transition"
@@ -43,15 +97,13 @@ export default function CompanyPublicPage() {
           </div>
         )}
 
-        {/* 企業情報（既存カードを再利用） */}
         <CompanyInfoCard
           title="企業情報"
           subtitle="この企業が掲載している情報です"
-          company={data.company}
+          company={companyInfo}
         />
 
-        {/* インタビュー記事（公開中のものがあるときだけ表示） */}
-        {data.article && <InterviewArticle article={data.article} />}
+        {article && <InterviewArticle article={article} />}
       </div>
     </div>
   );
