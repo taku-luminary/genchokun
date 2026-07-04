@@ -27,7 +27,7 @@ export function useAuthedFetch<T>(url: string) {
 // fetch 完了！React が再レンダリング
 // ↓
 // useSWR が返すもの（自動更新）：
-// { data: { projects: [...] }, isLoading: false, error: undefined }
+// { data:APIが返したJSON, isLoading: false, error: undefined }
 
 // 「最終的な値を待ってから返す」のではなく、「今の状態スナップショット」を即座に返して、完了したら自動で更新するという仕組みです。
 // useStateと同じように状態管理をしていて値が変更されたら更新される
