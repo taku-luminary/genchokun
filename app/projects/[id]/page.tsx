@@ -69,7 +69,7 @@ export default function ProjectDetailPage() {
             </p>
             <Link
               href={`/mypage/projects/${data.id}`}
-              className="block w-120 mx-auto py-1 rounded-2xl bg-neutral-500 text-white text-center shadow hover:opacity-90 transition"
+              className="block w-full max-w-md mx-auto py-1 rounded-2xl bg-neutral-500 text-white text-center shadow hover:opacity-90 transition"
             >
               マイページを開く
             </Link>

@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
           </svg>
           <div>
             <h2 className="text-lg font-bold text-brand-green leading-tight">現調くん</h2>
-            <p className="text-[8px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
+            <p className="text-[10px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
           </div>
         </div>
 

@@ -31,28 +31,31 @@ export const Header = async () => {
               </svg>
               <div className="ml-2">
                 <h1 className="text-xl font-bold text-brand-green leading-tight">現調くん</h1>
-                <p className="text-[10px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
+                <p className="hidden md:block text-[10px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
               </div>
             </Link>
           </div>
 
-          <nav className="flex items-center gap-4 md:gap-8">
+          <nav className="flex items-center gap-3 md:gap-8">
           {user ? (
             <>
               <span className="text-sm text-slate-500 hidden md:block">{user.email}</span>
-              <Link href="/mypage" className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors"
+              <Link href="/mypage" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
                 マイページ
               </Link>
-              <Link href={companyHref} className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">
+              <Link href={companyHref} className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              >
                 自社情報
               </Link>
               <LogoutButton />
             </>
           ) : (
               <>
-                <Link href="/signup" className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">会員登録</Link>
-                <Link href="/login" className="text-sm font-bold text-slate-600 hover:text-brand-green transition-colors">ログイン</Link>
+                <Link href="/signup" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                >会員登録</Link>
+                <Link href="/login" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                >ログイン</Link>
               </>
             )}
           </nav>
