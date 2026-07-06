@@ -167,7 +167,8 @@ export default function EditRequestPage() {
         </div>
 
         {/* 対応可能期間 */}
-        <div className="flex gap-3">
+        {/* date入力はブラウザ固有の最小幅より縮まないため、スマホでは縦積みにする */}
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
             <Label htmlFor="availableStartDate">対応可能 開始日</Label>
             <Input id="availableStartDate" disabled={isSubmitting} type="date" {...register("availableStartDate")} />

@@ -222,7 +222,8 @@
           </div>
 
           {/* 作業日程 */}
-          <div className="flex gap-3">
+          {/* date入力はブラウザ固有の最小幅より縮まないため、スマホでは縦積みにする */}
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1">
               <Label   htmlFor="workStartDate">作業開始日</Label>
               <Input id="workStartDate" disabled={isSubmitting} type="date"  {...register("workStartDate")} />
