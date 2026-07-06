@@ -39,35 +39,36 @@ export default function Home() {
         <HeroBackground />
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 pb-4 space-y-4 md:pt-10 md:pb-6 md:space-y-7">
           <div className="text-center">
-            <h2 className="text-2xl md:text-5xl font-black text-white tracking-tight text-shadow-sm leading-tight">
-              現地調査の案件マッチングサービス
+          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight text-shadow-sm leading-tight">
+              現地調査の<br className="md:hidden" />案件マッチングサービス
             </h2>
           </div>
 
           {/* Action Buttons */}
           <div className="flex justify-center items-center gap-4 md:gap-10">
-            <Link href="/projects/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-6 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
+            <Link href="/projects/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-5 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
-                <p className="text-[10px] md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">販売店向け</p>
-                <h3 className="text-sm md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調を<br />お願いする</h3>
+                <p className="text-xs md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">販売店向け</p>
+                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調を<br />お願いする</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
                 <img src="input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
               </div>
             </Link>
 
-            <Link href="/requests/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-6 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
+            <Link href="/requests/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-5 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
-                <p className="text-[10px] md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">工事店向け</p>
-                <h3 className="text-sm md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調に行ける日<br />を登録する</h3>
+                <p className="text-xs md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">工事店向け</p>
+                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調に行ける日<br />を登録する</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
                 <img src="input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
               </div>
             </Link>
           </div>
+
 
           {/* Search Bar */}
           <div className="space-y-3 md:space-y-6">
@@ -81,7 +82,7 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="詳細な条件で検索"
-                className="w-full bg-white rounded-xl md:rounded-2xl py-3 md:py-5 pl-10 md:pl-12 pr-4 text-sm md:text-base text-slate-600 font-bold shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-white/30 transition-all border-none"
+                className="w-full bg-white rounded-xl md:rounded-2xl py-3.5 md:py-5 pl-10 md:pl-12 pr-4 text-base text-slate-600 font-bold shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-white/30 transition-all border-none"
               />
             </div>
 
@@ -89,7 +90,7 @@ export default function Home() {
             <div className="bg-white/80 backdrop-blur-xl p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto border border-white/30 shadow-xl">
               <button
                 onClick={() => setActiveTab('projects')}
-                className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
+                className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl font-black transition-all duration-300 ${
                   activeTab === 'projects'
                     ? 'bg-brand-green text-white shadow-lg scale-[1.02]'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-white/20'
@@ -99,7 +100,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setActiveTab('requests')}
-                className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
+                className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl font-black transition-all duration-300 ${
                   activeTab === 'requests'
                     ? 'bg-brand-green text-white shadow-lg scale-[1.02]'
                     : 'text-slate-600 hover:text-slate-800 hover:bg-white/20'

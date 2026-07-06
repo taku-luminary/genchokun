@@ -80,8 +80,8 @@ export default function MyPage() {
                     : "bg-slate-100 border-slate-200 hover:bg-slate-200"
                 }`}
               >
-                <p className={`text-sm md:text-base ${mode === "posted" ? "text-white" : "text-slate-600"}`}>
-                  あなたが<strong>掲載</strong>した案件
+                <p className={`text-xs md:text-base ${mode === "posted" ? "text-white" : "text-slate-600"}`}>
+                あなたが<strong>掲載</strong>した案件
                 </p>
                 <p className={`text-3xl md:text-4xl font-black mt-2 ${mode === "posted" ? "text-white" : "text-slate-800"}`}>
                   {stats.postedCount}
@@ -99,7 +99,7 @@ export default function MyPage() {
                     : "bg-slate-100 border-slate-200 hover:bg-slate-200"
                 }`}
               >
-                <p className={`text-sm md:text-base ${mode === "applied" ? "text-white" : "text-slate-600"}`}>
+                <p className={`text-xs md:text-base ${mode === "applied" ? "text-white" : "text-slate-600"}`}>
                   あなたが<strong>応募</strong>した案件
                 </p>
                 <p className={`text-3xl md:text-4xl font-black mt-2 ${mode === "applied" ? "text-white" : "text-slate-800"}`}>
@@ -128,7 +128,7 @@ export default function MyPage() {
           <div className="bg-slate-100 p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto shadow-inner">
             <button
               onClick={() => setTab("projects")}
-              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
+              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl font-black transition-all duration-300 ${
                 tab === "projects"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
                   : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
@@ -138,7 +138,7 @@ export default function MyPage() {
             </button>
             <button
               onClick={() => setTab("requests")}
-              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-xl font-black transition-all duration-300 ${
+              className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl font-black transition-all duration-300 ${
                 tab === "requests"
                   ? "bg-brand-green text-white shadow-lg scale-[1.02]"
                   : "text-slate-600 hover:text-slate-800 hover:bg-white/100"

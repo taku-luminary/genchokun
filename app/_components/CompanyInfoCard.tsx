@@ -13,12 +13,12 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
       <div className="pb-2 flex items-center gap-2">
-        <p className="text-m font-bold text-slate-700">{title}</p>
+        <p className="text-base font-bold text-slate-700">{title}</p>
         <p className="text-xs text-slate-400">{subtitle}</p>
       </div>
 
       <div className="flex gap-2">
-        <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">会社名</p>
+        <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">会社名</p>
         <Link
           href={`/companies/${company.id}`}
           className="text-brand-green font-bold underline hover:opacity-80 transition break-all"
@@ -39,7 +39,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
       )}
       {company.websiteUrl && (
         <div className="flex gap-2">
-          <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">Webサイト</p>
+          <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">Webサイト</p>
           <a
             href={company.websiteUrl}
             target="_blank"
@@ -63,7 +63,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
 function CompanyRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <p className="text-sm font-bold text-slate-700 w-24 flex-shrink-0">{label}</p>
+      <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">{label}</p>
       <p className="text-slate-700">{value}</p>
     </div>
   );

@@ -39,8 +39,8 @@ export function MatchedContactCard({
 }: MatchedContactCardProps) {
   return (
     <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
-      {/* タイトル: 案件カードのタイトルと同じ text-2xl に */}
-      <p className="text-2xl font-bold text-brand-green">{title}</p>
+      {/* タイトル: 案件カードのタイトルと同じ text-lg md:text-2xl に */}
+      <p className="text-lg md:text-2xl font-bold text-brand-green">{title}</p>
       {/* 説明: 案件カードの本文と同じ ベースサイズ font-medium に */}
       {description && <p className="text-slate-700 font-medium">{description}</p>}
       <div className="border-t border-brand-green/30 pt-3 mt-3">
