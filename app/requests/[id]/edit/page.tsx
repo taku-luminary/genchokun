@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-import { PREFECTURES } from "@/app/_constants/prefectures";
 import type { CreateRequestRequest, RequestDetailResponse } from "@/app/_types/requests";
 
 export default function EditRequestPage() {
@@ -21,6 +21,7 @@ export default function EditRequestPage() {
   const {
     register,
     handleSubmit,
+    control, // ← 追加。Controller に渡す「接続口」
     setError,
     clearErrors,
     reset,
@@ -99,22 +100,23 @@ export default function EditRequestPage() {
         {/* 都道府県 */}
         <div>
           <Label htmlFor="prefectureId">都道府県 *</Label>
-          <select
-            id="prefectureId"
-            disabled={isSubmitting}
-            className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-            {...register("prefectureId", {
-              required: "都道府県を選択してください",
-              valueAsNumber: true,
-            })}
-          >
-            <option value="">選択してください</option>
-            {PREFECTURES.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          {/* 自作部品は register で接続できないため Controller を使う。
+              reset({ prefectureId: data.prefectureId }) で入れた既存値は
+              field.value に自動反映され、ボタンに県名が初期表示される
+              （詳しい説明は projects/[id]/edit の同じ箇所のコメント参照） */}
+          <Controller
+            name="prefectureId"
+            control={control}
+            rules={{ required: "都道府県を選択してください" }}
+            render={({ field }) => (
+              <PrefectureSelect
+                id="prefectureId"
+                value={field.value ?? null}  // 未選択（undefined）は null に変換して渡す
+                onChange={field.onChange}    // 県タップ時に number がそのまま RHF に保存される
+                disabled={isSubmitting}
+              />
+            )}
+          />
           {errors.prefectureId && (
             <p className="text-red-500 text-xs mt-1">{errors.prefectureId.message}</p>
           )}

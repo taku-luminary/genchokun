@@ -1,11 +1,11 @@
 "use client";
 
-  import { useForm } from "react-hook-form";
+  import { useForm, Controller } from "react-hook-form";
+  import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
   import { useRouter } from "next/navigation";
   import { Label } from "@/app/_components/ui/Label";
   import { Input } from "@/app/_components/ui/Input";
   import { Button } from "@/app/_components/ui/Button";
-  import { PREFECTURES } from  "@/app/_constants/prefectures";
   import type { CreateProjectRequest } from   "@/app/_types/projects";
 
   export default function NewProjectPage() {
@@ -13,6 +13,7 @@
     const {
       register,
       handleSubmit,
+      control, // ← Controller に渡して、カスタム部品をRHFの管理下に置くための「接続口」
       setError,
       clearErrors,
       formState: { errors, isSubmitting },
@@ -89,38 +90,32 @@
 
 
             {/* 都道府県 */}
+
             <div>
               <Label htmlFor="prefectureId">都道府県 *</Label>
 
-              {/* select は「プルダウン全体」を作るHTMLタグ。
-                  ユーザーがクリックすると、中に書かれている option の一覧が開く。
-                  option を選ぶと、その option の value が select の現在値になる。
-                  さらに register によって、その値が prefectureId という名前で
-                  React Hook Form の内部に保持される。 */}
-              <select
-                id="prefectureId"
-                disabled={isSubmitting}
-                className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-                {...register("prefectureId", {
-                  required: "都道府県を選択してください",
-                  valueAsNumber: true,
-                })}
-                // valueAsNumber → option の value を文字列ではなく数値として保持する
-              >
-                {/* option は「プルダウンの中の選択肢1つ1つ」を作るHTMLタグ。
-                    この option は初期表示用。
-                    value="" なので、まだ都道府県が選ばれていない状態を表す。 */}
-                <option value="">選択してください</option>
-
-                {PREFECTURES.map((p) => (
-                  // key   → React用。画面部品を区別するため。送信されない。
-                  // value → フォーム用。選ばれたときに保存される値。APIやPrismaに送る値。
-                  // children {p.name} → ユーザーに見える文字。
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              {/* select の代わりに、エリア別モーダルで選ぶ PrefectureSelect を使う。
+                  自作の入力部品は register では接続できない（register は input / select /
+                  textarea などの HTML 要素専用）ため、代わりに Controller を使う。
+                  Controller は「カスタム部品を React Hook Form につなぐ公式の部品」で、
+                  render の中で field.value（現在値）と field.onChange（値の更新関数）を
+                  受け取り、それを自作部品の props に渡す。 */}
+              <Controller
+                name="prefectureId"
+                control={control}
+                rules={{ required: "都道府県を選択してください" }}
+                render={({ field }) => (
+                  <PrefectureSelect
+                    id="prefectureId"
+                    value={field.value ?? null}  // 未選択（undefined）は null に変換して渡す
+                    onChange={field.onChange}    // 県タップ時に number がそのままRHFに保存される
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+              {/* valueAsNumber が不要になった理由:
+                  select の value は必ず文字列なので数値への変換が必要だったが、
+                  PrefectureSelect は onChange(p.id) で最初から number を渡すため。 */}
 
               {errors.prefectureId && (
                 <p className="text-red-500 text-xs mt-1">
@@ -128,7 +123,6 @@
                 </p>
               )}
             </div>
-
           {/* 市区町村 */}
           <div>
             <Label htmlFor="city">市区町村</Label>
@@ -177,8 +171,6 @@
                   [] は「この変数の中身をプロパティ名として使う」という意味。
                   . は「そのまま書いた名前をプロパティ名として使う」という意味。
                 */}
-                
-
           </div>
 
           {/* タイトル */}
