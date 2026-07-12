@@ -1,11 +1,11 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-import { PREFECTURES } from "@/app/_constants/prefectures";
 import type { CreateRequestRequest } from "@/app/_types/requests";
 
 export default function NewRequestPage() {
@@ -13,6 +13,7 @@ export default function NewRequestPage() {
   const {
     register,
     handleSubmit,
+    control, 
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
@@ -57,23 +58,26 @@ export default function NewRequestPage() {
         {/* 都道府県 */}
         <div>
           <Label htmlFor="prefectureId">都道府県 *</Label>
-          <select
-            id="prefectureId"
-            disabled={isSubmitting}
-            className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-            {...register("prefectureId", { required: "都道府県を選択してください", valueAsNumber: true })}
-          >
-            <option value="">選択してください</option>
-            {PREFECTURES.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          {/* 自作部品は register で接続できないため Controller を使う
+              （詳しい説明は projects/new・projects/[id]/edit の同じ箇所のコメント参照） */}
+          <Controller
+            name="prefectureId"
+            control={control}
+            rules={{ required: "都道府県を選択してください" }}
+            render={({ field }) => (
+              <PrefectureSelect
+                id="prefectureId"
+                value={field.value ?? null}
+                onChange={field.onChange}
+                disabled={isSubmitting}
+              />
+            )}
+          />
           {errors.prefectureId && (
             <p className="text-red-500 text-xs mt-1">{errors.prefectureId.message}</p>
           )}
         </div>
+
 
         {/* 市区町村 */}
         <div>

@@ -49,3 +49,18 @@
     { id: 46, name: "鹿児島県" },
     { id: 47, name: "沖縄県" },
   ] as const;
+
+// エリア（地方区分）ごとの都道府県IDリスト
+// prefectureIds は上の PREFECTURES の id と対応（北から順）
+// ※ as const を付けると prefectureIds がタプル型になり、includes(p.id) が型エラーになるため、通常の number[] として型注釈を付けている
+export const PREFECTURE_AREAS: { name: string; prefectureIds: number[] }[] = [
+  { name: "北海道",     prefectureIds: [1] },
+  { name: "東北",       prefectureIds: [2, 3, 4, 5, 6, 7] },                  // 青森〜福島
+  { name: "関東",       prefectureIds: [8, 9, 10, 11, 12, 13, 14] },          // 茨城〜神奈川
+  { name: "中部",       prefectureIds: [15, 16, 17, 18, 19, 20, 21, 22, 23] }, // 新潟〜愛知
+  { name: "近畿",       prefectureIds: [24, 25, 26, 27, 28, 29, 30] },        // 三重〜和歌山
+  { name: "中国",       prefectureIds: [31, 32, 33, 34, 35] },                // 鳥取〜山口
+  { name: "四国",       prefectureIds: [36, 37, 38, 39] },                    // 徳島〜高知
+  { name: "九州・沖縄", prefectureIds: [40, 41, 42, 43, 44, 45, 46, 47] },    // 福岡〜沖縄
+];
+// 検算: 1 + 6 + 7 + 9 + 7 + 5 + 4 + 8 = 47

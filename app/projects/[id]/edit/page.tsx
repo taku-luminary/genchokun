@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-import { PREFECTURES } from "@/app/_constants/prefectures";
 import type { CreateProjectRequest, ProjectDetailResponse } from "@/app/_types/projects";
 
 export default function EditProjectPage() {
@@ -21,11 +21,13 @@ export default function EditProjectPage() {
   const {
     register,
     handleSubmit,
+    control, // ← 追加。Controller に渡す「接続口」
     setError,
     clearErrors,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateProjectRequest>();
+  
 
   // データ取得が完了したら、フォームに現在値を流し込む。
   // 日付は ISO 文字列("2026-01-31T00:00:00.000Z")なので先頭10文字だけ取り出して
@@ -138,88 +140,54 @@ export default function EditProjectPage() {
         そのため、何も変更せずに保存しても、reset で入った既存値が formData に入って送信される。
       */}
 
-      {/* 都道府県 */}
-      <div>
+        {/* 都道府県 */}
+        <div>
         <Label htmlFor="prefectureId">都道府県 *</Label>
 
+        {/* select の代わりに、エリア別モーダルで選ぶ自作の PrefectureSelect を使う。
 
-        <select
-          id="prefectureId"
-          disabled={isSubmitting}
-          className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-          {...register("prefectureId", {
-            required: "都道府県を選択してください",
-            valueAsNumber: true,
-          })}
-        >
-        {/* select は「プルダウン全体」を作るHTMLタグ。
-            option を選ぶと、その option の value が select の現在値になる。
+            === Controller の説明 ===
+            register は input / select / textarea などの「HTML標準の入力要素」専用。
+            （register が返す onChange / onBlur / ref を、HTML要素が props として
+              そのまま受け取れることが前提になっているため）
+            PrefectureSelect のような自作部品は register では接続できないので、
+            代わりに Controller（カスタム部品を RHF につなぐ公式の部品）を使う。
 
-            編集画面では reset({ prefectureId: data.prefectureId }) によって、
-            APIから取得した都道府県IDが最初から入っている。
-            そのため、対応する option が最初から選択された状態になる。 */}
+            Controller の props：
+              name    → フォーム内での項目名。register("prefectureId") の第1引数と同じ役割
+              control → useForm から受け取った接続口。これで RHF 本体とつながる
+              rules   → バリデーション。register の第2引数と同じ書き方
+              render  → 実際に画面に表示する部品を返す関数。
+                        引数の field に「現在値」と「更新関数」が入っている：
+                          field.value    → formValues["prefectureId"] の現在値のイメージ
+                          field.onChange → formValues["prefectureId"] = 値 と更新する関数のイメージ
 
-        {/*=== register の説明 ===
-          ① 入力欄の名前を RHF に教える
-          ② 選択が変わったら内部ストアを更新する onChange を渡す
-          ③ blur したことを記録する onBlur を渡す
-          ④ select 要素そのものを覚える ref を渡す
-
-          register("prefectureId") は、React Hook Form がこの select を管理するための設定オブジェクトを返す。
-          HTML/JSX のタグでは基本的に 属性=値 の形で書く。 だから、JS のオブジェクトをそのまま置けない。
-          JSX の中で {...オブジェクト} と書くと、オブジェクトの中身が props として展開される。
-          つまり： <select {...register("prefectureId", { required: "...", valueAsNumber: true })} />
-          は、イメージとしては以下と同じ：
-
-          <select
-            name="prefectureId"
-            onChange={(event) => {
-              const value = event.target.value;
-              formValues["prefectureId"] = Number(value);
-            }}
-            onBlur={() => {
-              入力欄から離れたことを RHF が記録する;
-            }}
-            ref={(element) => {
-              registeredFields["prefectureId"] = element;
-            }}
-          />
-
-          ※ formValues や registeredFields は理解用のイメージ。RHF の実際の内部変数名という意味ではない。
-
-          ■役割
-            formValues → RHF 内部のフォームデータ置き場のイメージ
-            formValues["prefectureId"] = ... → 保存時に使う内部データを更新するイメージ
-            registeredFields → 実際の input / select / textarea 要素の置き場のイメージ
-            registeredFields["prefectureId"].value = ... → reset 時に画面上の select に値を反映するイメージ
-            register → select を RHF に接続し、onChange で内部データを更新できるようにし、ref で select 要素も覚えられるようにする
-
-          ■ reset との関係
-            この編集画面では、useEffect 内で reset({prefectureId: data.prefectureId,}) が実行される。
-            register("prefectureId") によって、この select は RHF に接続されているため、 reset で入れた prefectureId の値が画面にも反映される。
-            例：data.prefectureId が 3 の場合、value={3} の option が最初から選択された状態になる。
-        */}
-
-
-          {/* 未選択用の選択肢。value="" なので、都道府県が選ばれていない状態を表す */}
-          <option value="">選択してください</option>
-
-          {PREFECTURES.map((p) => (
-            // key   → React用の目印。送信データには入らない。
-            // value → フォーム用の値。選ばれると formData.prefectureId に入る。
-            // {p.name} → ユーザーに見える都道府県名。
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+            === reset との関係 ===
+            この編集画面では、useEffect 内で reset({ prefectureId: data.prefectureId }) が実行される。
+            Controller で接続した項目にも reset は効き、field.value が更新されて
+            トリガーボタンに保存済みの都道府県名が最初から表示される。
+            例：data.prefectureId が 3 なら、ボタンに「岩手県」と表示される。 */}
+        <Controller
+          name="prefectureId"
+          control={control}
+          rules={{ required: "都道府県を選択してください" }}
+          render={({ field }) => (
+            <PrefectureSelect
+              id="prefectureId"
+              value={field.value ?? null}  // 未選択（undefined）は null に変換して渡す
+              onChange={field.onChange}    // 県タップ時に number がそのまま RHF に保存される
+              disabled={isSubmitting}
+            />
+          )}
+        />
+        {/* valueAsNumber が不要になった理由:
+            select の value は必ず文字列なので数値への変換が必要だったが、
+            PrefectureSelect は onChange(p.id) で最初から number を渡すため。 */}
 
         {errors.prefectureId && (
           <p className="text-red-500 text-xs mt-1">{errors.prefectureId.message}</p>
         )}
       </div>
-
-
 
         {/* 市区町村 */}
         <div>
