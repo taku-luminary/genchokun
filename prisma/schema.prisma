@@ -209,7 +209,6 @@ model projects {
 
 model requests {
   id                   BigInt    @id @default(autoincrement())
-  prefectureId         Int
   city                 String?
   title                String
   investigationSummary String?
@@ -224,7 +223,6 @@ model requests {
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  prefecture     prefectures @relation(fields: [prefectureId], references: [id])
   prefectures    prefectures[] @relation("RequestPrefectures")
   contractorUser users       @relation(fields: [contractorUserId], references: [id])
   match          matches?
@@ -237,8 +235,7 @@ model prefectures {
 
   companies companies[]
   projects  projects[]
-  requests  requests[]
-  multiRequests requests[] @relation("RequestPrefectures")
+  requests requests[] @relation("RequestPrefectures")
 }
 
 model application_details {

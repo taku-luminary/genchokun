@@ -29,8 +29,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
   try {
     const request_record = await prisma.requests.create({
       data: {
-        // 旧カラムは「配列の先頭の県」で維持（旧コード・旧データとの互換用）
-        prefectureId:       body.prefectureIds[0],
         // implicit m2m への紐付け。connect は「既存の prefectures 行と関連付ける」
         prefectures:        { connect: body.prefectureIds.map((id) => ({ id })) },        
         city:               body.city               ?? null,

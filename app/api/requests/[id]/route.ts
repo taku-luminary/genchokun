@@ -20,7 +20,6 @@ export async function GET(
     const request = await prisma.requests.findUnique({
       where: { id: BigInt(id), deletedAt: null },
       include: {
-        prefecture: true,
         // ▼ 追加: 対応可能エリア（複数）。id 昇順で取得して表示順を安定させる
         prefectures: { orderBy: { id: "asc" } },
         contractorUser: {
@@ -186,8 +185,6 @@ export async function PUT(
     await prisma.requests.update({
       where: { id: target.id },
       data: {
-        // 旧カラムは「配列の先頭の県」で維持（旧コード・旧データとの互換用）
-        prefectureId: body.prefectureIds[0],
         // 編集は connect ではなく set を使う。
         // connect = 追加のみ / set = 渡した配列で丸ごと差し替え（外した県の紐付けは消える）
         prefectures: { set: body.prefectureIds.map((id) => ({ id })) },
