@@ -21,6 +21,8 @@ export async function GET(
       where: { id: BigInt(id), deletedAt: null },
       include: {
         prefecture: true,
+        // ▼ 追加: 対応可能エリア（複数）。id 昇順で取得して表示順を安定させる
+        prefectures: { orderBy: { id: "asc" } },
         contractorUser: {
           include: {
             company: {
@@ -108,9 +110,8 @@ export async function GET(
     return NextResponse.json({
       id: request.id.toString(),
       createdAt: request.createdAt.toISOString(),
-      prefecture: { name: request.prefecture.name },
-      // ▼ 追加: 編集フォームの初期値用
-      prefectureId: request.prefectureId,
+      // 対応可能エリア（複数）。id は編集フォームの初期値用、name は表示用
+      prefectures: request.prefectures.map((p) => ({ id: p.id, name: p.name })),
       city: request.city,
       title: request.title,
       investigationSummary: request.investigationSummary,
@@ -177,13 +178,19 @@ export async function PUT(
         { status: 409 }
       );
     }
-
     // 4. 更新。正規化ルールは新規作成API(/api/requests)と同じ。
     const body: UpdateRequestRequest = await request.json();
+    if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
+      return NextResponse.json({ error: "都道府県を1つ以上選択してください" }, { status: 400 });
+    }
     await prisma.requests.update({
       where: { id: target.id },
       data: {
-        prefectureId: body.prefectureId,
+        // 旧カラムは「配列の先頭の県」で維持（旧コード・旧データとの互換用）
+        prefectureId: body.prefectureIds[0],
+        // 編集は connect ではなく set を使う。
+        // connect = 追加のみ / set = 渡した配列で丸ごと差し替え（外した県の紐付けは消える）
+        prefectures: { set: body.prefectureIds.map((id) => ({ id })) },
         city: body.city ?? null,
         title: body.title,
         investigationSummary: body.investigationSummary ?? null,
@@ -196,6 +203,7 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true });
+
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "更新に失敗しました" }, { status: 500 });

@@ -225,6 +225,7 @@ model requests {
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
   prefecture     prefectures @relation(fields: [prefectureId], references: [id])
+  prefectures    prefectures[] @relation("RequestPrefectures")
   contractorUser users       @relation(fields: [contractorUserId], references: [id])
   match          matches?
 }
@@ -237,6 +238,7 @@ model prefectures {
   companies companies[]
   projects  projects[]
   requests  requests[]
+  multiRequests requests[] @relation("RequestPrefectures")
 }
 
 model application_details {

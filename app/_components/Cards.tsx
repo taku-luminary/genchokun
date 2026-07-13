@@ -32,10 +32,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
     isMatched === true ||  
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
-  const date = formatDate(project.createdAt);
-  const location = `${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`;
-  const schedule =
-    project.workStartDate && project.workEndDate
+    const date = formatDate(project.createdAt);
+    const location = `${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`;
+    const schedule =
+      project.workStartDate && project.workEndDate
       ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
       : "日程未定";
   const amount = project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—";
@@ -123,7 +123,8 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) 
     (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
 
   const date = formatDate(request.createdAt);
-  const location = `${request.prefecture.name}${request.city ? ` ${request.city}` : ""}`;
+  const prefNames = request.prefectures.map((p) => p.name).join("・");
+  const location = `${prefNames}${request.city ? ` ${request.city}` : ""}`;
   const availableDates =
     request.availableStartDate && request.availableEndDate
       ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`

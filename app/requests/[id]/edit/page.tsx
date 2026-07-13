@@ -1,8 +1,8 @@
 "use client";
 
+import { PrefectureMultiSelect } from "@/app/_components/ui/PrefectureMultiSelect";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
@@ -32,7 +32,7 @@ export default function EditRequestPage() {
   useEffect(() => {
     if (!data) return;
     reset({
-      prefectureId: data.prefectureId,
+      prefectureIds: data.prefectures.map((p) => p.id), // 複数県の id 配列に変換
       city: data.city ?? undefined,
       title: data.title,
       investigationSummary: data.investigationSummary ?? undefined,
@@ -97,30 +97,33 @@ export default function EditRequestPage() {
       <h1 className="text-2xl font-bold text-slate-800 mb-8 text-center">依頼待ちの編集</h1>
 
       <form onSubmit={handleSubmit(updateRequest)} className="space-y-5">
-        {/* 都道府県 */}
+        {/* 対応可能エリア（複数選択） */}
         <div>
-          <Label htmlFor="prefectureId">都道府県 *</Label>
+          <Label htmlFor="prefectureIds">対応可能エリア *（複数選択可）</Label>
           {/* 自作部品は register で接続できないため Controller を使う。
-              reset({ prefectureId: data.prefectureId }) で入れた既存値は
-              field.value に自動反映され、ボタンに県名が初期表示される
-              （詳しい説明は projects/[id]/edit の同じ箇所のコメント参照） */}
+              reset({ prefectureIds: ... }) で入れた既存値は field.value に自動反映され、
+              ボタンに県名が「、」区切りで初期表示される。
+              required は空配列 [] を通してしまうため、配列の必須チェックは validate で行う */}
           <Controller
-            name="prefectureId"
+            name="prefectureIds"
             control={control}
-            rules={{ required: "都道府県を選択してください" }}
+            rules={{
+              validate: (v) => (v && v.length > 0) || "都道府県を1つ以上選択してください",
+            }}
             render={({ field }) => (
-              <PrefectureSelect
-                id="prefectureId"
-                value={field.value ?? null}  // 未選択（undefined）は null に変換して渡す
-                onChange={field.onChange}    // 県タップ時に number がそのまま RHF に保存される
+              <PrefectureMultiSelect
+                id="prefectureIds"
+                value={field.value ?? []}  // 取得前（undefined）は空配列に変換して渡す
+                onChange={field.onChange}  // トグルのたびに number[] が RHF に保存される
                 disabled={isSubmitting}
               />
             )}
           />
-          {errors.prefectureId && (
-            <p className="text-red-500 text-xs mt-1">{errors.prefectureId.message}</p>
+          {errors.prefectureIds && (
+            <p className="text-red-500 text-xs mt-1">{errors.prefectureIds.message}</p>
           )}
         </div>
+
 
         {/* 市区町村 */}
         <div>
