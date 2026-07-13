@@ -2,7 +2,7 @@ import type { CompanyContact, CompanyInfo } from "./companies";
 
 // POST /api/requests に送るリクエストの型
 export type CreateRequestRequest = {
-  prefectureId: number;
+  prefectureIds: number[]; // 対応可能エリア（複数選択）。1件以上必須
   city?: string;
   title: string;
   investigationSummary?: string;
@@ -25,8 +25,8 @@ export type CreateRequestResponse = {
 export type RequestDetailResponse = {
   id: string;
   createdAt: string;
-  prefecture: { name: string };
-  prefectureId: number;
+  // 対応可能エリア（複数）。id は編集フォームの初期値用、name は表示用
+  prefectures: { id: number; name: string }[];
   city: string | null;
   title: string;
   investigationSummary: string | null;

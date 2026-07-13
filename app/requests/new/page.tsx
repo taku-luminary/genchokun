@@ -1,8 +1,8 @@
 "use client";
 
+import { PrefectureMultiSelect } from "@/app/_components/ui/PrefectureMultiSelect";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
@@ -55,28 +55,33 @@ export default function NewRequestPage() {
 
       <form onSubmit={handleSubmit(createRequest)} className="space-y-5">
 
-        {/* 都道府県 */}
+        {/* 対応可能エリア（複数選択） */}
         <div>
-          <Label htmlFor="prefectureId">都道府県 *</Label>
+          <Label htmlFor="prefectureIds">対応可能エリア *（複数選択可）</Label>
           {/* 自作部品は register で接続できないため Controller を使う
-              （詳しい説明は projects/new・projects/[id]/edit の同じ箇所のコメント参照） */}
+              （詳しい説明は projects/new・projects/[id]/edit の同じ箇所のコメント参照）
+              注意: rules の required は「空配列 []」を通してしまう（[] は undefined ではないため）。
+              配列の必須チェックは validate で「1件以上あるか」を自分で判定する */}
           <Controller
-            name="prefectureId"
+            name="prefectureIds"
             control={control}
-            rules={{ required: "都道府県を選択してください" }}
+            rules={{
+              validate: (v) => (v && v.length > 0) || "都道府県を1つ以上選択してください",
+            }}
             render={({ field }) => (
-              <PrefectureSelect
-                id="prefectureId"
-                value={field.value ?? null}
+              <PrefectureMultiSelect
+                id="prefectureIds"
+                value={field.value ?? []}  // 初期値（undefined）は空配列に変換して渡す
                 onChange={field.onChange}
                 disabled={isSubmitting}
               />
             )}
           />
-          {errors.prefectureId && (
-            <p className="text-red-500 text-xs mt-1">{errors.prefectureId.message}</p>
+          {errors.prefectureIds && (
+            <p className="text-red-500 text-xs mt-1">{errors.prefectureIds.message}</p>
           )}
         </div>
+
 
 
         {/* 市区町村 */}

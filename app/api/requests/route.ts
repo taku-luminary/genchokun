@@ -19,11 +19,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
     return NextResponse.json({ error: "リクエストの形式が正しくありません" } , 
       { status: 400 });  //  400 は Bad Requestで、リクエストの形式が正しくない状態
   }
+    // 都道府県は1件以上必須。型上は number[] でも、外部からの生JSONは
+  // 何が来るか分からないので Array.isArray でサーバー側でも検証する
+  if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
+    return NextResponse.json({ error: "都道府県を1つ以上選択してください" },
+      { status: 400 });
+  }
   // DBに依頼待ちを保存
   try {
     const request_record = await prisma.requests.create({
       data: {
-        prefectureId:       body.prefectureId,
+        // implicit m2m への紐付け。connect は「既存の prefectures 行と関連付ける」
+        prefectures:        { connect: body.prefectureIds.map((id) => ({ id })) },        
         city:               body.city               ?? null,
         title:              body.title,
         investigationSummary: body.investigationSummary ?? null,

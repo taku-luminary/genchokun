@@ -26,7 +26,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
       }),
       prisma.requests.findMany({
         where: { contractorUserId: user.id, deletedAt: null },
-        include: { prefecture: true, match: true },
+        include: { prefectures: { orderBy: { id: "asc" } }, match: true },
         orderBy: { createdAt: "desc" },
       }),
       // ▼ 追加: 自分が工事店として応募した project のマッチ一覧。
@@ -59,7 +59,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
         include: {
           request: {
             include: {
-              prefecture: true,
+              prefectures: { orderBy: { id: "asc" } },
               contractorUser: { include: { company: true } },
             },
           },
@@ -94,7 +94,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
     requests: requests.map((r) => ({
       id: r.id.toString(),
       createdAt: r.createdAt.toISOString(),
-      prefecture: { name: r.prefecture.name },
+      prefectures: r.prefectures.map((p) => ({ name: p.name })),
       city: r.city,
       title: r.title,                                      // ← 追加（漏れていた）
       availableStartDate: r.availableStartDate?.toISOString() ?? null,
@@ -143,7 +143,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
               request: {
                 id: m.request.id.toString(),
                 createdAt: m.request.createdAt.toISOString(),
-                prefecture: { name: m.request.prefecture.name },
+                prefectures: m.request.prefectures.map((p) => ({ name: p.name })),
                 city: m.request.city,
                 title: m.request.title,
                 availableStartDate: m.request.availableStartDate?.toISOString() ?? null,

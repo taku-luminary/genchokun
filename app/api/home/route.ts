@@ -40,7 +40,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
       prisma.requests.findMany({
         where: { deletedAt: null },
         include: {
-          prefecture: true,
+          // 対応可能エリア（複数）。id 昇順で取得して表示順を安定させる
+          prefectures: { orderBy: { id: "asc" } },
           contractorUser: { include: { company: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   const mappedRequests: HomeRequest[] = requests.map((r) => ({
     id: r.id.toString(),
     createdAt: r.createdAt.toISOString(),
-    prefecture: { name: r.prefecture.name },
+    prefectures: r.prefectures.map((p) => ({ name: p.name })),
     city: r.city,
     title: r.title, // 追加
     availableStartDate: r.availableStartDate?.toISOString() ?? null,

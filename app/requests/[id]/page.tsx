@@ -41,7 +41,7 @@ export default function RequestDetailPage() {
   const homeRequest: HomeRequest = {
     id: data.id,
     createdAt: data.createdAt,
-    prefecture: data.prefecture,
+    prefectures: data.prefectures,
     city: data.city,
     title: data.title,
     availableStartDate: data.availableStartDate,

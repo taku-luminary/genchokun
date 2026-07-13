@@ -17,7 +17,7 @@ export type HomeProject = {
 export type HomeRequest = {
   id: string;
   createdAt: string;
-  prefecture: { name: string };
+  prefectures: { name: string }[]; // 対応可能エリア（複数）
   city: string | null;
   title: string; // 追加
   availableStartDate: string | null;
