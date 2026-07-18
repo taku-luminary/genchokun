@@ -20,12 +20,43 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   const projectsPage = Number(searchParams.get("projectsPage") ?? "1");
   const requestsPage = Number(searchParams.get("requestsPage") ?? "1");
   const limit = Number(searchParams.get("limit") ?? "20");
-  
+  // 検索キーワード。前後の空白を除去し、未指定なら空文字にする
+  const q = (searchParams.get("q") ?? "").trim();
+
+  // findMany（一覧）と count（総件数）で同じ条件を使うため、where を変数にまとめる
+  // ...(q !== "" && { ... }) は「q が空でないときだけ OR 条件を追加する」書き方
+  const projectsWhere = {
+    deletedAt: null,
+    ...(q !== "" && {
+      OR: [
+        { title: { contains: q, mode: "insensitive" as const } },
+        { investigationSummary: { contains: q, mode: "insensitive" as const } },
+        { city: { contains: q, mode: "insensitive" as const } },
+        { prefecture: { name: { contains: q } } }, // 都道府県名（単一リレーション）
+        { salesUser: { company: { name: { contains: q, mode: "insensitive" as const } } } }, // 発注者の企業名
+      ],
+    }),
+  };
+
+  const requestsWhere = {
+    deletedAt: null,
+    ...(q !== "" && {
+      //deletedAtがnullである かつ ORの中のどれか1つに一致する
+      OR: [
+        { title: { contains: q, mode: "insensitive" as const } },
+        { investigationSummary: { contains: q, mode: "insensitive" as const } },
+        { city: { contains: q, mode: "insensitive" as const } },
+        { prefectures: { some: { name: { contains: q } } } }, // 多対多なので some（どれか1つでも一致）
+        { contractorUser: { company: { name: { contains: q, mode: "insensitive" as const } } } }, // 工事店の企業名
+      ],
+    }),
+  };
+
   const [projects, totalProjects, requests, totalRequests] = await Promise.all([
     // Promise.all([A, B]) → AとBを同時にやって、両方終わったら結果を配列で返すJavaScript 標準の組み込みオブジェクト
 
       prisma.projects.findMany({
-        where: { deletedAt: null },
+        where: projectsWhere,
         include: {
           prefecture: true,
           salesUser: { include: { company: true } },
@@ -35,10 +66,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
         take: limit,  // 何件取得するか
       }),
 
-      prisma.projects.count({ where: { deletedAt: null } }), // 案件の総件数
-      
+      prisma.projects.count({ where: projectsWhere }), // 案件の総件数（検索条件も反映）
+
       prisma.requests.findMany({
-        where: { deletedAt: null },
+        where: requestsWhere,
         include: {
           // 対応可能エリア（複数）。id 昇順で取得して表示順を安定させる
           prefectures: { orderBy: { id: "asc" } },
@@ -48,10 +79,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
         skip: (requestsPage - 1) * limit,
         take: limit,
       }),
-      
-      prisma.requests.count({ where: { deletedAt: null } }), // 依頼待ちの総件数
-    ]);
 
+      prisma.requests.count({ where: requestsWhere }), // 依頼待ちの総件数（検索条件も反映）
+    ]);
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
     id: p.id.toString(),
