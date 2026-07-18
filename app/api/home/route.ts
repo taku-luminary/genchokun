@@ -22,35 +22,39 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   const limit = Number(searchParams.get("limit") ?? "20");
   // 検索キーワード。前後の空白を除去し、未指定なら空文字にする
   const q = (searchParams.get("q") ?? "").trim();
+  // 半角・全角スペースで分割して空要素を除去（複数ワード検索に対応）
+  const keywords = q.split(/[\s\u3000]+/).filter(Boolean);
 
   // findMany（一覧）と count（総件数）で同じ条件を使うため、where を変数にまとめる
-  // ...(q !== "" && { ... }) は「q が空でないときだけ OR 条件を追加する」書き方
+  // AND: 各ワードすべてを含む / OR: ワードがどれかのカラムに含まれる
+  // keywords が空配列のとき AND: [] は「条件なし＝全件」になるので、空検索の分岐は不要
   const projectsWhere = {
     deletedAt: null,
-    ...(q !== "" && {
+    AND: keywords.map((kw) => ({
       OR: [
-        { title: { contains: q, mode: "insensitive" as const } },
-        { investigationSummary: { contains: q, mode: "insensitive" as const } },
-        { city: { contains: q, mode: "insensitive" as const } },
-        { prefecture: { name: { contains: q } } }, // 都道府県名（単一リレーション）
-        { salesUser: { company: { name: { contains: q, mode: "insensitive" as const } } } }, // 発注者の企業名
+        { title: { contains: kw, mode: "insensitive" as const } },
+        { investigationSummary: { contains: kw, mode: "insensitive" as const } },
+        { city: { contains: kw, mode: "insensitive" as const } },
+        { prefecture: { name: { contains: kw } } }, // 都道府県名（単一リレーション）
+        { salesUser: { company: { name: { contains: kw, mode: "insensitive" as const } } } }, // 発注者の企業名
       ],
-    }),
+    })),
   };
 
   const requestsWhere = {
     deletedAt: null,
-    ...(q !== "" && {
-      //deletedAtがnullである かつ ORの中のどれか1つに一致する
+    // deletedAtがnullである かつ すべてのワードについてORの中のどれか1つに一致する
+    AND: keywords.map((kw) => ({
       OR: [
-        { title: { contains: q, mode: "insensitive" as const } },
-        { investigationSummary: { contains: q, mode: "insensitive" as const } },
-        { city: { contains: q, mode: "insensitive" as const } },
-        { prefectures: { some: { name: { contains: q } } } }, // 多対多なので some（どれか1つでも一致）
-        { contractorUser: { company: { name: { contains: q, mode: "insensitive" as const } } } }, // 工事店の企業名
+        { title: { contains: kw, mode: "insensitive" as const } },
+        { investigationSummary: { contains: kw, mode: "insensitive" as const } },
+        { city: { contains: kw, mode: "insensitive" as const } },
+        { prefectures: { some: { name: { contains: kw } } } }, // 多対多なので some（どれか1つでも一致）
+        { contractorUser: { company: { name: { contains: kw, mode: "insensitive" as const } } } }, // 工事店の企業名
       ],
-    }),
+    })),
   };
+
 
   const [projects, totalProjects, requests, totalRequests] = await Promise.all([
     // Promise.all([A, B]) → AとBを同時にやって、両方終わったら結果を配列で返すJavaScript 標準の組み込みオブジェクト
