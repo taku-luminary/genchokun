@@ -189,7 +189,7 @@
 
           {/* 調査可能内容 */}
           <div>
-            <Label htmlFor="investigationSummary">調査可能内容</Label>
+            <Label htmlFor="investigationSummary">調査内容</Label>
             <textarea
               id="investigationSummary"
               disabled={isSubmitting}

@@ -15,10 +15,22 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [projectsPage, setProjectsPage] = useState(1);  // 案件の現在ページ
   const [requestsPage, setRequestsPage] = useState(1);  // 依頼待ちの現在ページ
+  const [searchInput, setSearchInput] = useState('');   // 入力欄の表示用（打ちかけの文字）
+  const [searchQuery, setSearchQuery] = useState('');   // Enterで確定した検索語（SWRキーに入る）
 
+  // 検索確定時の処理。form の submit（Enterキー）で呼ばれる
+  const handleSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault(); // form標準のページリロードを止める
+    setSearchQuery(searchInput.trim());
+    // 検索したら必ず1ページ目に戻す。
+    // 例: 3ページ目(skip=40)のまま検索するとヒット5件でも0件表示になってしまうため
+    setProjectsPage(1);
+    setRequestsPage(1);
+  };
   const { data, isLoading } = useAuthedFetch<HomeApiResponse>(
-    `/api/home?projectsPage=${projectsPage}&requestsPage=${requestsPage}&limit=${LIMIT}`
+    `/api/home?projectsPage=${projectsPage}&requestsPage=${requestsPage}&limit=${LIMIT}&q=${encodeURIComponent(searchQuery)}`
   );
+
   // SWR = 指定したキーが変わったら、fetcherを実行してデータを取り直してくれる仕組み
   // useSWRは、第1引数のキーが変わると、fetcherを実行する。
   // fetcherの第1引数には、useSWRの第1引数のキーがそのまま渡される。
@@ -72,7 +84,7 @@ export default function Home() {
 
           {/* Search Bar */}
           <div className="space-y-3 md:space-y-6">
-            <div className="relative max-w-2xl mx-auto group">
+            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-green transition-colors">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -81,10 +93,13 @@ export default function Home() {
               </div>
               <input
                 type="text"
-                placeholder="詳細な条件で検索"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="キーワードで検索（例：東京）"
                 className="w-full bg-white rounded-xl md:rounded-2xl py-3.5 md:py-5 pl-10 md:pl-12 pr-4 text-base text-slate-600 font-bold shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-white/30 transition-all border-none"
               />
-            </div>
+            </form>
+
 
             {/* Tab Switcher */}
             <div className="bg-white/80 backdrop-blur-xl p-1.5 md:p-2 rounded-2xl md:rounded-3xl flex max-w-2xl mx-auto border border-white/30 shadow-xl">
