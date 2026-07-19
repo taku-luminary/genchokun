@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";                               
 import { createServerClient } from "@supabase/ssr";                                    
 import { cookies } from "next/headers";
-import { prisma } from "@/app/_libs/prisma";
+import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
                                                                                        
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -56,19 +56,11 @@ export async function GET(request: NextRequest) {
     // 6. セッション情報を返す
     // 7. @supabase/ssr が Cookie に保存しようとする
 
+    // 変更後
     if (user) {
-      await prisma.users.upsert({
-        where: { id: user.id },
-        update: {},
-        create: {
-          id: user.id,
-          email: user.email ?? null,
-          isActive: true,
-          isAdmin: false,
-        },
-        // callback は新規登録者だけでなく既存ユーザーも来る可能性があるため、
-        // users テーブルに存在しなければ作成、存在すればそのまま通す
-      });
+      // callback は新規登録者だけでなく既存ユーザーも来る可能性があるため、
+      // users テーブルに存在しなければ作成、存在すればそのまま通す
+      await ensureUserRecord(user);
     }
       }
 
