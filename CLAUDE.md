@@ -82,3 +82,7 @@
 - ボタンやリンクなどタップ対象は高さ44px相当以上（目安 `py-3`）を確保する
 - 文字はスマホでも読める大きさを基準にする（本文 `text-sm`〜`text-base`、見出しはPC用の1〜2段階下）
 - ページの新規作成・修正時は「幅320pxで横スクロールが出ないこと」の確認手順を必ずセットで提示する
+
+# コード外のDB設定
+
+- Supabase本番にDBトリガーあり: auth.users INSERT時に public.users へ自動で行を作成（詳細は docs/sql/create_users_trigger.sql）。users行の作成はこのトリガーとアプリ側 ensureUserRecord の二重体制
