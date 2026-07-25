@@ -53,6 +53,11 @@ enum article_status {
   archived
 }
 
+enum review_target_role {
+  contractor
+  sales
+}
+
 enum interview_section_key {
   company_intro
   work_style
@@ -87,6 +92,9 @@ model users {
 
   createdInterviewArticles company_interview_articles[] @relation("createdInterviewArticles")
   updatedInterviewArticles company_interview_articles[] @relation("updatedInterviewArticles")
+  reviewsWritten  reviews[] @relation("reviewsAsReviewer")
+  reviewsReceived reviews[] @relation("reviewsAsReviewee")
+
 }
 
   // ▼ リレーションの見方メモ
@@ -169,8 +177,6 @@ model companies {
   websiteUrl         String?
   description        String?
   logoImageUrl       String?
-  reviewAverage      Decimal? @db.Decimal(5, 2)
-  reviewCount        Int?
 
   contactPhone       String?
   contactEmail       String?
@@ -263,6 +269,30 @@ model matches {
   salesUser          users                @relation("salesMatches", fields: [salesUserId], references: [id])
   contractorUser     users                @relation("contractorMatches", fields: [contractorUserId], references: [id])
   applicationDetail  application_details?
+  reviews            reviews[]
+}
+
+model reviews {
+  id             BigInt             @id @default(autoincrement())
+  matchId        BigInt
+  reviewerUserId String             @db.Uuid  // レビューを書いた人
+  revieweeUserId String             @db.Uuid  // 評価される会社の人
+  targetRole     review_target_role           // 評価される側がこのマッチで担った役割
+  overallRating  Int                          // 総合評価 1〜5
+  item1Rating    Int                          // 項目別 1〜5（意味はtargetRoleで変わる）
+  item2Rating    Int
+  item3Rating    Int
+  item4Rating    Int
+  item5Rating    Int
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  match        matches @relation(fields: [matchId], references: [id])
+  reviewerUser users   @relation("reviewsAsReviewer", fields: [reviewerUserId], references: [id])
+  revieweeUser users   @relation("reviewsAsReviewee", fields: [revieweeUserId], references: [id])
+
+  @@unique([matchId, reviewerUserId])
+  @@index([revieweeUserId, targetRole])
 }
 
 model company_interview_articles {
