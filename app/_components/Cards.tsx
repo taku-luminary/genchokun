@@ -2,6 +2,8 @@ import React from 'react';
 import type { HomeProject, HomeRequest } from '@/app/_types/home';
 import type { MypageProject, MypageRequest } from '@/app/_types/mypage';
 import { formatDate, formatJpDate, calcDaysLeft } from '@/app/_utils/format';
+import { StarRating } from '@/app/_components/ui/StarRating';
+
 
 // ─── ProjectCard ───────────────────────────────────────────
 interface ProjectCardProps {
@@ -100,7 +102,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
           )}
           <p>・日程：{schedule}</p>
           <p>・金額：{amount}</p>
-          {project.companyName && <p>・発注者：{project.companyName}</p>}
+          {project.companyName && (
+            <p className="flex flex-wrap items-center gap-x-2">
+              <span>・発注者：{project.companyName}</span>
+              {project.companyRating && (
+                <StarRating
+                  rating={project.companyRating.average}
+                  count={project.companyRating.count}
+                />
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -179,7 +191,17 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) 
               <p>・日程：{availableDates}</p>
               <p>・調査可能内容：{request.investigationSummary ?? "—"}</p>
               <p>・希望：{preference}</p>
-              {request.companyName && <p>・企業：{request.companyName}</p>}
+              {request.companyName && (
+                <p className="flex flex-wrap items-center gap-x-2">
+                  <span>・企業：{request.companyName}</span>
+                  {request.companyRating && (
+                    <StarRating
+                      rating={request.companyRating.average}
+                      count={request.companyRating.count}
+                    />
+                  )}
+                </p>
+              )}
             </div>
           </div>
         </div>

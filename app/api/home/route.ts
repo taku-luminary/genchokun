@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
+import { getCompanyRatingsByUserIds } from "@/app/_libs/companyRatings";
+
 
 // 「完了扱い」かどうかを判定（status が completed OR 期限切れ）
 function isEffectivelyCompleted(status: string, endDate: string | null): boolean {
@@ -83,9 +85,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
         skip: (requestsPage - 1) * limit,
         take: limit,
       }),
-
       prisma.requests.count({ where: requestsWhere }), // 依頼待ちの総件数（検索条件も反映）
     ]);
+
+      // ▼ 追加: 一覧に出てくる会社の評価をまとめて集計する（N+1を避けるため2回だけDBに聞く）。
+      //   案件カード → 発注者(販売店)の「販売店としての」評価
+      //   依頼カード → 投稿者(工事店)の「工事店としての」評価
+      const [salesRatings, contractorRatings] = await Promise.all([
+        getCompanyRatingsByUserIds(projects.map((p) => p.salesUserId), "sales"),
+        getCompanyRatingsByUserIds(requests.map((r) => r.contractorUserId), "contractor"),
+      ]);
+
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
     id: p.id.toString(),
@@ -99,6 +109,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     paymentCycle: p.paymentCycle,
     status: p.status,
     companyName: p.salesUser.company?.name ?? null,
+    companyRating: salesRatings.get(p.salesUserId) ?? null,
   }));
 
   const mappedRequests: HomeRequest[] = requests.map((r) => ({
@@ -114,6 +125,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     rewardMinYen: r.rewardMinYen === null ? null : Number(r.rewardMinYen),
     status: r.status,
     companyName: r.contractorUser.company?.name ?? null,
+    companyRating: contractorRatings.get(r.contractorUserId) ?? null,
   }));
 
   // 募集中が上・完了（期限切れ含む）が下、同じグループ内は投稿順（新しい順）
