@@ -3,6 +3,8 @@ import type { CompanyContact, CompanyInfo } from "./companies";
 import type { HomeProject, HomeRequest } from "./home";
 // /api/mypage が返すデータ全体の型
 import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
+import type { ReviewCardInfo } from "./reviews";
+
 
 export type MypageApiResponse = {
   stats: {
@@ -67,8 +69,10 @@ export type MypageProjectDetailResponse =
   | {
       project: MypageProjectDetail;
       applications: ProjectApplication[];
+      reviewCard: ReviewCardInfo | null; // ← 追加
     }
   | { error: string };
+
 
 // 応募1件分（決定ボタンを押すために matchId が必要）
 // status は match_status enum: "pending" | "active" | "rejected" | "cancelled"

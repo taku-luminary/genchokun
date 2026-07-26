@@ -12,6 +12,9 @@ import type {
   DecideProjectMatchRequest,
   DecideProjectMatchResponse,
 } from '@/app/_types/applications';
+import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
+import { ReviewedCard } from '@/app/_components/ReviewedCard';
+
 
 export default function MypageProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -125,24 +128,43 @@ export default function MypageProjectDetailPage() {
 
         {/* ▼ 並び替え: 応募状況・マッチ状況を最上部に */}
 
-        {/* 1. マッチング成立済みの相手がいる場合は最上部で強調表示 */}
+        {/* 1. マッチ成立済み：状態に応じて ①連絡先 / ②レビュー依頼 / ③投稿済み を出し分け */}
         {matchedApp && (
-          <MatchedContactCard
-            title="✓ マッチング成立済み"
-            description="こちらの案件については、下記の連絡先からマッチング相手に確認して進めてください。"
-            contactLabel="工事店の連絡先"
-            contact={matchedApp.contractor.contact}
-          >
-            <p className="text-lg font-bold text-slate-800">
-              {matchedApp.contractor.companyName ?? '（会社名未登録）'}
-            </p>
-            {matchedApp.message && (
-              <p className="text-sm text-slate-700 whitespace-pre-wrap mt-2">
-                {matchedApp.message}
+          data.reviewCard?.cardState === 'needsReview' ? (
+            <ReviewPromptCard
+              matchId={data.reviewCard.matchId}
+              targetRole={data.reviewCard.targetRole}
+              partnerName={matchedApp.contractor.companyName}
+              contactLabel="工事店の連絡先"
+              contact={matchedApp.contractor.contact}
+              onReviewed={mutate}
+            />
+          ) : data.reviewCard?.cardState === 'reviewed' && data.reviewCard.myReview ? (
+            <ReviewedCard
+              reviewId={data.reviewCard.myReview.id}
+              targetRole={data.reviewCard.targetRole}
+              initialValues={data.reviewCard.myReview}
+              onChanged={mutate}
+            />
+          ) : (
+            <MatchedContactCard
+              title="✓ マッチング成立済み"
+              description="こちらの案件については、下記の連絡先からマッチング相手に確認して進めてください。"
+              contactLabel="工事店の連絡先"
+              contact={matchedApp.contractor.contact}
+            >
+              <p className="text-lg font-bold text-slate-800">
+                {matchedApp.contractor.companyName ?? '（会社名未登録）'}
               </p>
-            )}
-          </MatchedContactCard>
+              {matchedApp.message && (
+                <p className="text-sm text-slate-700 whitespace-pre-wrap mt-2">
+                  {matchedApp.message}
+                </p>
+              )}
+            </MatchedContactCard>
+          )
         )}
+
 
         {/* サーバーエラー表示 */}
         {serverError && (

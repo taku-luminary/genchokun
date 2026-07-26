@@ -1,4 +1,6 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
+import type { ReviewCardInfo } from "./reviews";
+
 
 // POST /api/requests に送るリクエストの型
 export type CreateRequestRequest = {
@@ -54,4 +56,7 @@ export type RequestDetailResponse = {
     // ▼ 追加: ログイン中ユーザーがこの依頼を「今」編集/削除できるか。
   //   投稿者本人 && status === "open"（＝まだマッチが入っていない）のときだけ true。
   isEditable: boolean;
+    // ▼ 追加: マッチカードのレビュー状態（応募者視点・投稿者視点どちらでも同じ形で表現）。
+    reviewCard: ReviewCardInfo | null;
+
 };

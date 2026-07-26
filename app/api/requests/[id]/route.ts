@@ -3,6 +3,8 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { RequestDetailResponse, UpdateRequestRequest } from "@/app/_types/requests";
 import type { CompanyContact } from "@/app/_types/companies";
+import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
+
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -105,6 +107,13 @@ export async function GET(
     }
 
     const c = request.contractorUser.company;
+    // ▼ 追加: マッチカードのレビュー状態。応募者視点・投稿者視点どちらでも
+    //   buildReviewCardInfo がログイン中ユーザーの立場を見て役割を決める。
+    const reviewCard = await buildReviewCardInfo({
+      currentUserId: user?.id ?? null,
+      match: request.match,
+      dateField: request.availableEndDate,
+    });
 
     return NextResponse.json({
       id: request.id.toString(),
@@ -140,6 +149,7 @@ export async function GET(
       salesContact,
       // ▼ 追加: 編集/削除ボタンの表示制御用（PUT/DELETE 時にサーバー側でも再チェックする）
       isEditable,
+      reviewCard,
     });
   } catch (e) {
     console.error(e);

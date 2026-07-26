@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import type { ProjectDetailResponse, UpdateProjectRequest } from "@/app/_types/projects";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 
 export async function GET(
   _request: NextRequest,
@@ -33,26 +34,38 @@ export async function GET(
     //         どれも無ければ null（未応募）を返す。
     //         cancelled は対象外（今は使っていないが、将来「自主取下げ」用に予約済み）。
     const user = await getAuthUser();
-    let myMatchStatus: ProjectDetailResponse["myMatchStatus"] = null;
-    // ▼ 追加: ログイン中ユーザーがこの案件の掲載者本人かどうか。
-    //         未ログインなら false。
     const isMyProject = user ? user.id === project.salesUserId : false;
-    if (user) {
-      const existing = await prisma.matches.findFirst({
-        where: {
-          projectId: project.id,
-          contractorUserId: user.id,
-          status: { in: ["pending", "active", "rejected"] },
-        },
-        select: { status: true },
-      });
-      // Prisma の型は match_status 全体 (pending/active/rejected/cancelled) を返すが、
-      // 上の where 句で cancelled は除外している。型ガードで明示的に絞り込んで
-      // myMatchStatus の型 ("pending" | "active" | "rejected" | null) と整合させる。
-      if (existing && existing.status !== "cancelled") {
-        myMatchStatus = existing.status;
-      }
+
+    // ▼ 変更: status だけでなく、レビューカード判定に必要な項目もまとめて取得する
+    const myMatch = user
+      ? await prisma.matches.findFirst({
+          where: {
+            projectId: project.id,
+            contractorUserId: user.id,
+            status: { in: ["pending", "active", "rejected"] },
+          },
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+            salesUserId: true,
+            contractorUserId: true,
+          },
+        })
+      : null;
+
+    let myMatchStatus: ProjectDetailResponse["myMatchStatus"] = null;
+    if (myMatch && myMatch.status !== "cancelled") {
+      myMatchStatus = myMatch.status;
     }
+
+    // ▼ 追加: マッチカードのレビュー状態（工事店として選ばれた場合のみ非null）
+    const reviewCard = await buildReviewCardInfo({
+      currentUserId: user?.id ?? null,
+      match: myMatch,
+      dateField: project.workEndDate,
+    });
+
 
     // ▼ 追加: この案件への「有効な応募」の件数を数える。
     //   pending（決定待ち）・active（成立）を応募ありとみなす。
@@ -113,6 +126,7 @@ export async function GET(
           : null,
       // ▼ 追加: 編集/削除ボタンの表示制御用（サーバー側でも PUT/DELETE 時に再チェックする）
       isEditable,
+      reviewCard,
     });
 
   } catch (e) {
