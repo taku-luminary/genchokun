@@ -10,11 +10,13 @@ import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
+import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
+import { ReviewedCard } from '@/app/_components/ReviewedCard';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
+  const { data, isLoading, error, mutate } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
 
   if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
   if (error || !data) return <p className="text-center text-red-500 py-20">案件の取得に失敗しました</p>;
@@ -76,14 +78,32 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* 自分が選ばれた時の「マッチング成立」セクション */}
+        {/* 自分が選ばれた時：状態に応じて ①連絡先 / ②レビュー依頼 / ③投稿済み */}
         {isWon && (
-          <MatchedContactCard
-            title="🎉 あなたが選ばれました"
-            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
-            contactLabel="販売店の連絡先"
-            contact={data.salesContact}
-          />
+          data.reviewCard?.cardState === 'needsReview' ? (
+            <ReviewPromptCard
+              matchId={data.reviewCard.matchId}
+              targetRole={data.reviewCard.targetRole}
+              partnerName={data.company?.name ?? null}
+              contactLabel="販売店の連絡先"
+              contact={data.salesContact}
+              onReviewed={mutate}
+            />
+          ) : data.reviewCard?.cardState === 'reviewed' && data.reviewCard.myReview ? (
+            <ReviewedCard
+              reviewId={data.reviewCard.myReview.id}
+              targetRole={data.reviewCard.targetRole}
+              initialValues={data.reviewCard.myReview}
+              onChanged={mutate}
+            />
+          ) : (
+            <MatchedContactCard
+              title="🎉 あなたが選ばれました"
+              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              contactLabel="販売店の連絡先"
+              contact={data.salesContact}
+            />
+          )
         )}
 
         {/* 落選通知（地味めに表示） */}
