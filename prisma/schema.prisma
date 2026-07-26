@@ -53,6 +53,11 @@ enum article_status {
   archived
 }
 
+enum review_target_role {
+  contractor
+  sales
+}
+
 enum interview_section_key {
   company_intro
   work_style
@@ -87,6 +92,7 @@ model users {
 
   createdInterviewArticles company_interview_articles[] @relation("createdInterviewArticles")
   updatedInterviewArticles company_interview_articles[] @relation("updatedInterviewArticles")
+
 }
 
   // ▼ リレーションの見方メモ
@@ -169,8 +175,6 @@ model companies {
   websiteUrl         String?
   description        String?
   logoImageUrl       String?
-  reviewAverage      Decimal? @db.Decimal(5, 2)
-  reviewCount        Int?
 
   contactPhone       String?
   contactEmail       String?
@@ -183,6 +187,10 @@ model companies {
   user             users                       @relation(fields: [userId], references: [id])
   prefecture       prefectures                 @relation(fields: [prefectureId], references: [id])
   interviewArticle company_interview_articles?
+
+  reviewsWritten  reviews[] @relation("reviewsAsReviewer")
+  reviewsReceived reviews[] @relation("reviewsAsReviewee")
+
 }
 
 model projects {
@@ -263,6 +271,30 @@ model matches {
   salesUser          users                @relation("salesMatches", fields: [salesUserId], references: [id])
   contractorUser     users                @relation("contractorMatches", fields: [contractorUserId], references: [id])
   applicationDetail  application_details?
+  reviews            reviews[]
+}
+
+model reviews {
+  id                BigInt             @id @default(autoincrement())
+  matchId           BigInt
+  reviewerCompanyId BigInt             // レビューを書いた企業
+  revieweeCompanyId BigInt             // 評価される企業
+  targetRole        review_target_role // 評価される企業がこのマッチで担った役割
+  overallRating     Int                // 総合評価 1〜5
+  item1Rating       Int
+  item2Rating       Int
+  item3Rating       Int
+  item4Rating       Int
+  item5Rating       Int
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at")
+
+  match           matches   @relation(fields: [matchId], references: [id])
+  reviewerCompany companies @relation("reviewsAsReviewer", fields: [reviewerCompanyId], references: [id])
+  revieweeCompany companies @relation("reviewsAsReviewee", fields: [revieweeCompanyId], references: [id])
+
+  @@unique([matchId, reviewerCompanyId])
+  @@index([revieweeCompanyId, targetRole])
 }
 
 model company_interview_articles {

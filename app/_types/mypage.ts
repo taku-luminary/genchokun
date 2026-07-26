@@ -2,6 +2,7 @@ import type { CompanyContact, CompanyInfo } from "./companies";
 // ▼ 追加: 応募した案件一覧はホームと同じカード型を使い回す
 import type { HomeProject, HomeRequest } from "./home";
 // /api/mypage が返すデータ全体の型
+import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
 
 export type MypageApiResponse = {
   stats: {
@@ -31,6 +32,7 @@ export type MypageProject = {
   rewardYen: number | null;
   status: "open" | "completed";
   companyName: string | null;        // ← 追加（Cards.tsx と整合させる）
+  companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
   matches: { status: string }[];
 };
 
@@ -48,6 +50,7 @@ export type MypageRequest = {
   rewardMinYen: number | null;
   status: "open" | "completed";
   companyName: string | null;        // ← 追加
+  companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
   match: { status: string } | null;
 };
 

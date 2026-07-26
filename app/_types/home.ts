@@ -1,4 +1,5 @@
 // トップページ（/api/home）が返すデータの型
+import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
 
 export type HomeProject = {
   id: string;
@@ -12,6 +13,7 @@ export type HomeProject = {
   paymentCycle: string | null;
   status: "open" | "completed";
   companyName: string | null; // 発注者の会社名
+  companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略、レビュー0件なら null
 };
 
 export type HomeRequest = {
@@ -27,6 +29,7 @@ export type HomeRequest = {
   rewardMinYen: number | null;
   status: "open" | "completed";
   companyName: string | null;
+  companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略、レビュー0件なら null
 };
 
 export type HomeApiResponse = {
