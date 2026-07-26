@@ -43,7 +43,6 @@ export async function PUT(
     // 入力検証（総合＋5項目すべて 1〜5）
     const body: UpdateReviewRequest = await request.json();
     const ratings = [
-      body.overallRating,
       body.item1Rating,
       body.item2Rating,
       body.item3Rating,
@@ -58,7 +57,6 @@ export async function PUT(
     await prisma.reviews.update({
       where: { id: review.id },
       data: {
-        overallRating: body.overallRating,
         item1Rating: body.item1Rating,
         item2Rating: body.item2Rating,
         item3Rating: body.item3Rating,

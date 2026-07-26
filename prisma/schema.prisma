@@ -280,7 +280,6 @@ model reviews {
   reviewerCompanyId BigInt             // レビューを書いた企業
   revieweeCompanyId BigInt             // 評価される企業
   targetRole        review_target_role // 評価される企業がこのマッチで担った役割
-  overallRating     Int                // 総合評価 1〜5
   item1Rating       Int
   item2Rating       Int
   item3Rating       Int

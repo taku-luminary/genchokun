@@ -2,15 +2,14 @@ import type { MatchCardState } from "@/app/_libs/reviewEligibility";
 import type { ReviewRole } from "@/app/_libs/companyRatings";
 
 // レビューの点数。投稿・編集の送信内容と、保存済みの値で共通に使う。
-// DBの列名(overallRating, item1Rating...)に合わせ、APIでの詰め替えを最小にする。
 export type ReviewInput = {
-  overallRating: number; // 総合 1〜5
   item1Rating: number; // 項目別 1〜5（意味は targetRole で変わる）
   item2Rating: number;
   item3Rating: number;
   item4Rating: number;
   item5Rating: number;
 };
+
 
 // POST /api/matches/[matchId]/reviews のリクエスト型（= 点数そのもの）
 export type CreateReviewRequest = ReviewInput;

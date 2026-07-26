@@ -86,7 +86,6 @@ export async function POST(
     // 8. 入力値の検証（総合＋5項目すべて 1〜5 の整数）
     const body: CreateReviewRequest = await request.json();
     const ratings = [
-      body.overallRating,
       body.item1Rating,
       body.item2Rating,
       body.item3Rating,
@@ -104,7 +103,6 @@ export async function POST(
         reviewerCompanyId: reviewerCompany.id,
         revieweeCompanyId: revieweeCompany.id,
         targetRole,
-        overallRating: body.overallRating,
         item1Rating: body.item1Rating,
         item2Rating: body.item2Rating,
         item3Rating: body.item3Rating,

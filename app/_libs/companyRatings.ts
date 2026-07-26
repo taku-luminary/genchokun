@@ -21,22 +21,35 @@ export async function getCompanyRatingsByCompanyIds(
   const grouped = await prisma.reviews.groupBy({
     by: ["revieweeCompanyId"],
     where: {
-      // DBは BigInt なので、文字列で受け取ったIDを BigInt に戻して渡す
       revieweeCompanyId: { in: companyIds.map((id) => BigInt(id)) },
       targetRole: role,
     },
-    _avg: { overallRating: true },
+    _avg: {
+      item1Rating: true,
+      item2Rating: true,
+      item3Rating: true,
+      item4Rating: true,
+      item5Rating: true,
+    },
     _count: { _all: true },
   });
 
   for (const g of grouped) {
-    const avg = g._avg.overallRating ?? 0;
-    // Map のキーは文字列に統一（呼び出し側も会社IDを .toString() で引く）
+    const a = g._avg;
+    // 総合＝5項目それぞれの平均を、さらに平均したもの（＝1件ごとの平均の平均に一致）
+    const overall =
+      ((a.item1Rating ?? 0) +
+        (a.item2Rating ?? 0) +
+        (a.item3Rating ?? 0) +
+        (a.item4Rating ?? 0) +
+        (a.item5Rating ?? 0)) /
+      5;
     result.set(g.revieweeCompanyId.toString(), {
-      average: Math.round(avg * 10) / 10,
+      average: Math.round(overall * 10) / 10,
       count: g._count._all,
     });
   }
+
   return result;
 }
 

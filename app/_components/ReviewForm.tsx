@@ -2,25 +2,20 @@
 
 import { useState } from "react";
 import { REVIEW_ITEM_LABELS, OVERALL_LABEL } from "@/app/_constants/reviewItems";
+import { StarRating } from "@/app/_components/ui/StarRating";
 import type { ReviewInput } from "@/app/_types/reviews";
 import type { ReviewRole } from "@/app/_libs/companyRatings";
 
 type Props = {
-  targetRole: ReviewRole; // 表示する項目セット（工事店用/販売店用）
-  initialValues?: ReviewInput; // 編集時の初期値。無ければ新規（未選択）
-  submitLabel?: string; // ボタン文言
-  submitting?: boolean; // 送信中フラグ（親が管理）
-  onSubmit: (input: ReviewInput) => void; // 確定した点数を親に渡す
+  targetRole: ReviewRole;
+  initialValues?: ReviewInput;
+  submitLabel?: string;
+  submitting?: boolean;
+  onSubmit: (input: ReviewInput) => void;
 };
 
-// 1〜5をクリックで選ぶ入力用の星（塗り/未塗りの2値）
-function StarPicker({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-}) {
+// 1〜5をクリックで選ぶ入力用の星
+function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <span className="inline-flex flex-shrink-0">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -49,7 +44,6 @@ export function ReviewForm({
 }: Props) {
   const labels = REVIEW_ITEM_LABELS[targetRole];
 
-  const [overall, setOverall] = useState(initialValues?.overallRating ?? 0);
   const [items, setItems] = useState<number[]>(
     initialValues
       ? [
@@ -67,7 +61,9 @@ export function ReviewForm({
     setItems((prev) => prev.map((cur, i) => (i === index ? v : cur)));
   };
 
-  const allSelected = overall >= 1 && items.every((v) => v >= 1);
+  const allSelected = items.every((v) => v >= 1);
+  // 総合評価は5項目の平均（自動計算・入力不可）
+  const average = allSelected ? items.reduce((s, v) => s + v, 0) / 5 : null;
 
   const handleSubmit = () => {
     if (!allSelected) {
@@ -76,7 +72,6 @@ export function ReviewForm({
     }
     setError(null);
     onSubmit({
-      overallRating: overall,
       item1Rating: items[0],
       item2Rating: items[1],
       item3Rating: items[2],
@@ -87,10 +82,16 @@ export function ReviewForm({
 
   return (
     <div className="space-y-2">
-      {/* 総合評価 */}
+      {/* 総合評価：5項目の平均を自動計算（ユーザーは入力しない） */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-2">
-        <span className="text-sm font-bold text-slate-800">{OVERALL_LABEL}</span>
-        <StarPicker value={overall} onChange={setOverall} />
+        <span className="text-sm font-bold text-slate-800">
+          {OVERALL_LABEL}（自動計算）
+        </span>
+        {average !== null ? (
+          <StarRating rating={average} />
+        ) : (
+          <span className="text-xs text-slate-400">5項目を選ぶと計算されます</span>
+        )}
       </div>
 
       {/* 項目別（5項目） */}

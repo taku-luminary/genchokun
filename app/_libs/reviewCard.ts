@@ -46,7 +46,6 @@ export async function buildReviewCardInfo(params: {
     },
     select: {
       id: true,
-      overallRating: true,
       item1Rating: true,
       item2Rating: true,
       item3Rating: true,
@@ -70,7 +69,6 @@ export async function buildReviewCardInfo(params: {
     myReview: myReview
       ? {
           id: myReview.id.toString(),
-          overallRating: myReview.overallRating,
           item1Rating: myReview.item1Rating,
           item2Rating: myReview.item2Rating,
           item3Rating: myReview.item3Rating,
