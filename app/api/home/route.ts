@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
-import { getCompanyRatingsByUserIds } from "@/app/_libs/companyRatings";
+import { getCompanyRatingsByCompanyIds } from "@/app/_libs/companyRatings";
 
 
 // 「完了扱い」かどうかを判定（status が completed OR 期限切れ）
@@ -88,13 +88,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
       prisma.requests.count({ where: requestsWhere }), // 依頼待ちの総件数（検索条件も反映）
     ]);
 
-      // ▼ 追加: 一覧に出てくる会社の評価をまとめて集計する（N+1を避けるため2回だけDBに聞く）。
-      //   案件カード → 発注者(販売店)の「販売店としての」評価
-      //   依頼カード → 投稿者(工事店)の「工事店としての」評価
-      const [salesRatings, contractorRatings] = await Promise.all([
-        getCompanyRatingsByUserIds(projects.map((p) => p.salesUserId), "sales"),
-        getCompanyRatingsByUserIds(requests.map((r) => r.contractorUserId), "contractor"),
-      ]);
+  // ▼ 一覧に出てくる会社の「会社ID(文字列)」を集める。会社未登録(null)は flatMap で除外。
+  //   （既存の mypage ルートと同じ「null なら空配列で飛ばす」書き方）
+  const salesCompanyIds = projects.flatMap((p) =>
+    p.salesUser.company ? [p.salesUser.company.id.toString()] : [],
+  );
+  const contractorCompanyIds = requests.flatMap((r) =>
+    r.contractorUser.company ? [r.contractorUser.company.id.toString()] : [],
+  );
+
+  // 案件カード → 発注者(販売店)の「販売店としての」評価 / 依頼カード → 工事店の「工事店としての」評価
+  const [salesRatings, contractorRatings] = await Promise.all([
+    getCompanyRatingsByCompanyIds(salesCompanyIds, "sales"),
+    getCompanyRatingsByCompanyIds(contractorCompanyIds, "contractor"),
+  ]);
+
 
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
@@ -109,7 +117,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     paymentCycle: p.paymentCycle,
     status: p.status,
     companyName: p.salesUser.company?.name ?? null,
-    companyRating: salesRatings.get(p.salesUserId) ?? null,
+    companyRating: p.salesUser.company
+      ? salesRatings.get(p.salesUser.company.id.toString()) ?? null
+      : null,
   }));
 
   const mappedRequests: HomeRequest[] = requests.map((r) => ({
@@ -125,7 +135,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     rewardMinYen: r.rewardMinYen === null ? null : Number(r.rewardMinYen),
     status: r.status,
     companyName: r.contractorUser.company?.name ?? null,
-    companyRating: contractorRatings.get(r.contractorUserId) ?? null,
+    companyRating: r.contractorUser.company
+      ? contractorRatings.get(r.contractorUser.company.id.toString()) ?? null
+      : null,
   }));
 
   // 募集中が上・完了（期限切れ含む）が下、同じグループ内は投稿順（新しい順）

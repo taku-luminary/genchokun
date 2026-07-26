@@ -6,28 +6,23 @@ export type CompanyRatingSummary = { average: number; count: number };
 // 評価の役割: 工事店として受けた評価 / 販売店として受けた評価
 export type ReviewRole = "contractor" | "sales";
 
-/*
- * 複数ユーザーの「指定した役割での」評価をまとめて集計する。
- *
- * 一覧ページ（案件がたくさん並ぶ）で1件ずつ集計するとDBアクセスが件数分
- * 発生してしまう（N+1問題）。それを避けるため、ユーザーIDの配列を受け取り
- * groupBy で「1回のクエリ」でまとめて集計する。
- *
- * 戻り値は Map（userId → 集計結果）。レビューが0件のユーザーは Map に入らない。
+/**
+ * 複数企業の「指定した役割での」評価をまとめて集計する（N+1回避）。
+ * companyIds は文字列（BigIntを .toString() したもの）で受け取る。
+ * 戻り値は Map（会社ID文字列 → 集計結果）。レビュー0件の企業は Map に入らない。
  */
-export async function getCompanyRatingsByUserIds(
-  userIds: string[],
+export async function getCompanyRatingsByCompanyIds(
+  companyIds: string[],
   role: ReviewRole,
 ): Promise<Map<string, CompanyRatingSummary>> {
   const result = new Map<string, CompanyRatingSummary>();
-  // 空配列でクエリを投げないようガード（無駄なDBアクセス防止）
-  if (userIds.length === 0) return result;
+  if (companyIds.length === 0) return result;
 
-  // revieweeUserId（評価される人）ごとに、overallRating の平均と件数を集計する
   const grouped = await prisma.reviews.groupBy({
-    by: ["revieweeUserId"],
+    by: ["revieweeCompanyId"],
     where: {
-      revieweeUserId: { in: userIds },
+      // DBは BigInt なので、文字列で受け取ったIDを BigInt に戻して渡す
+      revieweeCompanyId: { in: companyIds.map((id) => BigInt(id)) },
       targetRole: role,
     },
     _avg: { overallRating: true },
@@ -36,8 +31,8 @@ export async function getCompanyRatingsByUserIds(
 
   for (const g of grouped) {
     const avg = g._avg.overallRating ?? 0;
-    result.set(g.revieweeUserId, {
-      // 星は0.1刻みで塗るので、平均は小数第1位に丸める（例: 4.666… → 4.7）
+    // Map のキーは文字列に統一（呼び出し側も会社IDを .toString() で引く）
+    result.set(g.revieweeCompanyId.toString(), {
       average: Math.round(avg * 10) / 10,
       count: g._count._all,
     });
@@ -46,13 +41,13 @@ export async function getCompanyRatingsByUserIds(
 }
 
 /**
- * 単体ページ用の薄いラッパー。1ユーザー分だけ欲しいときに使う。
- * レビューが0件なら null を返す（呼び出し側で「星を出さない」判断に使う）。
+ * 単体ページ用の薄いラッパー。1企業分だけ欲しいときに使う。
+ * レビュー0件なら null を返す。
  */
 export async function getCompanyRating(
-  userId: string,
+  companyId: string,
   role: ReviewRole,
 ): Promise<CompanyRatingSummary | null> {
-  const map = await getCompanyRatingsByUserIds([userId], role);
-  return map.get(userId) ?? null;
+  const map = await getCompanyRatingsByCompanyIds([companyId], role);
+  return map.get(companyId) ?? null;
 }
