@@ -10,7 +10,7 @@ export type ReviewInput = {
   item5Rating: number;
 };
 
-
+s
 // POST /api/matches/[matchId]/reviews のリクエスト型（= 点数そのもの）
 export type CreateReviewRequest = ReviewInput;
 
