@@ -24,11 +24,9 @@ export function ReviewPromptCard({
   contact,
   onReviewed,
 }: Props) {
-  const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const handleSubmit = async (input: ReviewInput) => {
-    setSubmitting(true);
     setServerError(null);
     try {
       const res = await fetch(`/api/matches/${matchId}/reviews`, {
@@ -41,13 +39,12 @@ export function ReviewPromptCard({
         setServerError("error" in json ? json.error : "投稿に失敗しました");
         return;
       }
-      onReviewed(); // 親が再取得して状態③へ切り替える
+      onReviewed();
     } catch {
       setServerError("通信エラーが発生しました");
-    } finally {
-      setSubmitting(false);
     }
   };
+
 
   return (
     <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
@@ -63,11 +60,8 @@ export function ReviewPromptCard({
       <div className="border-t border-brand-green/30 pt-3 mt-3 space-y-3">
         {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
 
-        <ReviewForm
-          targetRole={targetRole}
-          submitting={submitting}
-          onSubmit={handleSubmit}
-        />
+        <ReviewForm targetRole={targetRole} onSubmit={handleSubmit} />
+
 
         {/* 連絡先は折りたたみで残す（まだ連絡したいとき開ける） */}
         <details className="pt-1">

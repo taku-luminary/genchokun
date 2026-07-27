@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, useWatch, Controller, type Control } from "react-hook-form";
 import { REVIEW_ITEM_LABELS, OVERALL_LABEL } from "@/app/_constants/reviewItems";
 import { StarRating } from "@/app/_components/ui/StarRating";
 import type { ReviewInput } from "@/app/_types/reviews";
@@ -10,12 +10,26 @@ type Props = {
   targetRole: ReviewRole;
   initialValues?: ReviewInput;
   submitLabel?: string;
-  submitting?: boolean;
-  onSubmit: (input: ReviewInput) => void;
+  onSubmit: (input: ReviewInput) => void | Promise<void>;
 };
 
+// item1Rating〜item5Rating のフィールド名（配列の順＝項目ラベルの順）
+const ITEM_NAMES = [
+  "item1Rating",
+  "item2Rating",
+  "item3Rating",
+  "item4Rating",
+  "item5Rating",
+] as const;
+
 // 1〜5をクリックで選ぶ入力用の星
-function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function StarPicker({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
   return (
     <span className="inline-flex flex-shrink-0">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -35,83 +49,84 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
+// 総合評価（5項目の平均）だけを監視して表示する小さな部品。
+// useWatch でこの部分だけ再描画し、フォーム全体の再レンダリングを避ける。
+function OverallAverage({ control }: { control: Control<ReviewInput> }) {
+  const values = useWatch({ control, name: ITEM_NAMES });
+  const nums = values.map((v) => v ?? 0);
+  const allSelected = nums.every((v) => v >= 1);
+  const average = allSelected ? nums.reduce((s, v) => s + v, 0) / 5 : null;
+
+  return average !== null ? (
+    <StarRating rating={average} />
+  ) : (
+    <span className="text-xs text-slate-400">5項目を選ぶと計算されます</span>
+  );
+}
+
 export function ReviewForm({
   targetRole,
   initialValues,
   submitLabel = "この内容で投稿する",
-  submitting = false,
   onSubmit,
 }: Props) {
   const labels = REVIEW_ITEM_LABELS[targetRole];
 
-  const [items, setItems] = useState<number[]>(
-    initialValues
-      ? [
-          initialValues.item1Rating,
-          initialValues.item2Rating,
-          initialValues.item3Rating,
-          initialValues.item4Rating,
-          initialValues.item5Rating,
-        ]
-      : [0, 0, 0, 0, 0],
-  );
-  const [error, setError] = useState<string | null>(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<ReviewInput>({
+    defaultValues: {
+      item1Rating: initialValues?.item1Rating ?? 0,
+      item2Rating: initialValues?.item2Rating ?? 0,
+      item3Rating: initialValues?.item3Rating ?? 0,
+      item4Rating: initialValues?.item4Rating ?? 0,
+      item5Rating: initialValues?.item5Rating ?? 0,
+    },
+  });
 
-  const setItem = (index: number, v: number) => {
-    setItems((prev) => prev.map((cur, i) => (i === index ? v : cur)));
-  };
-
-  const allSelected = items.every((v) => v >= 1);
-  // 総合評価は5項目の平均（自動計算・入力不可）
-  const average = allSelected ? items.reduce((s, v) => s + v, 0) / 5 : null;
-
-  const handleSubmit = () => {
-    if (!allSelected) {
-      setError("すべての項目を選択してください");
-      return;
-    }
-    setError(null);
-    onSubmit({
-      item1Rating: items[0],
-      item2Rating: items[1],
-      item3Rating: items[2],
-      item4Rating: items[3],
-      item5Rating: items[4],
-    });
+  const submit = async (data: ReviewInput) => {
+    await onSubmit(data);
   };
 
   return (
-    <div className="space-y-2">
+    <form onSubmit={handleSubmit(submit)} className="space-y-2">
       {/* 総合評価：5項目の平均を自動計算（ユーザーは入力しない） */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-2">
         <span className="text-sm font-bold text-slate-800">
           {OVERALL_LABEL}（自動計算）
         </span>
-        {average !== null ? (
-          <StarRating rating={average} />
-        ) : (
-          <span className="text-xs text-slate-400">5項目を選ぶと計算されます</span>
-        )}
+        <OverallAverage control={control} />
       </div>
 
-      {/* 項目別（5項目） */}
+      {/* 項目別（5項目）。自作の星は register で繋げないので Controller を使う */}
       {labels.map((label, i) => (
         <div key={label} className="flex items-center justify-between gap-2">
           <span className="text-sm font-medium text-slate-700">{label}</span>
-          <StarPicker value={items[i]} onChange={(v) => setItem(i, v)} />
+          <Controller
+            control={control}
+            name={ITEM_NAMES[i]}
+            rules={{ min: { value: 1, message: "すべての項目を選択してください" } }}
+            render={({ field }) => (
+              <StarPicker value={field.value} onChange={field.onChange} />
+            )}
+          />
         </div>
       ))}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {/* 未選択があると送信時にエラーが入る。まとめて1つだけ表示 */}
+      {Object.keys(errors).length > 0 && (
+        <p className="text-red-500 text-sm">すべての項目を選択してください</p>
+      )}
 
       <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={submitting}
+        type="submit"
+        disabled={isSubmitting}
         className="w-full py-3 rounded-2xl bg-brand-green text-white font-black text-base shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-1"
       >
-        {submitting ? "送信中..." : submitLabel}
+        {isSubmitting ? "送信中..." : submitLabel}
       </button>
-    </div>
+    </form>
   );
 }

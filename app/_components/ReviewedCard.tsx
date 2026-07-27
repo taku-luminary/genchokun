@@ -19,12 +19,10 @@ export function ReviewedCard({
   onChanged,
 }: Props) {
   const [editing, setEditing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleEdit = async (input: ReviewInput) => {
-    setSubmitting(true);
     setError(null);
     try {
       const res = await fetch(`/api/reviews/${reviewId}`, {
@@ -41,10 +39,9 @@ export function ReviewedCard({
       onChanged();
     } catch {
       setError("通信エラーが発生しました");
-    } finally {
-      setSubmitting(false);
     }
   };
+
 
   const handleDelete = async () => {
     if (!window.confirm("この評価を削除します。よろしいですか？")) return;
@@ -75,7 +72,6 @@ export function ReviewedCard({
           targetRole={targetRole}
           initialValues={initialValues}
           submitLabel="この内容で更新する"
-          submitting={submitting}
           onSubmit={handleEdit}
         />
         <div className="flex justify-between pt-1">
