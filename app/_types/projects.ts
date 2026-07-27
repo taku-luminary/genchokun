@@ -1,4 +1,5 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
+import type { ReviewCardInfo } from "./reviews";
 
 
 export type CreateProjectRequest = {
@@ -39,19 +40,22 @@ export type ProjectDetailResponse = {
   paymentCycle: string | null;
   status: "open" | "completed";
   company: CompanyInfo | null;
-  // ▼ 変更: hasApplied を廃止し、ログイン中ユーザーの match 状態を4値で持つ。
+  // ▼  hasApplied を廃止し、ログイン中ユーザーの match 状態を4値で持つ。
   //   null:      未応募
   //   pending:   応募済み、販売店の決定待ち
   //   active:    自分が選ばれた（マッチ成立）
   //   rejected:  他の応募者が選ばれた（落選）
   myMatchStatus: "pending" | "active" | "rejected" | null;
-  // ▼ 追加: ログイン中ユーザーがこの案件の掲載者本人かどうか
+  // ▼ ログイン中ユーザーがこの案件の掲載者本人かどうか
   isMyProject: boolean;
-  // ▼ 追加: myMatchStatus === "active" のときだけ、案件投稿者（販売店）の連絡先を入れる。
+  // ▼ myMatchStatus === "active" のときだけ、案件投稿者（販売店）の連絡先を入れる。
   //         他の状態では null（プライバシー保護）。
   salesContact: CompanyContact | null;
-  // ▼ 追加: ログイン中ユーザーがこの案件を「今」編集できるか。
+  // ▼ ログイン中ユーザーがこの案件を「今」編集できるか。
   //   投稿者本人 && status === "open" && 応募が1件も無い、のときだけ true。
   //   詳細ページの編集/削除ボタンの表示制御に使う（サーバー側でも必ず再チェックする）。
   isEditable: boolean;
-};
+    // ▼ 追加: マッチカードのレビュー状態。自分がこの案件でマッチ成立した場合のみ入り、
+  //   それ以外は null（レビューの流れに乗らない＝従来通りの表示）。
+  reviewCard: ReviewCardInfo | null;
+}

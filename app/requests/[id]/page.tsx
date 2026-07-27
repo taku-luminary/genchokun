@@ -11,13 +11,16 @@ import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
+import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
+import { ReviewedCard } from '@/app/_components/ReviewedCard';
 
 export default function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const { data, isLoading, error } = useAuthedFetch<RequestDetailResponse>(`/api/requests/${id}`);
+  const { data, isLoading, error, mutate } = useAuthedFetch<RequestDetailResponse>(`/api/requests/${id}`);
+
 
   if (isLoading) {
     return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
@@ -86,25 +89,64 @@ export default function RequestDetailPage() {
 
         {/* ▼ 並び替え: マッチ成立の連絡先カードを最上部にまとめる */}
 
-        {/* 応募者視点 — 自分が応募してマッチ成立済み → 工事店の連絡先 */}
+        {/* 応募者視点（販売店 → 工事店を評価） */}
         {data.hasApplied && data.isMatched && (
-          <MatchedContactCard
-            title="🎉 マッチング成立済み"
-            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
-            contactLabel="工事店の連絡先"
-            contact={data.contractorContact}
-          />
+          data.reviewCard?.cardState === 'needsReview' ? (
+            <ReviewPromptCard
+              matchId={data.reviewCard.matchId}
+              targetRole={data.reviewCard.targetRole}
+              partnerName={data.company?.name ?? null}
+              contactLabel="工事店の連絡先"
+              contact={data.contractorContact}
+              onReviewed={mutate}
+            />
+          ) : data.reviewCard?.cardState === 'reviewed' && data.reviewCard.myReview ? (
+            <ReviewedCard
+              reviewId={data.reviewCard.myReview.id}
+              targetRole={data.reviewCard.targetRole}
+              initialValues={data.reviewCard.myReview}
+              onChanged={mutate}
+            />
+          ) : (
+            <MatchedContactCard
+              title="🎉 マッチング成立済み"
+              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              contactLabel="工事店の連絡先"
+              contact={data.contractorContact}
+            />
+          )
         )}
 
+
         {/* 投稿者視点 — 自分の依頼にマッチが入った → 販売店の連絡先 */}
+        {/* 投稿者視点（工事店 → 販売店を評価） */}
         {data.isMyRequest && data.isMatched && (
-          <MatchedContactCard
-            title="🎉 あなたの依頼にマッチが入りました"
-            description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
-            contactLabel="販売店の連絡先"
-            contact={data.salesContact}
-          />
+          data.reviewCard?.cardState === 'needsReview' ? (
+            <ReviewPromptCard
+              matchId={data.reviewCard.matchId}
+              targetRole={data.reviewCard.targetRole}
+              partnerName={null}
+              contactLabel="販売店の連絡先"
+              contact={data.salesContact}
+              onReviewed={mutate}
+            />
+          ) : data.reviewCard?.cardState === 'reviewed' && data.reviewCard.myReview ? (
+            <ReviewedCard
+              reviewId={data.reviewCard.myReview.id}
+              targetRole={data.reviewCard.targetRole}
+              initialValues={data.reviewCard.myReview}
+              onChanged={mutate}
+            />
+          ) : (
+            <MatchedContactCard
+              title="🎉 あなたの依頼にマッチが入りました"
+              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              contactLabel="販売店の連絡先"
+              contact={data.salesContact}
+            />
+          )
         )}
+
 
         {/* ▼ 連続ブロック: 依頼カード → 調査内容 → 投稿元情報 */}
 

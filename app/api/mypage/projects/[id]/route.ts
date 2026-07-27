@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { MypageProjectDetailResponse } from "@/app/_types/mypage";
+import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 
 // GET /api/mypage/projects/[id]
 // 自分が販売店として投稿した案件1件 + その案件への応募一覧を返す。
@@ -79,6 +80,14 @@ export async function GET(
     }
     // ▼ 追加: 投稿者(自分)の会社情報
     const c = project.salesUser.company;
+    // ▼ 追加: 成立済み(active)のマッチがあれば、投稿者(販売店)視点のレビューカードを作る
+    const activeMatch = project.matches.find((m) => m.status === "active") ?? null;
+    const reviewCard = await buildReviewCardInfo({
+      currentUserId: user.id,
+      match: activeMatch,
+      dateField: project.workEndDate,
+    });
+
 
     // 3. レスポンス整形（BigInt は文字列化、Date は ISO 文字列化）
     return NextResponse.json({
@@ -157,6 +166,7 @@ export async function GET(
               : null,
         },
       })),
+      reviewCard,
     });
   } catch (e) {
     console.error(e);
