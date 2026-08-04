@@ -60,23 +60,19 @@ export default function ProjectDetailPage() {
 
         {/* ▼ 並び替え: ステータス/誘導カードを最上部にまとめる */}
 
-        {/* 掲載者本人向けの案内（最上部）。応募状況・連絡先は管理ページに集約しているため誘導する */}
+        {/* 掲載者本人向けの案内。枠は付けず、マイページへのテキストリンクにする */}
         {data.isMyProject && (
-          <section className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3">
-            <p className="font-bold text-slate-700">
-              こちらはあなたが掲載した案件です
-            </p>
-            <p className="text-sm text-slate-600">
-              応募状況・マッチング状況・マッチ相手の連絡先はマイページで確認できます。
-            </p>
+          <div>
+            <p className="text-sm text-slate-600">こちらはあなたが掲載した案件です。</p>
             <Link
               href={`/mypage/projects/${data.id}`}
-              className="block w-full max-w-md mx-auto py-1 rounded-2xl bg-neutral-500 text-white text-center shadow hover:opacity-90 transition"
+              className="block text-sm font-bold text-brand-green underline hover:opacity-80 transition"
             >
-              マイページを開く
+              マイページで応募状況・連絡先を確認する
             </Link>
-          </section>
+          </div>
         )}
+
 
         {/* 自分が選ばれた時：状態に応じて ①連絡先 / ②レビュー依頼 / ③投稿済み */}
         {isWon && (
@@ -183,7 +179,7 @@ export default function ProjectDetailPage() {
             <div className="px-6 pb-6">
               <button
                 disabled
-                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
+                className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-base cursor-not-allowed"
               >
                 応募は終了しました
               </button>

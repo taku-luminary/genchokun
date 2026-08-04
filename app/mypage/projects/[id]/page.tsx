@@ -14,6 +14,7 @@ import type {
 } from '@/app/_types/applications';
 import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
 import { ReviewedCard } from '@/app/_components/ReviewedCard';
+import { StarRating } from '@/app/_components/ui/StarRating'; 
 
 
 export default function MypageProjectDetailPage() {
@@ -198,24 +199,36 @@ export default function MypageProjectDetailPage() {
                   className="bg-white rounded-2xl p-5 space-y-3 border-2 border-brand-green"
                 >
 
-                  {/* 企業名: 応募が来ていることが目立つよう brand-green ＋ タイトル相当のサイズに。
-                      未登録のときだけグレーにして区別する */}
-                  {app.contractor.companyName ? (
-                    app.contractor.companyId ? (
-                      <Link
-                        href={`/companies/${app.contractor.companyId}`}
-                        className="text-xl font-bold text-brand-green underline hover:opacity-80 transition"
-                      >
-                        {app.contractor.companyName}
-                      </Link>
+                  {/* 企業名＋評価。応募が目立つよう brand-green・タイトル相当のサイズ */}
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    {app.contractor.companyName ? (
+                      app.contractor.companyId ? (
+                        <Link
+                          href={`/companies/${app.contractor.companyId}`}
+                          className="text-xl font-bold text-brand-green underline hover:opacity-80 transition"
+                        >
+                          {app.contractor.companyName}
+                        </Link>
+                      ) : (
+                        <p className="text-xl font-bold text-brand-green">
+                          {app.contractor.companyName}
+                        </p>
+                      )
                     ) : (
-                      <p className="text-xl font-bold text-brand-green">
-                        {app.contractor.companyName}
-                      </p>
-                    )
-                  ) : (
-                    <p className="text-xl font-bold text-slate-400">（会社名未登録）</p>
-                  )}
+                      <p className="text-xl font-bold text-slate-400">（会社名未登録）</p>
+                    )}
+
+                    {/* 評価（他ページと同様）。無ければ（0件） */}
+                    {app.contractor.companyRating ? (
+                      <StarRating
+                        rating={app.contractor.companyRating.average}
+                        count={app.contractor.companyRating.count}
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-400">（0件）</span>
+                    )}
+                  </div>
+
 
                   {app.contractor.prefecture && (
                     <p className="text-sm text-slate-500">
@@ -235,15 +248,15 @@ export default function MypageProjectDetailPage() {
 
                   {canDecide && (
                     <button
-                      type="button"
-                      onClick={() =>
-                        handleDecide(app.matchId, app.contractor.companyName)
-                      }
-                      disabled={submittingId !== null}
-                      className="w-full py-3 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                      {isThisSubmitting ? '送信中...' : 'この工事店に決定'}
-                    </button>
+                    type="button"
+                    onClick={() =>
+                      handleDecide(app.matchId, app.contractor.companyName)
+                    }
+                    disabled={submittingId !== null}
+                    className="w-full py-2 rounded-2xl bg-brand-green text-white font-black text-base shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isThisSubmitting ? '送信中...' : 'この工事店に決定'}
+                  </button>
                   )}
                 </article>
 

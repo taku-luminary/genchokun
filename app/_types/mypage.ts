@@ -83,11 +83,10 @@ export type ProjectApplication = {
   appliedAt: string;
   contractor: {
     userId: string;
-    companyId: string | null;        // ← 追加: 応募者の企業ページ用（未登録なら null）
+    companyId: string | null;
     companyName: string | null;
+    companyRating?: CompanyRatingSummary | null; // ← 追加: 応募者企業の評価（0件なら null）
     prefecture: string | null;
-    // ▼ 追加: マッチ成立（status === "active"）の応募者にだけ連絡先を入れる。
-    //         pending/rejected/cancelled の場合は null。プライバシー保護のため。
     contact: CompanyContact | null;
   };
 };

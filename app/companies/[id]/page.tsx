@@ -7,6 +7,7 @@ import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { CompanyInfoCard } from "@/app/_components/CompanyInfoCard";
 import { InterviewArticle } from "@/app/_components/InterviewArticle";
 import type { InterviewArticlePublic } from "@/app/_types/articles";
+import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 
 // DB取得を cache() で包む。同じリクエスト内なら generateMetadata と
 // ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
@@ -99,6 +100,8 @@ export default async function CompanyPublicPage({
     };
   }
 
+  const companyRating = await getCompanyOverallRating(company.id.toString());
+
   const companyInfo = {
     id: company.id.toString(),
     name: company.name,
@@ -109,7 +112,9 @@ export default async function CompanyPublicPage({
     employeeCount: company.employeeCount,
     websiteUrl: company.websiteUrl,
     description: company.description,
+    rating: companyRating,
   };
+
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
