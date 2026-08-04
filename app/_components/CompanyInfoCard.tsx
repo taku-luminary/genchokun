@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CompanyInfo } from "@/app/_types/companies";
+import { StarRating } from "@/app/_components/ui/StarRating"; // ← 追加
 
 type Props = {
   // 例: "投稿元の販売店情報" / "投稿元の工事店情報"
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export function CompanyInfoCard({ title, subtitle, company }: Props) {
+  const rating = company.rating ?? null;
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
       <div className="pb-2 flex items-center gap-2">
@@ -26,6 +29,25 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
           {company.name}
         </Link>
       </div>
+
+      {/* 評価行：レビューがあれば★＋詳細リンク、無ければ（0件） */}
+      <div className="flex gap-2">
+        <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">評価</p>
+        {rating ? (
+          <Link
+            href={`/companies/${company.id}/reviews`}
+            className="min-w-0 flex-1 space-y-1 hover:opacity-80 transition"
+          >
+            <StarRating rating={rating.average} count={rating.count} />
+            <span className="block text-xs text-brand-green underline">
+              評価詳細を見る
+            </span>
+          </Link>
+        ) : (
+          <span className="text-sm text-slate-400">（0件）</span>
+        )}
+      </div>
+
 
       <CompanyRow
         label="所在地"

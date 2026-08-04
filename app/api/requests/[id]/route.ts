@@ -4,7 +4,7 @@ import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { RequestDetailResponse, UpdateRequestRequest } from "@/app/_types/requests";
 import type { CompanyContact } from "@/app/_types/companies";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
-
+import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -107,7 +107,10 @@ export async function GET(
     }
 
     const c = request.contractorUser.company;
-    // ▼ 追加: マッチカードのレビュー状態。応募者視点・投稿者視点どちらでも
+
+    const companyRating = c ? await getCompanyOverallRating(c.id.toString()) : null;
+    
+    // ▼ マッチカードのレビュー状態。応募者視点・投稿者視点どちらでも
     //   buildReviewCardInfo がログイン中ユーザーの立場を見て役割を決める。
     const reviewCard = await buildReviewCardInfo({
       currentUserId: user?.id ?? null,
@@ -140,6 +143,7 @@ export async function GET(
             employeeCount: c.employeeCount,
             websiteUrl: c.websiteUrl,
             description: c.description,
+            rating: companyRating,
           }
         : null,
       hasApplied,

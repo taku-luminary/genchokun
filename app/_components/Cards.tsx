@@ -105,11 +105,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
           {project.companyName && (
             <p className="flex flex-wrap items-center gap-x-2">
               <span>・発注者：{project.companyName}</span>
-              {project.companyRating && (
+              {project.companyRating ? (
                 <StarRating
                   rating={project.companyRating.average}
                   count={project.companyRating.count}
                 />
+              ) : (
+                <span className="text-xs text-slate-400">（0件）</span>
               )}
             </p>
           )}
@@ -194,11 +196,13 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) 
               {request.companyName && (
                 <p className="flex flex-wrap items-center gap-x-2">
                   <span>・企業：{request.companyName}</span>
-                  {request.companyRating && (
+                  {request.companyRating ? (
                     <StarRating
                       rating={request.companyRating.average}
                       count={request.companyRating.count}
                     />
+                  ) : (
+                    <span className="text-xs text-slate-400">（0件）</span>
                   )}
                 </p>
               )}

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
-import { getCompanyRatingsByCompanyIds } from "@/app/_libs/companyRatings";
-
+import { getCompanyOverallRatingsByCompanyIds } from "@/app/_libs/companyRatings"; 
 
 // 「完了扱い」かどうかを判定（status が completed OR 期限切れ）
 function isEffectivelyCompleted(status: string, endDate: string | null): boolean {
@@ -97,13 +96,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     r.contractorUser.company ? [r.contractorUser.company.id.toString()] : [],
   );
 
-  // 案件カード → 発注者(販売店)の「販売店としての」評価 / 依頼カード → 工事店の「工事店としての」評価
+  // 案件・依頼カードの発注者/工事店の評価。詳細ページ等と揃えて「両ロール合算」の総合評価で統一する。
   const [salesRatings, contractorRatings] = await Promise.all([
-    getCompanyRatingsByCompanyIds(salesCompanyIds, "sales"),
-    getCompanyRatingsByCompanyIds(contractorCompanyIds, "contractor"),
+    getCompanyOverallRatingsByCompanyIds(salesCompanyIds),
+    getCompanyOverallRatingsByCompanyIds(contractorCompanyIds),
   ]);
-
-
 
   const mappedProjects: HomeProject[] = projects.map((p) => ({
     id: p.id.toString(),

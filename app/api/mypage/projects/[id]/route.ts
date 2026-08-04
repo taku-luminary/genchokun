@@ -3,6 +3,10 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { MypageProjectDetailResponse } from "@/app/_types/mypage";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
+import {
+  getCompanyOverallRating,
+  getCompanyOverallRatingsByCompanyIds, // ← 追加
+} from "@/app/_libs/companyRatings";
 
 // GET /api/mypage/projects/[id]
 // 自分が販売店として投稿した案件1件 + その案件への応募一覧を返す。
@@ -78,9 +82,11 @@ export async function GET(
     if (!project) {
       return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });
     }
-    // ▼ 追加: 投稿者(自分)の会社情報
+    // ▼  投稿者(自分)の会社情報
     const c = project.salesUser.company;
-    // ▼ 追加: 成立済み(active)のマッチがあれば、投稿者(販売店)視点のレビューカードを作る
+    const companyRating = c ? await getCompanyOverallRating(c.id.toString()) : null;
+
+    // ▼ 成立済み(active)のマッチがあれば、投稿者(販売店)視点のレビューカードを作る
     const activeMatch = project.matches.find((m) => m.status === "active") ?? null;
     const reviewCard = await buildReviewCardInfo({
       currentUserId: user.id,
@@ -88,6 +94,11 @@ export async function GET(
       dateField: project.workEndDate,
     });
 
+    // ▼ 追加: 応募者(工事店)の企業評価をまとめて取得（N+1回避）
+    const applicantCompanyIds = project.matches
+    .map((m) => m.contractorUser.company?.id.toString())
+    .filter((cid): cid is string => cid !== undefined);
+    const applicantRatings = await getCompanyOverallRatingsByCompanyIds(applicantCompanyIds);
 
     // 3. レスポンス整形（BigInt は文字列化、Date は ISO 文字列化）
     return NextResponse.json({
@@ -139,8 +150,10 @@ export async function GET(
               employeeCount: c.employeeCount,
               websiteUrl: c.websiteUrl,
               description: c.description,
+              rating: companyRating,
             }
           : null,
+
       },
 
       applications: project.matches.map((m) => ({
@@ -150,11 +163,12 @@ export async function GET(
         appliedAt: m.createdAt.toISOString(),
         contractor: {
           userId: m.contractorUserId,
-          companyId: m.contractorUser.company?.id.toString() ?? null,   // ← 追加
+          companyId: m.contractorUser.company?.id.toString() ?? null,
           companyName: m.contractorUser.company?.name ?? null,
+          companyRating: m.contractorUser.company
+            ? applicantRatings.get(m.contractorUser.company.id.toString()) ?? null
+            : null, // ← 追加
           prefecture: m.contractorUser.company?.prefecture?.name ?? null,
-          // ▼ 追加: マッチ成立済み（status === "active"）の応募者にだけ連絡先を返す。
-          //         pending の応募者の連絡先は絶対に漏らさない（プライバシー）。
           contact:
             m.status === "active" && m.contractorUser.company
               ? {

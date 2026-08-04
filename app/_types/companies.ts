@@ -1,4 +1,6 @@
 import type { InterviewArticlePublic } from "./articles"; 
+import type { CompanyRatingSummary } from "@/app/_libs/companyRatings"; // ← 追加
+
 
 // PUT /api/companies/me のリクエスト型（フォームの送信内容）
 export type UpdateCompanyRequest = {
@@ -60,7 +62,13 @@ export type CompanyInfo = {
   employeeCount: number | null;
   websiteUrl: string | null;
   description: string | null;
+  //  会社の評価。役割ごとに平均を分けて持つ（片方だけ・両方nullもあり得る）。
+  //   工事店として受けた評価 / 販売店として受けた評価。任意（optional）なので
+  //   まだ集計を積んでいない呼び出し元でも型エラーにならない。集計は 3-2 で入れる。
+  //  変更: 役割別2枠 → 工事店/販売店を合算した単一の総合評価。0件なら null。
+  rating?: CompanyRatingSummary | null
 };
+
 
 // GET /api/companies/[id] のレスポンス型（公開企業ページ用）
 // 連絡先（contactPhone/Email/LineId/Note）は公開しないので含めない。

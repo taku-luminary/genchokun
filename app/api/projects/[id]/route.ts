@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import type { ProjectDetailResponse, UpdateProjectRequest } from "@/app/_types/projects";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
+import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 
 export async function GET(
   _request: NextRequest,
@@ -36,7 +37,7 @@ export async function GET(
     const user = await getAuthUser();
     const isMyProject = user ? user.id === project.salesUserId : false;
 
-    // ▼ 変更: status だけでなく、レビューカード判定に必要な項目もまとめて取得する
+    // ▼ status だけでなく、レビューカード判定に必要な項目もまとめて取得する
     const myMatch = user
       ? await prisma.matches.findFirst({
           where: {
@@ -59,7 +60,7 @@ export async function GET(
       myMatchStatus = myMatch.status;
     }
 
-    // ▼ 追加: マッチカードのレビュー状態（工事店として選ばれた場合のみ非null）
+    // ▼ マッチカードのレビュー状態（工事店として選ばれた場合のみ非null）
     const reviewCard = await buildReviewCardInfo({
       currentUserId: user?.id ?? null,
       match: myMatch,
@@ -67,7 +68,7 @@ export async function GET(
     });
 
 
-    // ▼ 追加: この案件への「有効な応募」の件数を数える。
+    // ▼  この案件への「有効な応募」の件数を数える。
     //   pending（決定待ち）・active（成立）を応募ありとみなす。
     //   1件でもあれば、応募者にとって条件が確定し始めているため編集不可にする。
     const applicationCount = await prisma.matches.count({
@@ -77,17 +78,18 @@ export async function GET(
       },
     });
 
-    // ▼ 追加: 編集可否。投稿者本人 && 募集中 && 応募ゼロ のときだけ true。
+    // ▼ 編集可否。投稿者本人 && 募集中 && 応募ゼロ のときだけ true。
     const isEditable =
       isMyProject && project.status === "open" && applicationCount === 0;
 
     const c = project.salesUser.company;
 
+    const companyRating = c ? await getCompanyOverallRating(c.id.toString()) : null;
+      
     return NextResponse.json({
       id: project.id.toString(),
       createdAt: project.createdAt.toISOString(),
       prefecture: { name: project.prefecture.name },
-      // ▼ 追加: 編集フォームの初期値用
       prefectureId: project.prefectureId,      city: project.city,
       title: project.title,
       investigationSummary: project.investigationSummary,
@@ -99,7 +101,7 @@ export async function GET(
       status: project.status,
       company: c
         ? {
-            id: c.id.toString(),        // ← 追加
+            id: c.id.toString(),        
             name: c.name,
             prefecture: c.prefecture.name,
             city: c.city,
@@ -108,12 +110,14 @@ export async function GET(
             employeeCount: c.employeeCount,
             websiteUrl: c.websiteUrl,
             description: c.description,
+            rating: companyRating,
           }
         : null,
+
       myMatchStatus,
-      // ▼ 追加: 掲載者本人なら true。画面側で「管理ページへの誘導バナー」表示に使う。
+      // ▼ 掲載者本人なら true。画面側で「管理ページへの誘導バナー」表示に使う。
       isMyProject,
-      // ▼ 追加: 自分がマッチ成立した（active）ときだけ、販売店の連絡先を返す。
+      // ▼ 自分がマッチ成立した（active）ときだけ、販売店の連絡先を返す。
       //         pending/rejected/null の場合は null。
       salesContact:
         myMatchStatus === "active" && c
@@ -124,7 +128,7 @@ export async function GET(
               note: c.contactNote,
             }
           : null,
-      // ▼ 追加: 編集/削除ボタンの表示制御用（サーバー側でも PUT/DELETE 時に再チェックする）
+      // ▼ 編集/削除ボタンの表示制御用（サーバー側でも PUT/DELETE 時に再チェックする）
       isEditable,
       reviewCard,
     });
