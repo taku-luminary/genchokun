@@ -13,6 +13,10 @@ export type MypageApiResponse = {
     postedCount: number;
     // ▼ 変更: applicationCount → appliedCount（応募した案件すべて = 工事案件 + お仕事待ち）
     appliedCount: number;
+    // ▼ 追加: 自分がまだ書いていないレビュー（レビュー待ち）の合計件数
+    reviewPendingCount: number;
+    // ▼ 追加: 新しくマッチング（active・自分が未読・レビュー待ちでない）の合計件数
+    newMatchCount: number;
   };
   projects: MypageProject[];
   requests: MypageRequest[];
@@ -35,6 +39,9 @@ export type MypageProject = {
   status: "open" | "completed";
   companyName: string | null;        // ← 追加（Cards.tsx と整合させる）
   companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
+  reviewPending?: boolean;           // ← 追加: この案件のマッチがレビュー待ちか
+  newMatch?: boolean;                // ← 追加: 新しくマッチング（active・自分が未読・レビュー待ちでない）
+  activeMatchId?: string | null;     // ← 追加: activeマッチのID（既読POST用）。無ければ null
   matches: { status: string }[];
 };
 
@@ -53,6 +60,9 @@ export type MypageRequest = {
   status: "open" | "completed";
   companyName: string | null;        // ← 追加
   companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
+  reviewPending?: boolean;           // ← 追加: この依頼のマッチがレビュー待ちか
+  newMatch?: boolean;                // ← 追加: 新しくマッチング
+  activeMatchId?: string | null;     // ← 追加: activeマッチのID（既読POST用）。無ければ null
   match: { status: string } | null;
 };
 
@@ -91,13 +101,16 @@ export type ProjectApplication = {
   };
 };
 
+
 // ▼ 追加: 自分が工事店として応募した project 1件分
 export type AppliedProject = {
   /** 応募(match)のID。一覧表示の key に使う */
   matchId: string;
   /** 自分の応募の状態 */
   myStatus: "pending" | "active" | "rejected" | "cancelled";
-  /** カード表示用。ProjectCard を再利用するため HomeProject と同じ形で受け取る */
+  /** ▼ 追加: このマッチがレビュー待ちか（project の中ではなく兄弟に置く） */
+  reviewPending?: boolean;
+  newMatch?: boolean;   // ← 追加: 新しくマッチング（既読POSTには既存の matchId を使う）
   project: HomeProject;
 };
 
@@ -106,5 +119,8 @@ export type AppliedProject = {
 export type AppliedRequest = {
   matchId: string;
   myStatus: "pending" | "active" | "rejected" | "cancelled";
+  /** ▼ 追加: このマッチがレビュー待ちか（request の中ではなく兄弟に置く） */
+  reviewPending?: boolean;
+  newMatch?: boolean;   // ← 追加
   request: HomeRequest;
 };

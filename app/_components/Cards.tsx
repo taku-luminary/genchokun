@@ -10,9 +10,11 @@ interface ProjectCardProps {
   project: HomeProject | MypageProject;
   isMatched?: boolean;
   applicationCount?: number; // マイページ用: 応募の総件数 (pending+active)
+  attention?: boolean; // ← 追加: 要対応（赤背景）。isMatched より優先
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, applicationCount }) => {
+
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, applicationCount, attention }) => {
   const daysLeft = calcDaysLeft(project.workEndDate);
 
   let daysLeftLabel: string | null;
@@ -51,14 +53,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
   // テーマ: マッチ成立=緑 / 応募ありのみ=赤（「やること」と同じ“要対応”の意味で赤）
   const isPending = !isMatched && hasApplications;
 
-
- 
   return (
     <div className={`rounded-2xl p-4 md:p-6 card-shadow relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer ${
-      isMatched ? 'bg-brand-bg border-2 border-brand-green'
+      attention ? 'bg-red-50 border-2 border-red-50'
+      : isMatched ? 'bg-brand-bg border-2 border-brand-green'
       : isPending ? 'bg-red-50 border-2 border-red-50'
       : 'bg-white border border-slate-50'
     }`}>
+
 
       <div className="flex justify-between items-start mb-2 md:mb-4">
         <div className="space-y-1">
@@ -126,9 +128,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
 interface RequestCardProps {
   request: HomeRequest | MypageRequest;
   isMatched?: boolean;
+  attention?: boolean; // ← 追加: 要対応（赤背景）。isMatched より優先
 }
 
-export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) => {
+export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, attention }) => {
+
   const daysLeft = calcDaysLeft(request.availableEndDate);
 
   const isCompleted =
@@ -154,8 +158,11 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched }) 
         // 依頼待ちは「応募＝即マッチング」なので、ハイライト条件は isMatched のみ
         //（ProjectCard と違い「応募あり」状態が無いため）
         <div className={`rounded-2xl p-4 md:p-6 card-shadow relative overflow-hidden transition-transform hover:scale-[1.01] cursor-pointer ${
-          isMatched ? 'bg-brand-bg border-2 border-brand-green' : 'bg-white border border-slate-50'
+          attention ? 'bg-red-50 border-2 border-red-50'
+          : isMatched ? 'bg-brand-bg border-2 border-brand-green'
+          : 'bg-white border border-slate-50'
         }`}>
+
           <div className="flex justify-between items-start mb-2 md:mb-4">
             <div className="space-y-1">
               <p className="text-xs md:text-sm font-medium text-slate-400">{date}</p>

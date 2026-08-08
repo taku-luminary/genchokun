@@ -263,6 +263,8 @@ model matches {
   salesUserId      String       @db.Uuid
   contractorUserId String       @db.Uuid
   status           match_status
+  salesSeenAt      DateTime?    @map("sales_seen_at")       // 販売店側がこのマッチのカードを開いた時刻（未読=null）
+  contractorSeenAt DateTime?    @map("contractor_seen_at")  // 工事店側がこのマッチのカードを開いた時刻（未読=null）
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at")
 
@@ -273,6 +275,7 @@ model matches {
   applicationDetail  application_details?
   reviews            reviews[]
 }
+
 
 model reviews {
   id                BigInt             @id @default(autoincrement())

@@ -66,3 +66,17 @@ export function resolveReviewTargetRole(params: {
   if (currentUserId === contractorUserId) return "sales";
   return null;
 }
+/**
+ * 一覧用: このマッチが「レビュー待ち」か（純粋関数・DBアクセスなし）。
+ * active かつ解禁日を過ぎており、まだ自社が投稿していないときだけ true。
+ * 「投稿済みか(alreadyReviewed)」は呼び出し側（API）が Set で調べて渡す。
+ */
+export function isReviewPending(params: {
+  matchStatus: string;
+  dateField: Date | null;   // workEndDate または availableEndDate
+  matchCreatedAt: Date;
+  alreadyReviewed: boolean;
+  now?: Date;
+}): boolean {
+  return resolveMatchCardState(params) === "needsReview";
+}
