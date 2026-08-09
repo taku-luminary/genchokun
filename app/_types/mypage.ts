@@ -1,5 +1,5 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
-// ▼ 追加: 応募した案件一覧はホームと同じカード型を使い回す
+// 応募した案件一覧はホームと同じカード型を使い回す
 import type { HomeProject, HomeRequest } from "./home";
 // /api/mypage が返すデータ全体の型
 import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
@@ -9,10 +9,14 @@ import type { ReviewCardInfo } from "./reviews";
 export type MypageApiResponse = {
   stats: {
     todoCount: number;
-    // ▼ 変更: projectCount → postedCount（掲載した案件すべて = 工事案件 + お仕事待ち）
+    // 掲載した案件すべて = 工事案件 + お仕事待ち
     postedCount: number;
-    // ▼ 変更: applicationCount → appliedCount（応募した案件すべて = 工事案件 + お仕事待ち）
+    // 応募した案件すべて = 工事案件 + お仕事待ち
     appliedCount: number;
+    // 自分がまだ書いていないレビュー（レビュー待ち）の合計件数
+    reviewPendingCount: number;
+    // 新しくマッチング（active・自分が未読・レビュー待ちでない）の合計件数
+    newMatchCount: number;
   };
   projects: MypageProject[];
   requests: MypageRequest[];
@@ -33,8 +37,11 @@ export type MypageProject = {
   paymentCycle: string | null;
   rewardYen: number | null;
   status: "open" | "completed";
-  companyName: string | null;        // ← 追加（Cards.tsx と整合させる）
+  companyName: string | null;
   companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
+  reviewPending?: boolean;           // この案件のマッチがレビュー待ちか
+  newMatch?: boolean;                // 新しくマッチング（active・自分が未読・レビュー待ちでない）
+  activeMatchId?: string | null;     // activeマッチのID（既読POST用）。無ければ null
   matches: { status: string }[];
 };
 
@@ -44,15 +51,18 @@ export type MypageRequest = {
   createdAt: string;
   prefectures: { name: string }[]; // 対応可能エリア（複数）
   city: string | null;
-  title: string;                      // ← null許容を外す（HomeRequest と統一）
+  title: string;
   availableStartDate: string | null;
   availableEndDate: string | null;
   investigationSummary: string | null;
   paymentCycle: string | null;
   rewardMinYen: number | null;
   status: "open" | "completed";
-  companyName: string | null;        // ← 追加
+  companyName: string | null;
   companyRating?: CompanyRatingSummary | null; // 相手企業の評価。未取得なら省略
+  reviewPending?: boolean;           // この依頼のマッチがレビュー待ちか
+  newMatch?: boolean;                // 新しくマッチング
+  activeMatchId?: string | null;     // activeマッチのID（既読POST用）。無ければ null
   match: { status: string } | null;
 };
 
@@ -69,7 +79,7 @@ export type MypageProjectDetailResponse =
   | {
       project: MypageProjectDetail;
       applications: ProjectApplication[];
-      reviewCard: ReviewCardInfo | null; // ← 追加
+      reviewCard: ReviewCardInfo | null;
     }
   | { error: string };
 
@@ -85,26 +95,32 @@ export type ProjectApplication = {
     userId: string;
     companyId: string | null;
     companyName: string | null;
-    companyRating?: CompanyRatingSummary | null; // ← 追加: 応募者企業の評価（0件なら null）
+    companyRating?: CompanyRatingSummary | null; // 応募者企業の評価（0件なら null）
     prefecture: string | null;
     contact: CompanyContact | null;
   };
 };
 
-// ▼ 追加: 自分が工事店として応募した project 1件分
+
+// 自分が工事店として応募した project 1件分
 export type AppliedProject = {
   /** 応募(match)のID。一覧表示の key に使う */
   matchId: string;
   /** 自分の応募の状態 */
   myStatus: "pending" | "active" | "rejected" | "cancelled";
-  /** カード表示用。ProjectCard を再利用するため HomeProject と同じ形で受け取る */
+  /** このマッチがレビュー待ちか（project の中ではなく兄弟に置く） */
+  reviewPending?: boolean;
+  newMatch?: boolean;   // 新しくマッチング（既読POSTには既存の matchId を使う）
   project: HomeProject;
 };
 
-// ▼ 追加: 自分が販売店として応募した request 1件分
+// 自分が販売店として応募した request 1件分
 // (request は応募＝即マッチなので myStatus は基本 "active" だが、型は project と揃える)
 export type AppliedRequest = {
   matchId: string;
   myStatus: "pending" | "active" | "rejected" | "cancelled";
+  /** このマッチがレビュー待ちか（request の中ではなく兄弟に置く） */
+  reviewPending?: boolean;
+  newMatch?: boolean;   // 新しくマッチング
   request: HomeRequest;
 };
