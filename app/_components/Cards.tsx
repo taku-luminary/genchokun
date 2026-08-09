@@ -10,7 +10,7 @@ interface ProjectCardProps {
   project: HomeProject | MypageProject;
   isMatched?: boolean;
   applicationCount?: number; // マイページ用: 応募の総件数 (pending+active)
-  attention?: boolean; // ← 追加: 要対応（赤背景）。isMatched より優先
+  attention?: boolean; // 要対応（赤背景）。isMatched より優先
 }
 
 
@@ -128,7 +128,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
 interface RequestCardProps {
   request: HomeRequest | MypageRequest;
   isMatched?: boolean;
-  attention?: boolean; // ← 追加: 要対応（赤背景）。isMatched より優先
+  attention?: boolean; // 要対応（赤背景）。isMatched より優先
 }
 
 export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, attention }) => {
