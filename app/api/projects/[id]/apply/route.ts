@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { calcDaysLeft } from "@/app/_utils/format";
 import type {
   CreateProjectApplicationRequest,
   CreateProjectApplicationResponse,
@@ -63,32 +64,15 @@ export async function POST(
       return NextResponse.json({ error: "この案件は募集を終了しています" }, { status: 409 });
     }
 
-    // 4-2. workEndDate が今日以前なら期限切れ扱いで応募不可
-    //      （カード表示の「終了」判定と揃える: daysLeft <= 0 が期限切れ）
-    // 4-2. 案件の終了日が「今日以前」なら、期限切れとして応募できないようにする
-    if (project.workEndDate) {
-      // DBに保存されている終了日を、JavaScriptで比較できる Date 型に変換する
-      const endDate = new Date(project.workEndDate);
-
-      // 時刻が入っていると日付比較がズレる可能性があるため、
-      // 終了日の時刻を 00:00:00.000 にそろえる
-      endDate.setHours(0, 0, 0, 0);
-
-      // 今日の日付を取得する
-      const today = new Date();
-
-      // 今日も同じく 00:00:00.000 にそろえる
-      // これで「時間」ではなく「日付だけ」で比較できる
-      today.setHours(0, 0, 0, 0);
-
-      // 終了日が今日以前なら期限切れ
-      // 例: 今日が5/17なら、5/17終了の案件も応募不可にする
-      if (endDate.getTime() <= today.getTime()) {
-        return NextResponse.json(
-          { error: "この案件は期限切れです" },
-          { status: 409 }
-        );
-      }
+    // 4-2. workEndDate を過ぎていれば期限切れ扱いで応募不可
+    //      カード表示の「終了」判定(daysLeft < 0)と揃える
+    //      例: 今日が5/17なら、5/17終了の案件は当日まで応募可・5/18から不可
+    const daysLeft = calcDaysLeft(project.workEndDate);
+    if (daysLeft !== null && daysLeft < 0) {
+      return NextResponse.json(
+        { error: "この案件は期限切れです" },
+        { status: 409 }
+      );
     }
 
     // 5. 自分が投稿した案件には応募できない

@@ -20,7 +20,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
   let daysLeftLabel: string | null;
   if (daysLeft === null || daysLeft === undefined) {
     daysLeftLabel = null;
-  } else if (daysLeft <= 0) {
+  } else if (daysLeft < 0) {
     daysLeftLabel = "期限切れ";
   } else {
     daysLeftLabel = `${daysLeft}日`;
@@ -34,7 +34,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
   const isCompleted =
     project.status === 'completed' ||
     isMatched === true ||  
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+    (daysLeft !== null && daysLeft !== undefined && daysLeft < 0);
 
     const date = formatDate(project.createdAt);
     const location = `${project.prefecture.name}${project.city ? ` ${project.city}` : ""}`;
@@ -138,7 +138,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
   const isCompleted =
     request.status === 'completed' ||
     isMatched === true ||
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+    (daysLeft !== null && daysLeft !== undefined && daysLeft < 0);
 
   const date = formatDate(request.createdAt);
   const prefNames = request.prefectures.map((p) => p.name).join("・");

@@ -414,7 +414,7 @@ function PostedProjectItem({
   const daysLeft = calcDaysLeft(project.workEndDate);
   const isFinished =
     project.status === "completed" ||
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+    (daysLeft !== null && daysLeft !== undefined && daysLeft < 0);
   const status = resolveCardStatus({
     reviewPending: project.reviewPending,
     newMatch: project.newMatch,
@@ -452,7 +452,7 @@ function PostedRequestItem({
   const daysLeft = calcDaysLeft(request.availableEndDate);
   const isFinished =
     request.status === "completed" ||
-    (daysLeft !== null && daysLeft !== undefined && daysLeft <= 0);
+    (daysLeft !== null && daysLeft !== undefined && daysLeft < 0);
   const status = resolveCardStatus({
     reviewPending: request.reviewPending,
     newMatch: request.newMatch,

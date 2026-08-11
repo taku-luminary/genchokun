@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { calcDaysLeft } from "@/app/_utils/format";
 import type {
   CreateRequestApplicationRequest,
   CreateRequestApplicationResponse,
@@ -51,20 +52,14 @@ export async function POST(
       );
     }
 
-    // 5. availableEndDate が今日以前なら期限切れ扱い
-    //    時刻による誤判定を避けるため 00:00:00.000 に揃えて比較する
-    //    (projects 側 [id]/apply/route.ts と同じロジック)
-    if (target.availableEndDate) {
-      const endDate = new Date(target.availableEndDate);
-      endDate.setHours(0, 0, 0, 0);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (endDate.getTime() <= today.getTime()) {
-        return NextResponse.json(
-          { error: "この依頼は期限切れです" },
-          { status: 409 }
-        );
-      }
+    // 5. availableEndDate を過ぎていれば期限切れ扱いで応募不可
+    //    カード表示と同じ calcDaysLeft(日本時間基準)で判定を一本化する
+    const daysLeft = calcDaysLeft(target.availableEndDate);
+    if (daysLeft !== null && daysLeft < 0) {
+      return NextResponse.json(
+        { error: "この依頼は期限切れです" },
+        { status: 409 }
+      );
     }
 
     // 6. 自分が投稿した依頼には応募できない

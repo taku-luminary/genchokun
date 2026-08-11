@@ -64,7 +64,7 @@ export default function ProjectApplyPage() {
 
   // 応募不可ガードを優先度順に判定する
   const daysLeft = calcDaysLeft(data.workEndDate);
-  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isExpired = daysLeft !== null && daysLeft < 0;
   const isClosed = data.status === 'completed';
 
   const renderNotice = (text: string) => (
