@@ -95,7 +95,7 @@ export default function RequestDetailPage() {
             <ReviewPromptCard
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
-              partnerName={data.company?.name ?? null}
+              partnerCompany={data.reviewCard.partnerCompany}
               contactLabel="工事店の連絡先"
               contact={data.contractorContact}
               onReviewed={mutate}
@@ -105,6 +105,7 @@ export default function RequestDetailPage() {
               reviewId={data.reviewCard.myReview.id}
               targetRole={data.reviewCard.targetRole}
               initialValues={data.reviewCard.myReview}
+              partnerCompany={data.reviewCard.partnerCompany}
               onChanged={mutate}
             />
           ) : (
@@ -125,7 +126,7 @@ export default function RequestDetailPage() {
             <ReviewPromptCard
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
-              partnerName={null}
+              partnerCompany={data.reviewCard.partnerCompany}
               contactLabel="販売店の連絡先"
               contact={data.salesContact}
               onReviewed={mutate}
@@ -135,6 +136,7 @@ export default function RequestDetailPage() {
               reviewId={data.reviewCard.myReview.id}
               targetRole={data.reviewCard.targetRole}
               initialValues={data.reviewCard.myReview}
+              partnerCompany={data.reviewCard.partnerCompany}
               onChanged={mutate}
             />
           ) : (

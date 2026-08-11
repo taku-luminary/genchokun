@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ReviewForm } from "@/app/_components/ReviewForm";
 import { ContactInfo } from "@/app/_components/ContactInfo";
 import type { ReviewInput } from "@/app/_types/reviews";
@@ -10,7 +11,7 @@ import type { CompanyContact } from "@/app/_types/companies";
 type Props = {
   matchId: string; // レビューの投稿先
   targetRole: ReviewRole; // 表示する項目セット
-  partnerName: string | null; // 相手企業名（見出し用）
+  partnerCompany: { id: string; name: string } | null; // 相手企業（見出し・リンク用）
   contactLabel: string; // 例: "工事店の連絡先"
   contact: CompanyContact | null; // 折りたたみで見せる連絡先
   onReviewed: () => void; // 投稿成功後に親へ通知（親が再取得 → 状態③へ）
@@ -19,7 +20,7 @@ type Props = {
 export function ReviewPromptCard({
   matchId,
   targetRole,
-  partnerName,
+  partnerCompany,
   contactLabel,
   contact,
   onReviewed,
@@ -53,7 +54,16 @@ export function ReviewPromptCard({
       </p>
       <p className="text-slate-700 font-medium">
         完了していましたら、
-        <span className="font-bold">{partnerName ?? "相手企業"}</span>
+        {partnerCompany ? (
+          <Link
+            href={`/companies/${partnerCompany.id}`}
+            className="font-bold text-brand-green underline hover:opacity-80 transition"
+          >
+            {partnerCompany.name}
+          </Link>
+        ) : (
+          <span className="font-bold">相手企業</span>
+        )}
         様を評価してください。投稿すると、あなたの評価が相手企業の企業ページに公開されます。
       </p>
 

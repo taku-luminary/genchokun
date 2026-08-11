@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ReviewForm } from "@/app/_components/ReviewForm";
 import type { ReviewInput } from "@/app/_types/reviews";
 import type { ReviewRole } from "@/app/_libs/companyRatings";
@@ -9,6 +10,7 @@ type Props = {
   reviewId: string; // 編集・削除の宛先
   targetRole: ReviewRole; // 編集フォームの項目セット
   initialValues: ReviewInput; // 投稿済みの点数（編集の初期値）
+  partnerCompany: { id: string; name: string } | null; // 評価した相手企業（見出し・リンク用）
   onChanged: () => void; // 編集/削除成功後に親へ通知（親が再取得）
 };
 
@@ -16,6 +18,7 @@ export function ReviewedCard({
   reviewId,
   targetRole,
   initialValues,
+  partnerCompany,
   onChanged,
 }: Props) {
   const [editing, setEditing] = useState(false);
@@ -101,7 +104,20 @@ export function ReviewedCard({
   // 通常（投稿済み）：控えめなカード
   return (
     <section className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1">
-      <p className="text-sm font-bold text-slate-600">✓ 評価を投稿しました</p>
+      <p className="text-sm font-bold text-slate-600">
+        ✓{" "}
+        {partnerCompany ? (
+          <Link
+            href={`/companies/${partnerCompany.id}`}
+            className="text-brand-green underline hover:opacity-80 transition"
+          >
+            {partnerCompany.name}
+          </Link>
+        ) : (
+          "相手企業"
+        )}
+        へ評価を投稿しました
+      </p>
       <p className="text-xs text-slate-500">
         ご協力ありがとうございました。相手企業の企業ページにあなたの評価が公開されています。
       </p>

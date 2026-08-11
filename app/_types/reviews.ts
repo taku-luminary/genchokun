@@ -28,7 +28,10 @@ export type ReviewCardInfo = {
   targetRole: ReviewRole; // 表示する評価項目セット（工事店用/販売店用）
   // 投稿済みなら中身＋編集用の review id、未投稿なら null
   myReview: (ReviewInput & { id: string }) | null;
+  // 評価する相手企業（表示名＋企業ページへのリンク用）。会社未登録など例外時は null
+  partnerCompany: { id: string; name: string } | null;
 };
+
 
 // ── 企業レビュー一覧ページ用 ──────────────────────────────
 

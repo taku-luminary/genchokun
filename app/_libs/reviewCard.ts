@@ -62,6 +62,15 @@ export async function buildReviewCardInfo(params: {
   });
   if (cardState === null) return null; // マッチ未成立など → 従来通りの表示
 
+  // 評価する相手（自分が販売店なら相手は工事店、自分が工事店なら相手は販売店）の会社情報。
+  // 企業名の表示・企業ページへのリンクに使う。
+  const partnerUserId =
+    targetRole === "contractor" ? match.contractorUserId : match.salesUserId;
+  const partnerCompany = await prisma.companies.findUnique({
+    where: { userId: partnerUserId },
+    select: { id: true, name: true },
+  });
+
   return {
     cardState,
     matchId: match.id.toString(),
@@ -75,6 +84,9 @@ export async function buildReviewCardInfo(params: {
           item4Rating: myReview.item4Rating,
           item5Rating: myReview.item5Rating,
         }
+      : null,
+    partnerCompany: partnerCompany
+      ? { id: partnerCompany.id.toString(), name: partnerCompany.name }
       : null,
   };
 }

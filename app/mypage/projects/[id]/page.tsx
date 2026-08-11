@@ -135,7 +135,7 @@ export default function MypageProjectDetailPage() {
             <ReviewPromptCard
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
-              partnerName={matchedApp.contractor.companyName}
+              partnerCompany={data.reviewCard.partnerCompany}
               contactLabel="工事店の連絡先"
               contact={matchedApp.contractor.contact}
               onReviewed={mutate}
@@ -145,6 +145,7 @@ export default function MypageProjectDetailPage() {
               reviewId={data.reviewCard.myReview.id}
               targetRole={data.reviewCard.targetRole}
               initialValues={data.reviewCard.myReview}
+              partnerCompany={data.reviewCard.partnerCompany}
               onChanged={mutate}
             />
           ) : (
