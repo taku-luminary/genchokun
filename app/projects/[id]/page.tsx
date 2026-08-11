@@ -26,7 +26,7 @@ export default function ProjectDetailPage() {
   // - isClosed:  status=completed (販売店が手動で完了 / マッチ確定後など)
   // 注: projects は複数応募可能なので requests のような isMatched 概念は持たない。
   const daysLeft = calcDaysLeft(data.workEndDate);
-  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isExpired = daysLeft !== null && daysLeft < 0;
   const isClosed = data.status === "completed";
 
   // ログイン中ユーザーの状態を myMatchStatus から判定する。

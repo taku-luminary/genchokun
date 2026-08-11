@@ -15,12 +15,26 @@ export function formatJpDate(dateStr: string | null): string {
   return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
 }
 
-// 終了日から残り日数を計算（nullなら null を返す）
-export function calcDaysLeft(dateStr: string | null): number | null {
+// 与えられた日時を「日本時間の年月日」文字列(YYYY-MM-DD)に変換する
+// timeZone に Asia/Tokyo を明示することで、実行場所(サーバーUTC / ブラウザ)に
+// 依存せず常に日本時間の日付として扱える。en-CA は "2026-08-11" 形式で扱いやすい
+function toJstYmd(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+// 終了日までの残り日数を「日本時間の今日」基準で計算する（nullなら null）
+// 今日=0 / 明日=1 / 昨日=-1 になり、期限切れ判定は「< 0」で行う
+// 引数は string（APIレスポンス）と Date（Prisma の DateTime）の両方を受ける
+export function calcDaysLeft(dateStr: string | Date | null): number | null {
   if (!dateStr) return null;
-  const end = new Date(dateStr);
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const [ey, em, ed] = toJstYmd(new Date(dateStr)).split("-").map(Number);
+  const [ty, tm, td] = toJstYmd(new Date()).split("-").map(Number);
+  const end = Date.UTC(ey, em - 1, ed);
+  const today = Date.UTC(ty, tm - 1, td);
+  return Math.round((end - today) / (1000 * 60 * 60 * 24));
 }

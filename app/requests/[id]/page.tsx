@@ -35,7 +35,7 @@ export default function RequestDetailPage() {
   // - isMatched:  既に誰かとマッチング成立済み (1依頼=1マッチ)
   // - isCompleted: いずれかに該当 → 応募ボタンを出さない
   const daysLeft = calcDaysLeft(data.availableEndDate);
-  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isExpired = daysLeft !== null && daysLeft < 0;
   const isClosed = data.status === "completed";
   const isCompleted = isClosed || isExpired || data.isMatched;
 

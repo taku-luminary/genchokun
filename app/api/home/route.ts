@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
+import { calcDaysLeft } from "@/app/_utils/format";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
 import { getCompanyOverallRatingsByCompanyIds } from "@/app/_libs/companyRatings"; 
 
-// 「完了扱い」かどうかを判定（status が completed OR 期限切れ）
+// 「完了扱い」かどうかを判定（status が completed OR 日本時間で終了日を過ぎている）
 function isEffectivelyCompleted(status: string, endDate: string | null): boolean {
   // : booleanの意味は、この関数は、最後に必ず true か false を返します。
   if (status === "completed") return true;
-  if (endDate && new Date(endDate) < new Date()) return true;
-  // 終了日があり、終了日が今より過去なら、true。status が recruiting のままでも「完了扱い」にしている
+  // 終了日があり、日本時間の今日より前なら true。status が recruiting でも「完了扱い」にする
+  const daysLeft = calcDaysLeft(endDate);
+  if (daysLeft !== null && daysLeft < 0) return true;
   return false;
 }
 

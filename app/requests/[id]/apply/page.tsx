@@ -68,7 +68,7 @@ export default function RequestApplyPage() {
   //   4. 期限切れ (availableEndDate を過ぎている)
   // どれかに該当したら案内表示 + 戻るリンクを出して、応募フォームは表示しない。
   const daysLeft = calcDaysLeft(data.availableEndDate);
-  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isExpired = daysLeft !== null && daysLeft < 0;
   const isClosed = data.status === 'completed';
 
   const renderNotice = (text: string) => (
