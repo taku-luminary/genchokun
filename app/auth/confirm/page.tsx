@@ -33,6 +33,7 @@ export default function ConfirmPage() {
 
     // 確認成功。verifyOtp でログイン済みになっているのでトップへ。
     router.push("/");
+    router.refresh();
   };
 
   return (
