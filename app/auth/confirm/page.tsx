@@ -36,25 +36,28 @@ export default function ConfirmPage() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
-      <h1 className="text-xl font-black text-brand-green mb-4">
-        メールアドレスの確認
-      </h1>
-      <p className="text-sm text-slate-500 mb-6">
-        下のボタンを押して登録を完了してください。
-      </p>
+    <div className="min-h-screen bg-[#e8e8e8] flex items-start justify-center px-4 pt-24">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
+        <h1 className="text-xl font-black text-brand-green mb-4">
+          メールアドレスの確認
+        </h1>
+        <p className="text-sm text-slate-500 mb-6">
+          下のボタンを押して登録を完了してください。
+        </p>
 
-      {status === "error" && (
-        <p className="text-red-500 text-sm mb-4">{message}</p>
-      )}
+        {status === "error" && (
+          <p className="text-red-500 text-sm mb-4">{message}</p>
+        )}
 
-      <button
-        onClick={handleConfirm}
-        disabled={status === "loading"}
-        className="w-full bg-brand-green text-white font-bold py-3 rounded-xl disabled:opacity-50"
-      >
-        {status === "loading" ? "確認中..." : "メールアドレスを確認する"}
-      </button>
+        <button
+          onClick={handleConfirm}
+          disabled={status === "loading"}
+          className="w-full bg-brand-green text-white font-bold py-3 rounded-xl disabled:opacity-50"
+        >
+          {status === "loading" ? "確認中..." : "メールアドレスを確認する"}
+        </button>
+      </div>
     </div>
   );
+
 }
