@@ -1,8 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";                                            
   import { createServerClient } from "@supabase/ssr";
 
-  const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth/callback", "/api/auth/signup",
-    "/api/auth/login","/api/home",];
+  const PUBLIC_PATHS = [
+    "/",
+    "/login",
+    "/signup",
+    "/auth/callback",
+    "/auth/confirm",
+    "/api/auth/signup",
+    "/api/auth/login",
+    "/api/auth/confirm",
+    "/api/home",
+  ];
+
   
   // 数字IDの企業ページ・企業APIだけを公開許可する。
   // 例: /companies/123, /api/companies/123 → 許可
