@@ -51,6 +51,7 @@
 
 - OS は macOS (BSD)。grep の OR は `\|` ではなく `-E "A|B"` を使う
 - 「未使用/不在」と断言する前に関連ファイルを直接 Read で確認する
+- 認証系ルート（confirm/callback/reset等）を追加/変更したら middleware の PUBLIC_PATHS に画面パスとAPIパスの両方を登録する。参照調査の grep は app/ 限定にせずリポジトリ全体で行う
 
 # 進め方
 
