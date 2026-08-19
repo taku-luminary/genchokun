@@ -44,15 +44,16 @@ export async function GET(
         (b) => b.sectionKey === "work_style" && b.blockType === "text"
       )?.textContent ?? null;
 
-    return NextResponse.json({
-      article: {
-        title: article.title,
-        introText: article.introText,
-        companyIntroText,
-        workStyleText,
-        status: article.status,
-      },
-    });
+      return NextResponse.json({
+        article: {
+          title: article.title,
+          introText: article.introText,
+          youtubeUrl: article.youtubeUrl,
+          companyIntroText,
+          workStyleText,
+          status: article.status,
+        },
+      });
   } catch (e) {
     console.error(e);
     return NextResponse.json(
@@ -107,6 +108,7 @@ export async function PUT(
         update: {
           title: body.title,
           introText: body.introText ?? null,
+          youtubeUrl: body.youtubeUrl?.trim() || null,
           status: body.status,
           publishedAt,
           updatedBy: admin.id,
@@ -115,6 +117,7 @@ export async function PUT(
           companyId,
           title: body.title,
           introText: body.introText ?? null,
+          youtubeUrl: body.youtubeUrl?.trim() || null,
           status: body.status,
           publishedAt,
           createdBy: admin.id,

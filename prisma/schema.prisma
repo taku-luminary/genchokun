@@ -304,6 +304,7 @@ model company_interview_articles {
   companyId   BigInt         @unique
   title       String
   introText   String?
+  youtubeUrl  String?   
   status      article_status
   publishedAt DateTime?
   createdBy   String         @db.Uuid

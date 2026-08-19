@@ -51,12 +51,13 @@ export async function GET(
         a.blocks.find(
           (b) => b.sectionKey === "work_style" && b.blockType === "text"
         )?.textContent ?? null;
-      article = {
-        title: a.title,
-        introText: a.introText,
-        companyIntroText,
-        workStyleText,
-      };
+        article = {
+          title: a.title,
+          introText: a.introText,
+          youtubeUrl: a.youtubeUrl,
+          companyIntroText,
+          workStyleText,
+        };  
     }
 
     return NextResponse.json({
