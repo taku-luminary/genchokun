@@ -1,10 +1,7 @@
 import type { InterviewArticlePublic } from "@/app/_types/articles";
-import { getYouTubeEmbedUrl } from "@/app/_utils/youtube";
+import { YouTubeEmbed } from "@/app/_components/ui/YouTubeEmbed";
 
 export function InterviewArticle({ article }: { article: InterviewArticlePublic }) {
-  // YouTube URL が設定され、正しく動画IDを取り出せたときだけ埋め込みURLが入る（無効なら null）
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(article.youtubeUrl);
-
   return (
     <section className="space-y-2">
       {/* 見出し＋注釈：運営による取材記事であることを明示する。
@@ -28,17 +25,7 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
           )}
 
           {/* 導入文の下に YouTube 動画を埋め込む（設定がある記事のみ表示） */}
-          {youtubeEmbedUrl && (
-            <div className="aspect-video w-full mt-4">
-              <iframe
-                className="w-full h-full rounded-xl"
-                src={youtubeEmbedUrl}
-                title="取材動画"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          )}
+          <YouTubeEmbed url={article.youtubeUrl} title="取材動画" className="mt-4" />
         </div>
 
         {/* 会社紹介セクション */}
