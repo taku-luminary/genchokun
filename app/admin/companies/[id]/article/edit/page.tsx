@@ -11,6 +11,8 @@ import type {
   AdminArticleResponse,
   UpsertArticleRequest,
 } from "@/app/_types/articles";
+import { getYouTubeEmbedUrl } from "@/app/_utils/youtube";
+
 
 export default function AdminArticleEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +42,7 @@ export default function AdminArticleEditPage() {
       reset({
         title: data.article.title,
         introText: data.article.introText ?? undefined,
+        youtubeUrl: data.article.youtubeUrl ?? undefined,
         companyIntroText: data.article.companyIntroText ?? undefined,
         workStyleText: data.article.workStyleText ?? undefined,
         // 既存が archived でも、簡易版の編集では draft/published のみ扱う
@@ -204,10 +207,9 @@ export default function AdminArticleEditPage() {
             <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
           )}
         </div>
-
         {/* 導入文 */}
         <div>
-          <Label htmlFor="introText">導入文</Label>
+          <Label htmlFor="introText">導入文（任意）</Label>
           <textarea
             id="introText"
             disabled={isSubmitting}
@@ -218,9 +220,28 @@ export default function AdminArticleEditPage() {
           />
         </div>
 
+        {/* YouTube動画（導入文の下に埋め込む。任意） */}
+        <div>
+          <Label htmlFor="youtubeUrl">YouTube動画のURL（任意）</Label>
+          <Input
+            id="youtubeUrl"
+            disabled={isSubmitting}
+            placeholder="例：https://youtu.be/xxxxxxxxxxx"
+            {...register("youtubeUrl", {
+              validate: (v) =>
+                !v ||
+                getYouTubeEmbedUrl(v) !== null ||
+                "YouTubeのURLの形式が正しくありません",
+            })}
+          />
+          {errors.youtubeUrl && (
+            <p className="text-red-500 text-xs mt-1">{errors.youtubeUrl.message}</p>
+          )}
+        </div>
+
         {/* 会社紹介セクション */}
         <div>
-          <Label htmlFor="companyIntroText">会社紹介</Label>
+          <Label htmlFor="companyIntroText">会社紹介（任意）</Label>
           <textarea
             id="companyIntroText"
             disabled={isSubmitting}
@@ -233,7 +254,7 @@ export default function AdminArticleEditPage() {
 
         {/* 働き方セクション */}
         <div>
-          <Label htmlFor="workStyleText">働き方</Label>
+          <Label htmlFor="workStyleText">働き方（任意）</Label>
           <textarea
             id="workStyleText"
             disabled={isSubmitting}

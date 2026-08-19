@@ -1,4 +1,5 @@
 import type { InterviewArticlePublic } from "@/app/_types/articles";
+import { YouTubeEmbed } from "@/app/_components/ui/YouTubeEmbed";
 
 export function InterviewArticle({ article }: { article: InterviewArticlePublic }) {
   return (
@@ -22,6 +23,9 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
               {article.introText}
             </p>
           )}
+
+          {/* 導入文の下に YouTube 動画を埋め込む（設定がある記事のみ表示） */}
+          <YouTubeEmbed url={article.youtubeUrl} title="取材動画" className="mt-4" />
         </div>
 
         {/* 会社紹介セクション */}

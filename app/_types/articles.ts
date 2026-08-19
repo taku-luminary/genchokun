@@ -6,6 +6,7 @@ export type ArticleStatus = "draft" | "published" | "archived";
 export type InterviewArticlePublic = {
   title: string;
   introText: string | null;
+  youtubeUrl: string | null;         // 導入文の下に埋め込む YouTube 動画のURL
   companyIntroText: string | null;   // 会社紹介セクションの本文
   workStyleText: string | null;      // 働き方セクションの本文
 };
@@ -15,6 +16,7 @@ export type AdminArticleResponse = {
   article: {
     title: string;
     introText: string | null;
+    youtubeUrl: string | null;
     companyIntroText: string | null;
     workStyleText: string | null;
     status: ArticleStatus;
@@ -25,6 +27,7 @@ export type AdminArticleResponse = {
 export type UpsertArticleRequest = {
   title: string;                      // 必須
   introText?: string;
+  youtubeUrl?: string;                // 任意（URL貼り付け。空でもOK）
   companyIntroText?: string;
   workStyleText?: string;
   status: "draft" | "published";      // 簡易版では archived は使わない

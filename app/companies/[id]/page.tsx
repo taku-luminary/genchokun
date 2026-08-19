@@ -92,12 +92,13 @@ export default async function CompanyPublicPage({
       a.blocks.find(
         (b) => b.sectionKey === "work_style" && b.blockType === "text"
       )?.textContent ?? null;
-    article = {
-      title: a.title,
-      introText: a.introText,
-      companyIntroText,
-      workStyleText,
-    };
+      article = {
+        title: a.title,
+        introText: a.introText,
+        youtubeUrl: a.youtubeUrl,
+        companyIntroText,
+        workStyleText,
+      };  
   }
 
   const companyRating = await getCompanyOverallRating(company.id.toString());
