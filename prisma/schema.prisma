@@ -35,6 +35,11 @@ enum project_status {
   completed
 }
 
+enum reward_type {
+  fixed        // 金額を指定
+  negotiable   // 見積もり希望（相談して決める）
+}
+
 enum request_status {
   open
   completed
@@ -203,6 +208,7 @@ model projects {
   workStartDate        DateTime? @db.Date
   workEndDate          DateTime? @db.Date
   rewardYen            Int?
+  rewardType           reward_type @default(fixed)
   paymentCycle         String?
   salesUserId          String    @db.Uuid
   status               project_status

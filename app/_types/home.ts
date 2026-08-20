@@ -1,5 +1,5 @@
-// トップページ（/api/home）が返すデータの型
 import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
+import type { RewardType } from "./projects";
 
 export type HomeProject = {
   id: string;
@@ -9,6 +9,7 @@ export type HomeProject = {
   title: string;
   workStartDate: string | null;
   workEndDate: string | null;
+  rewardType: RewardType;
   rewardYen: number | null;
   paymentCycle: string | null;
   status: "open" | "completed";

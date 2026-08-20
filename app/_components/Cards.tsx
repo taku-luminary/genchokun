@@ -42,7 +42,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
       project.workStartDate && project.workEndDate
       ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
       : "日程未定";
-  const amount = project.rewardYen ? `${project.rewardYen.toLocaleString()}円` : "—";
+  // 見積もり希望なら金額の代わりに文言を出す。金額指定なら「◯◯円」、未設定は「—」。
+  const amount =
+    project.rewardType === "negotiable"
+      ? "見積もり希望"
+      : project.rewardYen
+        ? `${project.rewardYen.toLocaleString()}円`
+        : "—";
 
   // 応募ありかどうか (件数が1以上)
   const hasApplications = applicationCount !== undefined && applicationCount > 0;

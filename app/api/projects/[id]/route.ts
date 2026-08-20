@@ -96,6 +96,7 @@ export async function GET(
       investigationDetails: project.investigationDetails,
       workStartDate: project.workStartDate?.toISOString() ?? null,
       workEndDate: project.workEndDate?.toISOString() ?? null,
+      rewardType: project.rewardType,
       rewardYen: project.rewardYen === null ? null : Number(project.rewardYen),
       paymentCycle: project.paymentCycle,
       status: project.status,
@@ -188,6 +189,22 @@ export async function PUT(
     // 4. 受け取った内容で更新。正規化ルールは新規作成API(/api/projects)と同じ。
     //    任意項目は ?? null、日付は文字列→Date に変換する。
     const body: UpdateProjectRequest = await request.json();
+
+    // 報酬の検証・正規化:
+    //   fixed(金額指定)         → 正の整数が必須
+    //   negotiable(見積もり希望) → 金額は必ず null にする
+    if (body.rewardType !== "fixed" && body.rewardType !== "negotiable") {
+      return NextResponse.json({ error: "報酬の決め方が不正です" }, { status: 400 });
+    }
+    const isNegotiable = body.rewardType === "negotiable";
+    if (
+      !isNegotiable &&
+      !(typeof body.rewardYen === "number" && Number.isFinite(body.rewardYen) && body.rewardYen > 0)
+    ) {
+      return NextResponse.json({ error: "報酬額を入力してください" }, { status: 400 });
+    }
+    const rewardYen = isNegotiable ? null : body.rewardYen ?? null;
+
     await prisma.projects.update({
       where: { id: project.id },
       data: {
@@ -198,10 +215,12 @@ export async function PUT(
         investigationDetails: body.investigationDetails ?? null,
         workStartDate: body.workStartDate ? new Date(body.workStartDate) : null,
         workEndDate: body.workEndDate ? new Date(body.workEndDate) : null,
-        rewardYen: body.rewardYen ?? null,
+        rewardType: body.rewardType,
+        rewardYen,
         paymentCycle: body.paymentCycle ?? null,
       },
     });
+
 
     return NextResponse.json({ success: true });
   } catch (e) {

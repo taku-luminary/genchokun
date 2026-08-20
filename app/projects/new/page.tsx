@@ -6,7 +6,8 @@
   import { Label } from "@/app/_components/ui/Label";
   import { Input } from "@/app/_components/ui/Input";
   import { Button } from "@/app/_components/ui/Button";
-  import type { CreateProjectRequest } from   "@/app/_types/projects";
+  import { RewardTypeField } from "@/app/_components/RewardTypeField";
+  import type { CreateProjectRequest } from "@/app/_types/projects";  
 
   export default function NewProjectPage() {
     const router = useRouter();
@@ -17,7 +18,7 @@
       setError,
       clearErrors,
       formState: { errors, isSubmitting },
-    } = useForm<CreateProjectRequest>();
+    } = useForm<CreateProjectRequest>({ defaultValues: { rewardType: "fixed" } });
     // ===useForm<CreateProjectRequest>();の説明＝＝＝
     // →useFormが返す「道具セット」の中で、フォームの入力データに関係する部分だけがCreateProjectRequest を基準に型付けされる
     // このフォームでは、register("city") とか register("title") とか、CreateProjectRequest に存在する項目名を使います。
@@ -227,17 +228,13 @@
             </div>
           </div>
 
-          {/* 報酬 */}
-          <div>
-            <Label htmlFor="rewardYen">報酬（円）</Label>
-            <Input
-              id="rewardYen"
-              disabled={isSubmitting}
-              type="number"
-              placeholder="例：15000"
-              {...register("rewardYen", { valueAsNumber: true })}
-            />
-          </div>
+          {/* 報酬（決め方の選択＋金額入力。中身は RewardTypeField に集約） */}
+          <RewardTypeField
+            control={control}
+            register={register}
+            errors={errors}
+            disabled={isSubmitting}
+          />
 
           {/* 支払サイクル */}
           <div>

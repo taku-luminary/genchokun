@@ -1,6 +1,6 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
 import type { ReviewCardInfo } from "./reviews";
-
+export type RewardType = "fixed" | "negotiable";
 
 export type CreateProjectRequest = {
   prefectureId: number;
@@ -10,7 +10,8 @@ export type CreateProjectRequest = {
   investigationDetails?: string;
   workStartDate?: string; // "2026-01-31" 形式
   workEndDate?: string;
-  rewardYen?: number;
+  rewardType: RewardType;   // 必須。フォームで必ずどちらかを選ぶ
+  rewardYen?: number;       // rewardType === "fixed" のときだけ入る
   paymentCycle?: string;
 };
 
@@ -36,6 +37,7 @@ export type ProjectDetailResponse = {
   investigationDetails: string | null;
   workStartDate: string | null;
   workEndDate: string | null;
+  rewardType: RewardType;
   rewardYen: number | null;
   paymentCycle: string | null;
   status: "open" | "completed";
