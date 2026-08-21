@@ -68,7 +68,7 @@ export function RewardTypeField({ control, register, errors, disabled }: Props) 
               // 見積もり希望に切り替えて入力欄が消えたら、値と検証を破棄する。
               // これがないと「隠れているのに必須エラーで送信できない」状態になる。
               shouldUnregister: true,
-              required: "報酬額を入力してください",
+              required: "報酬金額を入力してください",
               min: { value: 1, message: "1円以上を入力してください" },
             })}
           />
