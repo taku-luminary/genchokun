@@ -51,6 +51,7 @@ export default function RequestDetailPage() {
     availableEndDate: data.availableEndDate,
     investigationSummary: data.investigationSummary,
     paymentCycle: data.paymentCycle,
+    rewardType: data.rewardType,
     rewardMinYen: data.rewardMinYen,
     status: data.isMatched ? "completed" : data.status,
     companyName: data.company?.name ?? null,

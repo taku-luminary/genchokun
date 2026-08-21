@@ -129,6 +129,7 @@ export async function GET(
       investigationDetails: request.investigationDetails,
       availableStartDate: request.availableStartDate?.toISOString() ?? null,
       availableEndDate: request.availableEndDate?.toISOString() ?? null,
+      rewardType: request.rewardType,
       rewardMinYen: request.rewardMinYen === null ? null : Number(request.rewardMinYen),
       paymentCycle: request.paymentCycle,
       status: request.status,
@@ -196,6 +197,23 @@ export async function PUT(
     if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
       return NextResponse.json({ error: "都道府県を1つ以上選択してください" }, { status: 400 });
     }
+    if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
+      return NextResponse.json({ error: "都道府県を1つ以上選択してください" }, { status: 400 });
+    }
+
+    // 報酬の決め方を検証。作成API(/api/requests)と同じルール。
+    if (body.rewardType !== "fixed" && body.rewardType !== "negotiable") {
+      return NextResponse.json({ error: "報酬金額の決め方が不正です" }, { status: 400 });
+    }
+    const isNegotiable = body.rewardType === "negotiable";
+    if (
+      !isNegotiable &&
+      !(typeof body.rewardMinYen === "number" && Number.isFinite(body.rewardMinYen) && body.rewardMinYen > 0)
+    ) {
+      return NextResponse.json({ error: "報酬金額を入力してください" }, { status: 400 });
+    }
+    const rewardMinYen = isNegotiable ? null : body.rewardMinYen ?? null;
+
     await prisma.requests.update({
       where: { id: target.id },
       data: {
@@ -208,7 +226,8 @@ export async function PUT(
         investigationDetails: body.investigationDetails ?? null,
         availableStartDate: body.availableStartDate ? new Date(body.availableStartDate) : null,
         availableEndDate: body.availableEndDate ? new Date(body.availableEndDate) : null,
-        rewardMinYen: body.rewardMinYen ?? null,
+        rewardType: body.rewardType,
+        rewardMinYen: rewardMinYen,
         paymentCycle: body.paymentCycle ?? null,
       },
     });

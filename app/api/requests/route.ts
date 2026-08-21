@@ -25,6 +25,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
     return NextResponse.json({ error: "都道府県を1つ以上選択してください" },
       { status: 400 });
   }
+
+  if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
+    return NextResponse.json({ error: "都道府県を1つ以上選択してください" },
+      { status: 400 });
+  }
+
+  // 報酬の決め方を検証。fixed=報酬金額(正の数)が必須 / negotiable=金額は必ず null に落とす
+  if (body.rewardType !== "fixed" && body.rewardType !== "negotiable") {
+    return NextResponse.json({ error: "報酬金額の決め方が不正です" }, { status: 400 });
+  }
+  const isNegotiable = body.rewardType === "negotiable";
+  if (
+    !isNegotiable &&
+    !(typeof body.rewardMinYen === "number" && Number.isFinite(body.rewardMinYen) && body.rewardMinYen > 0)
+  ) {
+    return NextResponse.json({ error: "報酬金額を入力してください" }, { status: 400 });
+  }
+  const rewardMinYen = isNegotiable ? null : body.rewardMinYen ?? null;
+
+  
   // DBに依頼待ちを保存
   try {
     const request_record = await prisma.requests.create({
@@ -37,7 +57,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
         investigationDetails: body.investigationDetails ?? null,
         availableStartDate: body.availableStartDate ? new Date(body.availableStartDate) : null,
         availableEndDate:   body.availableEndDate   ? new Date(body.availableEndDate)   : null,
-        rewardMinYen:       body.rewardMinYen       ?? null,
+        rewardType:         body.rewardType,
+        rewardMinYen:       rewardMinYen,
         paymentCycle:       body.paymentCycle       ?? null,
         contractorUserId:   user.id,
         status:             "open",

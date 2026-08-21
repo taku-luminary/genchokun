@@ -153,12 +153,15 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
     request.availableStartDate && request.availableEndDate
       ? `${formatJpDate(request.availableStartDate)}〜${formatJpDate(request.availableEndDate)}`
       : "日程未定";
-  const preference =
-    request.paymentCycle
-      ? request.rewardMinYen
-        ? `${request.paymentCycle}（${request.rewardMinYen.toLocaleString()}円）`
+      const preference =
+      request.rewardType === "negotiable"
+        ? "見積もり希望"
         : request.paymentCycle
-      : "—";
+          ? request.rewardMinYen
+            ? `${request.rewardMinYen.toLocaleString()}円 (${request.paymentCycle})`
+            : request.paymentCycle
+          : "—";
+  
       
       return (
         // 依頼待ちは「応募＝即マッチング」なので、ハイライト条件は isMatched のみ
@@ -205,7 +208,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
             <div className="space-y-1 md:space-y-2 text-sm md:text-base text-slate-700 font-medium">
               <p>・日程：{availableDates}</p>
               <p>・調査可能内容：{request.investigationSummary ?? "—"}</p>
-              <p>・希望：{preference}</p>
+              <p>・金額（支払サイクル）：{preference}</p>
               {request.companyName && (
                 <p className="flex flex-wrap items-center gap-x-2">
                   <span>・企業：{request.companyName}</span>
