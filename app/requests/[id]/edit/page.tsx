@@ -10,6 +10,7 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import type { CreateRequestRequest, RequestDetailResponse } from "@/app/_types/requests";
+import { RequestRewardTypeField } from "@/app/_components/RequestRewardTypeField";
 
 export default function EditRequestPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function EditRequestPage() {
     clearErrors,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateRequestRequest>();
+  } = useForm<CreateRequestRequest>({ defaultValues: { rewardType: "fixed" } });
 
   // データ取得後にフォームへ現在値を流し込む（日付は先頭10文字で "YYYY-MM-DD" に）
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function EditRequestPage() {
       investigationDetails: data.investigationDetails ?? undefined,
       availableStartDate: data.availableStartDate ? data.availableStartDate.slice(0, 10) : undefined,
       availableEndDate: data.availableEndDate ? data.availableEndDate.slice(0, 10) : undefined,
+      rewardType: data.rewardType ?? "fixed",
       rewardMinYen: data.rewardMinYen ?? undefined,
       paymentCycle: data.paymentCycle ?? undefined,
     });
@@ -184,17 +186,13 @@ export default function EditRequestPage() {
           </div>
         </div>
 
-        {/* 最低報酬 */}
-        <div>
-          <Label htmlFor="rewardMinYen">最低報酬（円）</Label>
-          <Input
-            id="rewardMinYen"
-            disabled={isSubmitting}
-            type="number"
-            placeholder="例：15000"
-            {...register("rewardMinYen", { valueAsNumber: true })}
-          />
-        </div>
+        {/* 報酬（報酬金額を指定 or 見積もり希望） */}
+        <RequestRewardTypeField
+          control={control}
+          register={register}
+          errors={errors}
+          disabled={isSubmitting}
+        />
 
         {/* 支払サイクル */}
         <div>

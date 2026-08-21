@@ -4,18 +4,18 @@ import { Controller, useWatch } from "react-hook-form";
 import type { Control, UseFormRegister, FieldErrors } from "react-hook-form";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
-import type { CreateProjectRequest } from "@/app/_types/projects";
+import type { CreateRequestRequest } from "@/app/_types/requests";
 
 type Props = {
-  control: Control<CreateProjectRequest>;
-  register: UseFormRegister<CreateProjectRequest>;
-  errors: FieldErrors<CreateProjectRequest>;
+  control: Control<CreateRequestRequest>;
+  register: UseFormRegister<CreateRequestRequest>;
+  errors: FieldErrors<CreateRequestRequest>;
   disabled?: boolean;
 };
 
-// 案件の報酬欄。「金額を指定」か「見積もり希望」かを選び、
-// 金額指定のときだけ金額入力を表示する。新規/編集フォームで共有する。
-export function RewardTypeField({ control, register, errors, disabled }: Props) {
+// 依頼(現調に行ける日)の報酬欄。「最報酬金額を指定」か「見積もり希望」かを選び、
+// 金額指定のときだけ報酬金額の入力を表示する。新規/編集フォームで共有する。
+export function RequestRewardTypeField({ control, register, errors, disabled }: Props) {
   // 現在の選択値を監視して、金額入力の表示/非表示を切り替える
   const rewardType = useWatch({ control, name: "rewardType" });
 
@@ -57,28 +57,28 @@ export function RewardTypeField({ control, register, errors, disabled }: Props) 
       {/* 金額指定のときだけ入力欄を出す */}
       {rewardType === "fixed" ? (
         <div>
-          <Label htmlFor="rewardYen">報酬金額（円）</Label>
+          <Label htmlFor="rewardMinYen">報酬金額（円）</Label>
           <Input
-            id="rewardYen"
+            id="rewardMinYen"
             type="number"
             disabled={disabled}
             placeholder="例：15000"
-            {...register("rewardYen", {
+            {...register("rewardMinYen", {
               valueAsNumber: true,
               // 見積もり希望に切り替えて入力欄が消えたら、値と検証を破棄する。
               // これがないと「隠れているのに必須エラーで送信できない」状態になる。
               shouldUnregister: true,
-              required: "報酬額を入力してください",
+              required: "報酬金額を入力してください",
               min: { value: 1, message: "1円以上を入力してください" },
             })}
           />
-          {errors.rewardYen && (
-            <p className="text-red-500 text-xs mt-1">{errors.rewardYen.message}</p>
+          {errors.rewardMinYen && (
+            <p className="text-red-500 text-xs mt-1">{errors.rewardMinYen.message}</p>
           )}
         </div>
       ) : (
         <p className="text-xs text-slate-500">
-          金額は空欄のまま投稿し、応募者と相談して金額を決めます。
+          金額は空欄のまま投稿し、マッチした相手と相談して決めます。
         </p>
       )}
     </div>

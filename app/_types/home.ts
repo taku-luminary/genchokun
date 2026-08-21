@@ -27,6 +27,7 @@ export type HomeRequest = {
   availableEndDate: string | null;
   investigationSummary: string | null;
   paymentCycle: string | null;
+  rewardType: RewardType;
   rewardMinYen: number | null;
   status: "open" | "completed";
   companyName: string | null;

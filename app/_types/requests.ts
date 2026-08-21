@@ -1,6 +1,6 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
 import type { ReviewCardInfo } from "./reviews";
-
+import type { RewardType } from "./projects";
 
 // POST /api/requests に送るリクエストの型
 export type CreateRequestRequest = {
@@ -11,7 +11,8 @@ export type CreateRequestRequest = {
   investigationDetails?: string;
   availableStartDate?: string; // "2026-01-31" 形式
   availableEndDate?: string;   // "2026-01-31" 形式
-  rewardMinYen?: number;
+  rewardType: RewardType;   // 必須。金額指定(fixed) か 見積もり希望(negotiable) を選ぶ
+  rewardMinYen?: number;    // rewardType === "fixed" のときだけ入る
   paymentCycle?: string;
 };
 // PUT /api/requests/[id] のリクエスト型。
@@ -35,6 +36,7 @@ export type RequestDetailResponse = {
   investigationDetails: string | null;
   availableStartDate: string | null;
   availableEndDate: string | null;
+  rewardType: RewardType;
   rewardMinYen: number | null;
   paymentCycle: string | null;
   status: "open" | "completed";

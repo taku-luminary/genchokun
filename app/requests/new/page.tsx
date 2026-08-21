@@ -7,6 +7,8 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import type { CreateRequestRequest } from "@/app/_types/requests";
+import { RequestRewardTypeField } from "@/app/_components/RequestRewardTypeField";
+
 
 export default function NewRequestPage() {
   const router = useRouter();
@@ -17,7 +19,8 @@ export default function NewRequestPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<CreateRequestRequest>();
+  } = useForm<CreateRequestRequest>({ defaultValues: { rewardType: "fixed" } });
+
 
   const createRequest = async (data: CreateRequestRequest) => {
     clearErrors('root.serverError');
@@ -143,17 +146,13 @@ export default function NewRequestPage() {
           </div>
         </div>
 
-        {/* 最低報酬 */}
-        <div>
-          <Label htmlFor="rewardMinYen">最低報酬（円）</Label>
-          <Input
-            id="rewardMinYen"
-            disabled={isSubmitting}
-            type="number"
-            placeholder="例：15000"
-            {...register("rewardMinYen", { valueAsNumber: true })}
-          />
-        </div>
+        {/* 報酬（最報酬金額を指定 or 見積もり希望） */}
+        <RequestRewardTypeField
+          control={control}
+          register={register}
+          errors={errors}
+          disabled={isSubmitting}
+        />
 
         {/* 支払サイクル */}
         <div>

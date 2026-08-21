@@ -230,6 +230,7 @@ model requests {
   availableStartDate   DateTime? @db.Date
   availableEndDate     DateTime? @db.Date
   rewardMinYen         Int?
+  rewardType           reward_type @default(fixed)
   paymentCycle         String?
   contractorUserId     String    @db.Uuid
   status               request_status

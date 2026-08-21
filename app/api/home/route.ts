@@ -132,6 +132,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     availableEndDate: r.availableEndDate?.toISOString() ?? null,
     investigationSummary: r.investigationSummary,
     paymentCycle: r.paymentCycle,
+    rewardType: r.rewardType,
     rewardMinYen: r.rewardMinYen === null ? null : Number(r.rewardMinYen),
     status: r.status,
     companyName: r.contractorUser.company?.name ?? null,
