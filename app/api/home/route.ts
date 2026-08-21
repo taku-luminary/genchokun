@@ -112,6 +112,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     title: p.title,
     workStartDate: p.workStartDate?.toISOString() ?? null,
     workEndDate: p.workEndDate?.toISOString() ?? null,
+    rewardType: p.rewardType,
     rewardYen: p.rewardYen === null ? null : Number(p.rewardYen),
     paymentCycle: p.paymentCycle,
     status: p.status,

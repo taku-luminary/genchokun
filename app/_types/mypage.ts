@@ -1,10 +1,8 @@
 import type { CompanyContact, CompanyInfo } from "./companies";
-// 応募した案件一覧はホームと同じカード型を使い回す
 import type { HomeProject, HomeRequest } from "./home";
-// /api/mypage が返すデータ全体の型
 import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
 import type { ReviewCardInfo } from "./reviews";
-
+import type { RewardType } from "./projects";
 
 export type MypageApiResponse = {
   stats: {
@@ -35,6 +33,7 @@ export type MypageProject = {
   workEndDate: string | null;
   investigationSummary: string | null;
   paymentCycle: string | null;
+  rewardType: RewardType;
   rewardYen: number | null;
   status: "open" | "completed";
   companyName: string | null;

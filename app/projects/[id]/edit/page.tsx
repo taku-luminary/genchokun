@@ -9,6 +9,7 @@ import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
+import { RewardTypeField } from "@/app/_components/RewardTypeField";
 import type { CreateProjectRequest, ProjectDetailResponse } from "@/app/_types/projects";
 
 export default function EditProjectPage() {
@@ -26,7 +27,7 @@ export default function EditProjectPage() {
     clearErrors,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateProjectRequest>();
+  } = useForm<CreateProjectRequest>({ defaultValues: { rewardType: "fixed" } });
   
 
   // データ取得が完了したら、フォームに現在値を流し込む。
@@ -62,6 +63,7 @@ export default function EditProjectPage() {
       investigationDetails: data.investigationDetails ?? undefined,
       workStartDate: data.workStartDate ? data.workStartDate.slice(0, 10) : undefined,
       workEndDate: data.workEndDate ? data.workEndDate.slice(0, 10) : undefined,
+      rewardType: data.rewardType ?? "fixed",
       rewardYen: data.rewardYen ?? undefined,
       paymentCycle: data.paymentCycle ?? undefined,
     });
@@ -248,17 +250,13 @@ export default function EditProjectPage() {
           </div>
         </div>
 
-        {/* 報酬 */}
-        <div>
-          <Label htmlFor="rewardYen">報酬（円）</Label>
-          <Input
-            id="rewardYen"
-            disabled={isSubmitting}
-            type="number"
-            placeholder="例：15000"
-            {...register("rewardYen", { valueAsNumber: true })}
-          />
-        </div>
+        {/* 報酬（決め方の選択＋金額入力。中身は RewardTypeField に集約） */}
+        <RewardTypeField
+          control={control}
+          register={register}
+          errors={errors}
+          disabled={isSubmitting}
+        />
 
         {/* 支払サイクル */}
         <div>

@@ -107,6 +107,7 @@ export default function ProjectApplyPage() {
     title: data.title,
     workStartDate: data.workStartDate,
     workEndDate: data.workEndDate,
+    rewardType: data.rewardType,
     rewardYen: data.rewardYen,
     paymentCycle: data.paymentCycle,
     status: data.status,

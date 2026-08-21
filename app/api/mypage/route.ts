@@ -148,6 +148,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
       workEndDate: p.workEndDate?.toISOString() ?? null,
       investigationSummary: p.investigationSummary,
       paymentCycle: p.paymentCycle,
+      rewardType: p.rewardType,
       rewardYen: p.rewardYen === null ? null : Number(p.rewardYen),
       status: p.status,
       companyName: null, // 自分の投稿なので発注者名は持たない
@@ -226,6 +227,7 @@ export async function GET(): Promise<NextResponse<MypageApiResponse>> {
           title: m.project.title,
           workStartDate: m.project.workStartDate?.toISOString() ?? null,
           workEndDate: m.project.workEndDate?.toISOString() ?? null,
+          rewardType: m.project.rewardType,
           rewardYen: m.project.rewardYen === null ? null : Number(m.project.rewardYen),
           paymentCycle: m.project.paymentCycle,
           status: m.project.status,

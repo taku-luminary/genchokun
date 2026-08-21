@@ -114,6 +114,7 @@ export async function GET(
         // ▼ 追加: 調査詳細（詳細ページの調査内容カードで表示する）
         investigationDetails: project.investigationDetails,
         paymentCycle: project.paymentCycle,
+        rewardType: project.rewardType,
         rewardYen: project.rewardYen === null ? null : Number(project.rewardYen),
         status: project.status,
         // ▼ 変更: null固定 → 自社名（ProjectCard の会社名表示用）
