@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";          // ← 追加
 import { LogoutButton } from "./LogoutButton";
+import { MypageNoticeDot } from "./MypageNoticeDot";
 import Link from "next/link";
 
 export const Header = async () => {
@@ -40,9 +41,12 @@ export const Header = async () => {
           {user ? (
             <>
               <span className="text-sm text-slate-500 hidden md:block">{user.email}</span>
-              <Link href="/mypage" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              <Link
+                href="/mypage"
+                className="relative text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
                 マイページ
+                <MypageNoticeDot />
               </Link>
               <Link href={companyHref} className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
