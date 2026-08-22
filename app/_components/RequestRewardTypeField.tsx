@@ -38,7 +38,7 @@ export function RequestRewardTypeField({ control, register, errors, disabled }: 
                 onChange={() => field.onChange("fixed")}
                 disabled={disabled}
               />
-              <span>報酬金額を指定する（投稿内容に金額を記載する）</span>
+              <span>報酬金額を指定する（投稿に金額を記載）</span>
             </label>
             <label className="flex items-center gap-2 py-2">
               <input
@@ -48,7 +48,7 @@ export function RequestRewardTypeField({ control, register, errors, disabled }: 
                 onChange={() => field.onChange("negotiable")}
                 disabled={disabled}
               />
-              <span>見積もり希望（投稿内容に金額記載せず相手と相談して決める）</span>
+              <span>見積もり希望（投稿に金額を記載しない）</span>
             </label>
           </div>
         )}
@@ -78,7 +78,7 @@ export function RequestRewardTypeField({ control, register, errors, disabled }: 
         </div>
       ) : (
         <p className="text-xs text-slate-500">
-          金額は空欄のまま投稿し、マッチした相手と相談して決めます。
+          金額は空欄のまま投稿し、マッチした相手と相談して決める。
         </p>
       )}
     </div>
