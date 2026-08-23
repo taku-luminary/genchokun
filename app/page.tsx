@@ -52,7 +52,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 pb-4 space-y-4 md:pt-10 md:pb-6 md:space-y-7">
           <div className="text-center">
           <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight text-shadow-sm leading-tight">
-              現地調査の<br className="md:hidden" />案件マッチングサービス
+              電気工事の<br className="md:hidden" />案件マッチングサービス
             </h2>
           </div>
 
@@ -61,8 +61,7 @@ export default function Home() {
             <Link href="/projects/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-5 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
-                <p className="text-xs md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">販売店向け</p>
-                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調を<br />お願いする</h3>
+                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />発注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
                 <img src="input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
@@ -72,8 +71,7 @@ export default function Home() {
             <Link href="/requests/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-5 md:pt-10 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
-                <p className="text-xs md:text-sm font-bold text-brand-green/100 mb-0.5 md:mb-1">工事店向け</p>
-                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">現調に行ける日<br />を登録する</h3>
+                <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />受注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
                 <img src="input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
@@ -111,7 +109,7 @@ export default function Home() {
                     : 'text-slate-600 hover:text-slate-800 hover:bg-white/20'
                 }`}
               >
-                募集中の工事案件
+                応募できる案件
               </button>
               <button
                 onClick={() => setActiveTab('requests')}
@@ -121,7 +119,7 @@ export default function Home() {
                     : 'text-slate-600 hover:text-slate-800 hover:bg-white/20'
                 }`}
               >
-                対応できる工事店枠
+                発注待ちの事業者
               </button>
             </div>
           </div>

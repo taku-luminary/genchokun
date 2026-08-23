@@ -31,8 +31,8 @@ export const Header = async () => {
                 <path d="M10 10L30 30" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round"/>
               </svg>
               <div className="ml-2">
-                <h1 className="text-xl font-bold text-brand-green leading-tight">現調くん</h1>
-                <p className="hidden md:block text-[10px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
+                <h1 className="text-xl font-bold text-brand-green leading-tight">電工くん</h1>
+                <p className="hidden md:block text-[10px] text-slate-400 font-medium">電気工事・調査のマッチングサービス</p>
               </div>
             </Link>
           </div>
