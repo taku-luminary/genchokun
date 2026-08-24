@@ -151,7 +151,7 @@ export default function RequestDetailPage() {
         )}
 
 
-        {/* ▼ 連続ブロック: 依頼カード → 調査内容 → 投稿元情報 */}
+        {/* ▼ 連続ブロック: 依頼カード → 受注できる内容 → 投稿元情報 */}
 
         {/* 編集/削除ボタン（自分の依頼なら常に表示）。
             マッチ済みだと disabled（グレーアウト）になり、下に理由を常時表示する */}
@@ -195,10 +195,11 @@ export default function RequestDetailPage() {
         </div>
 
 
-        {/* 調査内容（共通カード）。マッチングボタン群は children として差し込む */}
+        {/* 受注できる内容（共通カード）。マッチングボタン群は children として差し込む */}
         <ContentCard
+          summaryLabel="受注できる内容"
           summary={data.summary}
-          details={data.note}
+          note={data.note}
         >
           {/* 応募可能: 応募ページへの遷移リンク */}
           {!isCompleted && !data.hasApplied && !data.isMyRequest && (

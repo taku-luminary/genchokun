@@ -207,7 +207,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
             </h3>
             <div className="space-y-1 md:space-y-2 text-sm md:text-base text-slate-700 font-medium">
               <p>・日程：{availableDates}</p>
-              <p>・依頼できる内容：{request.summary ?? "—"}</p>
+              <p>・受注できる内容：{request.summary ?? "—"}</p>
               <p>・金額（支払サイクル）：{preference}</p>
               {request.companyName && (
                 <p className="flex flex-wrap items-center gap-x-2">

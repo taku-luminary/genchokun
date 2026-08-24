@@ -111,7 +111,7 @@ export async function GET(
         workStartDate: project.workStartDate?.toISOString() ?? null,
         workEndDate: project.workEndDate?.toISOString() ?? null,
         summary: project.summary, 
-        // ▼ 追加: 調査詳細（詳細ページの調査内容カードで表示する）
+        // メモ(note)。詳細ページの内容カードで表示する
         note: project.note,
         paymentCycle: project.paymentCycle,
         rewardType: project.rewardType,

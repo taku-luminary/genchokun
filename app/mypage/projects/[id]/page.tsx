@@ -267,7 +267,7 @@ export default function MypageProjectDetailPage() {
         </section>
         )}
 
-        {/* ▼ 連続ブロック: 案件カード → 調査内容 → 投稿元情報 */}
+        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 投稿元情報 */}
 
         {/* 編集/削除ボタン（自分の案件なので常に表示）。
             応募が来ていると disabled（グレーアウト）になり、下に理由を常時表示する */}
@@ -309,10 +309,11 @@ export default function MypageProjectDetailPage() {
          applicationCount={applications.length} />
         </div>
 
-        {/* 調査内容（共通カード・ボタンなし） */}
+        {/* 案件内容（共通カード・ボタンなし） */}
         <ContentCard
+          summaryLabel="案件内容"
           summary={project.summary}
-          details={project.note}
+          note={project.note}
         />
 
         {/* 投稿元(自社)情報（共通カード） */}

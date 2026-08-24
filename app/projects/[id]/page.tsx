@@ -116,17 +116,18 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* ▼ 連続ブロック: 案件カード → 調査内容 → 投稿元情報 */}
+        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 投稿元情報 */}
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
           <ProjectCard project={homeProject} />
         </div>
 
-        {/* 調査内容（共通カード）。応募ボタン群は children として差し込む */}
+        {/* 案件内容（共通カード）。応募ボタン群は children として差し込む */}
         <ContentCard
+          summaryLabel="案件内容"
           summary={data.summary}
-          details={data.note}
+          note={data.note}
         >
           {/* 応募可能: 掲載者本人ではない && 未応募 && オープン && 期限内 */}
           {!data.isMyProject && !isApplied && !isClosed && !isExpired && (
