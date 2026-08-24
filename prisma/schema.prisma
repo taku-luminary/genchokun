@@ -203,8 +203,8 @@ model projects {
   prefectureId         Int
   city                 String?
   title                String
-  investigationSummary String?
-  investigationDetails String?
+  summary              String?
+  note                 String?
   workStartDate        DateTime? @db.Date
   workEndDate          DateTime? @db.Date
   rewardYen            Int?
@@ -225,8 +225,8 @@ model requests {
   id                   BigInt    @id @default(autoincrement())
   city                 String?
   title                String
-  investigationSummary String?
-  investigationDetails String?
+  summary              String?
+  note                 String?
   availableStartDate   DateTime? @db.Date
   availableEndDate     DateTime? @db.Date
   rewardMinYen         Int?

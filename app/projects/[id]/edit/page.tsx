@@ -59,8 +59,8 @@ export default function EditProjectPage() {
       prefectureId: data.prefectureId,
       city: data.city ?? undefined,
       title: data.title,
-      investigationSummary: data.investigationSummary ?? undefined,
-      investigationDetails: data.investigationDetails ?? undefined,
+      summary: data.summary ?? undefined,
+      note: data.note ?? undefined,
       workStartDate: data.workStartDate ? data.workStartDate.slice(0, 10) : undefined,
       workEndDate: data.workEndDate ? data.workEndDate.slice(0, 10) : undefined,
       rewardType: data.rewardType ?? "fixed",
@@ -213,27 +213,27 @@ export default function EditProjectPage() {
 
         {/* 案件内容 */}
         <div>
-          <Label htmlFor="investigationSummary">案件内容</Label>
+          <Label htmlFor="summary">案件内容</Label>
           <textarea
-            id="investigationSummary"
+            id="summary"
             disabled={isSubmitting}
             placeholder="例：創蓄の工事です。カナディアン・ソーラーの太陽光パネルと、ニチコン19.9kwの蓄電池の設置をお願いします。足場の手配、B材の調達、現地調査も相談したいです。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={2}
-            {...register("investigationSummary")}
+            {...register("summary")}
           />
         </div>
 
         {/* メモ・備考 */}
         <div>
-          <Label htmlFor="investigationDetails">メモ・備考</Label>
+          <Label htmlFor="note">メモ・備考</Label>
           <textarea
-            id="investigationDetails"
+            id="note"
             disabled={isSubmitting}
             placeholder="例：お客様宅には駐車場がないため、訪問時は近隣のコインパーキングをご利用ください。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={3}
-            {...register("investigationDetails")}
+            {...register("note")}
           />
         </div>
 

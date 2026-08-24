@@ -105,7 +105,7 @@ export default function RequestApplyPage() {
     title: data.title,
     availableStartDate: data.availableStartDate,
     availableEndDate: data.availableEndDate,
-    investigationSummary: data.investigationSummary,
+    summary: data.summary,
     paymentCycle: data.paymentCycle,
     rewardType: data.rewardType,
     rewardMinYen: data.rewardMinYen,

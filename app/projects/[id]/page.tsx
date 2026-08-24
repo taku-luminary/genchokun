@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
-import { InvestigationCard } from '@/app/_components/InvestigationCard';
+import { ContentCard } from '@/app/_components/ContentCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { ProjectDetailResponse } from '@/app/_types/projects';
@@ -124,9 +124,9 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* 調査内容（共通カード）。応募ボタン群は children として差し込む */}
-        <InvestigationCard
-          summary={data.investigationSummary}
-          details={data.investigationDetails}
+        <ContentCard
+          summary={data.summary}
+          details={data.note}
         >
           {/* 応募可能: 掲載者本人ではない && 未応募 && オープン && 期限内 */}
           {!data.isMyProject && !isApplied && !isClosed && !isExpired && (
@@ -187,7 +187,7 @@ export default function ProjectDetailPage() {
               </button>
             </div>
           )}
-        </InvestigationCard>
+        </ContentCard>
 
         {/* 投稿元の販売店情報（共通カード） */}
         {data.company && (

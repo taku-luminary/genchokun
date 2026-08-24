@@ -36,7 +36,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     AND: keywords.map((kw) => ({
       OR: [
         { title: { contains: kw, mode: "insensitive" as const } },
-        { investigationSummary: { contains: kw, mode: "insensitive" as const } },
+        { summary: { contains: kw, mode: "insensitive" as const } },
         { city: { contains: kw, mode: "insensitive" as const } },
         { prefecture: { name: { contains: kw } } }, // 都道府県名（単一リレーション）
         { salesUser: { company: { name: { contains: kw, mode: "insensitive" as const } } } }, // 発注者の企業名
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     AND: keywords.map((kw) => ({
       OR: [
         { title: { contains: kw, mode: "insensitive" as const } },
-        { investigationSummary: { contains: kw, mode: "insensitive" as const } },
+        { summary: { contains: kw, mode: "insensitive" as const } },
         { city: { contains: kw, mode: "insensitive" as const } },
         { prefectures: { some: { name: { contains: kw } } } }, // 多対多なので some（どれか1つでも一致）
         { contractorUser: { company: { name: { contains: kw, mode: "insensitive" as const } } } }, // 工事店の企業名
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
     title: r.title, // 追加
     availableStartDate: r.availableStartDate?.toISOString() ?? null,
     availableEndDate: r.availableEndDate?.toISOString() ?? null,
-    investigationSummary: r.investigationSummary,
+    summary: r.summary,
     paymentCycle: r.paymentCycle,
     rewardType: r.rewardType,
     rewardMinYen: r.rewardMinYen === null ? null : Number(r.rewardMinYen),

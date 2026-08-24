@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { RequestCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
-import { InvestigationCard } from '@/app/_components/InvestigationCard';
+import { ContentCard } from '@/app/_components/ContentCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
@@ -49,7 +49,7 @@ export default function RequestDetailPage() {
     title: data.title,
     availableStartDate: data.availableStartDate,
     availableEndDate: data.availableEndDate,
-    investigationSummary: data.investigationSummary,
+    summary: data.summary,
     paymentCycle: data.paymentCycle,
     rewardType: data.rewardType,
     rewardMinYen: data.rewardMinYen,
@@ -196,9 +196,9 @@ export default function RequestDetailPage() {
 
 
         {/* 調査内容（共通カード）。マッチングボタン群は children として差し込む */}
-        <InvestigationCard
-          summary={data.investigationSummary}
-          details={data.investigationDetails}
+        <ContentCard
+          summary={data.summary}
+          details={data.note}
         >
           {/* 応募可能: 応募ページへの遷移リンク */}
           {!isCompleted && !data.hasApplied && !data.isMyRequest && (
@@ -259,7 +259,7 @@ export default function RequestDetailPage() {
               </button>
             </div>
           )}
-        </InvestigationCard>
+        </ContentCard>
 
         {/* 投稿元の工事店情報（共通カード） */}
         {data.company && (

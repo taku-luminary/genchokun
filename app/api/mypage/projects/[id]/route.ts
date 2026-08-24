@@ -110,9 +110,9 @@ export async function GET(
         title: project.title,
         workStartDate: project.workStartDate?.toISOString() ?? null,
         workEndDate: project.workEndDate?.toISOString() ?? null,
-        investigationSummary: project.investigationSummary, 
+        summary: project.summary, 
         // ▼ 追加: 調査詳細（詳細ページの調査内容カードで表示する）
-        investigationDetails: project.investigationDetails,
+        note: project.note,
         paymentCycle: project.paymentCycle,
         rewardType: project.rewardType,
         rewardYen: project.rewardYen === null ? null : Number(project.rewardYen),

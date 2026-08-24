@@ -1,6 +1,6 @@
 'use client';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
-import { InvestigationCard } from '@/app/_components/InvestigationCard';
+import { ContentCard } from '@/app/_components/ContentCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -310,9 +310,9 @@ export default function MypageProjectDetailPage() {
         </div>
 
         {/* 調査内容（共通カード・ボタンなし） */}
-        <InvestigationCard
-          summary={project.investigationSummary}
-          details={project.investigationDetails}
+        <ContentCard
+          summary={project.summary}
+          details={project.note}
         />
 
         {/* 投稿元(自社)情報（共通カード） */}

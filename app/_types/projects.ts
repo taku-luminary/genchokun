@@ -6,8 +6,8 @@ export type CreateProjectRequest = {
   prefectureId: number;
   city?: string;
   title: string;
-  investigationSummary?: string;
-  investigationDetails?: string;
+  summary?: string;
+  note?: string;
   workStartDate?: string; // "2026-01-31" 形式
   workEndDate?: string;
   rewardType: RewardType;   // 必須。フォームで必ずどちらかを選ぶ
@@ -33,8 +33,8 @@ export type ProjectDetailResponse = {
   prefectureId: number;
   city: string | null;
   title: string;
-  investigationSummary: string | null;
-  investigationDetails: string | null;
+  summary: string | null;
+  note: string | null;
   workStartDate: string | null;
   workEndDate: string | null;
   rewardType: RewardType;

@@ -25,7 +25,7 @@ export type HomeRequest = {
   title: string; // 追加
   availableStartDate: string | null;
   availableEndDate: string | null;
-  investigationSummary: string | null;
+  summary: string | null;
   paymentCycle: string | null;
   rewardType: RewardType;
   rewardMinYen: number | null;

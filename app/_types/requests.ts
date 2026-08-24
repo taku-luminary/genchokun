@@ -7,8 +7,8 @@ export type CreateRequestRequest = {
   prefectureIds: number[]; // 対応可能エリア（複数選択）。1件以上必須
   city?: string;
   title: string;
-  investigationSummary?: string;
-  investigationDetails?: string;
+  summary?: string;
+  note?: string;
   availableStartDate?: string; // "2026-01-31" 形式
   availableEndDate?: string;   // "2026-01-31" 形式
   rewardType: RewardType;   // 必須。金額指定(fixed) か 見積もり希望(negotiable) を選ぶ
@@ -32,8 +32,8 @@ export type RequestDetailResponse = {
   prefectures: { id: number; name: string }[];
   city: string | null;
   title: string;
-  investigationSummary: string | null;
-  investigationDetails: string | null;
+  summary: string | null;
+  note: string | null;
   availableStartDate: string | null;
   availableEndDate: string | null;
   rewardType: RewardType;

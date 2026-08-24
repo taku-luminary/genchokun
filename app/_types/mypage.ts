@@ -31,7 +31,7 @@ export type MypageProject = {
   title: string;
   workStartDate: string | null;
   workEndDate: string | null;
-  investigationSummary: string | null;
+  summary: string | null;
   paymentCycle: string | null;
   rewardType: RewardType;
   rewardYen: number | null;
@@ -53,7 +53,7 @@ export type MypageRequest = {
   title: string;
   availableStartDate: string | null;
   availableEndDate: string | null;
-  investigationSummary: string | null;
+  summary: string | null;
   paymentCycle: string | null;
   rewardType: RewardType;
   rewardMinYen: number | null;
@@ -70,7 +70,7 @@ export type MypageRequest = {
 // 詳細ページ専用: 一覧用 MypageProject に「調査詳細」と「投稿元(自社)情報」を足したもの。
 // 一覧API/ProjectCard に影響を出さないよう、一覧型は変えず詳細だけ拡張する。
 export type MypageProjectDetail = MypageProject & {
-  investigationDetails: string | null;
+  note: string | null;
   company: CompanyInfo | null;
 };
 

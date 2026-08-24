@@ -36,8 +36,8 @@ export default function EditRequestPage() {
       prefectureIds: data.prefectures.map((p) => p.id), // 複数県の id 配列に変換
       city: data.city ?? undefined,
       title: data.title,
-      investigationSummary: data.investigationSummary ?? undefined,
-      investigationDetails: data.investigationDetails ?? undefined,
+      summary: data.summary ?? undefined,
+      note: data.note ?? undefined,
       availableStartDate: data.availableStartDate ? data.availableStartDate.slice(0, 10) : undefined,
       availableEndDate: data.availableEndDate ? data.availableEndDate.slice(0, 10) : undefined,
       rewardType: data.rewardType ?? "fixed",
@@ -149,27 +149,27 @@ export default function EditRequestPage() {
 
         {/* 受注できる内容 */}
         <div>
-          <Label htmlFor="investigationSummary">受注できる内容</Label>
+          <Label htmlFor="summary">受注できる内容</Label>
           <textarea
-            id="investigationSummary"
+            id="summary"
             disabled={isSubmitting}
             placeholder="例：太陽光パネル・蓄電池・エコキュート・防水・足場・高圧"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={2}
-            {...register("investigationSummary")}
+            {...register("summary")}
           />
         </div>
 
         {/* メモ・備考 */}
         <div>
-          <Label htmlFor="investigationDetails">メモ・備考</Label>
+          <Label htmlFor="note">メモ・備考</Label>
           <textarea
-            id="investigationDetails"
+            id="note"
             disabled={isSubmitting}
             placeholder="例：現地調査は土日以外でしたら基本対応可能です。架台や商材の選定のご相談も承ります。工事後の電力申請も対応可能です。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={3}
-            {...register("investigationDetails")}
+            {...register("note")}
           />
         </div>
 

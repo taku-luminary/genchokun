@@ -7,7 +7,7 @@ type Props = {
   children?: ReactNode;
 };
 
-export function InvestigationCard({ summary, details, children }: Props) {
+export function ContentCard({ summary, details, children }: Props) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
       <div className="p-6 space-y-4">
