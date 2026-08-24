@@ -112,7 +112,7 @@ export default function RequestDetailPage() {
           ) : (
             <MatchedContactCard
               title="🎉 マッチング成立済み"
-              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              description="下記の連絡先に直接ご連絡し、電気工事の日程調整などを進めてください。"
               contactLabel="工事店の連絡先"
               contact={data.contractorContact}
             />
@@ -143,7 +143,7 @@ export default function RequestDetailPage() {
           ) : (
             <MatchedContactCard
               title="🎉 あなたの依頼にマッチが入りました"
-              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              description="下記の連絡先に直接ご連絡し、電気工事の日程調整などを進めてください。"
               contactLabel="販売店の連絡先"
               contact={data.salesContact}
             />

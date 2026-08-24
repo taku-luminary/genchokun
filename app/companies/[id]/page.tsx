@@ -31,7 +31,7 @@ export async function generateMetadata({
   const company = await getCompany(id);
 
   if (!company) {
-    return { title: "企業が見つかりません | 現調くん" };
+    return { title: "企業が見つかりません | 電工くん" };
   }
 
   const location = [company.prefecture.name, company.city]
@@ -40,9 +40,9 @@ export async function generateMetadata({
   // description は説明文があれば先頭120文字、なければ定型文
   const description = company.description
     ? company.description.slice(0, 120)
-    : `${company.name}（${location}）の企業情報を掲載中。現調くん（調査・工事のマッチングサービス）`;
+    : `${company.name}（${location}）の企業情報を掲載中。電工くん（電気工事・調査のマッチングサービス）`;
 
-  const title = `${company.name} | 現調くん`;
+  const title = `${company.name} | 電工くん`;
 
   return {
     title,

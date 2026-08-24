@@ -141,7 +141,7 @@ export default function CompanySettingsPage() {
           <Input
             id="name"
             disabled={isSubmitting}
-            placeholder="例：株式会社現調"
+            placeholder="例：株式会社電工"
             {...register("name", { required: "会社名を入力してください" })}
           />
           {errors.name && (
@@ -330,7 +330,7 @@ export default function CompanySettingsPage() {
             <Input
               id="contactLineId"
               disabled={isSubmitting}
-              placeholder="例：@genchokun または https://line.me/..."
+              placeholder="例：@denkokun または https://line.me/..."
               {...register("contactLineId")}
             />
           </div>

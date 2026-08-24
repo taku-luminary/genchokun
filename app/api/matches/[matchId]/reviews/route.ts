@@ -60,11 +60,11 @@ export async function POST(
       return NextResponse.json({ error: "相手企業の情報が登録されていません" }, { status: 400 });
     }
 
-    // 6. 解禁日を過ぎているか（現調予定日 or マッチ成立+7日）
+    // 6. 解禁日を過ぎているか（電気工事予定日 or マッチ成立+7日）
     const dateField = match.project?.workEndDate ?? match.request?.availableEndDate ?? null;
     if (!isPastReviewTrigger(dateField, match.createdAt)) {
       return NextResponse.json(
-        { error: "現地調査の予定日を過ぎてからレビューできます" },
+        { error: "電気工事の予定日を過ぎてからレビューできます" },
         { status: 409 },
       );
     }

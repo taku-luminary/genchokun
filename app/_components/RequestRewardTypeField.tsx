@@ -13,7 +13,7 @@ type Props = {
   disabled?: boolean;
 };
 
-// 依頼(現調に行ける日)の報酬欄。「最報酬金額を指定」か「見積もり希望」かを選び、
+// 電気工事に行ける日)の報酬欄。「最報酬金額を指定」か「見積もり希望」かを選び、
 // 金額指定のときだけ報酬金額の入力を表示する。新規/編集フォームで共有する。
 export function RequestRewardTypeField({ control, register, errors, disabled }: Props) {
   // 現在の選択値を監視して、金額入力の表示/非表示を切り替える

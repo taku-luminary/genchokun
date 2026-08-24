@@ -10,8 +10,8 @@ export const Footer: React.FC = () => {
             <path d="M12 20L18 26L28 16" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div>
-            <h2 className="text-lg font-bold text-brand-green leading-tight">現調くん</h2>
-            <p className="text-[10px] text-slate-400 font-medium">調査・工事のマッチングサービス</p>
+            <h2 className="text-lg font-bold text-brand-green leading-tight">電工くん</h2>
+            <p className="text-[10px] text-slate-400 font-medium">電気工事・調査のマッチングサービス</p>
           </div>
         </div>
 

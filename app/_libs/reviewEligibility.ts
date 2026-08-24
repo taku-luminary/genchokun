@@ -1,6 +1,6 @@
 import type { ReviewRole } from "@/app/_libs/companyRatings";
 
-// 現調予定日が未設定のとき、マッチ成立から何日後にレビューを解禁するか
+// 電気工事予定日が未設定のとき、マッチ成立から何日後にレビューを解禁するか
 export const REVIEW_FALLBACK_DAYS = 7;
 
 /**

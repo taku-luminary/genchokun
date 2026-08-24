@@ -4,8 +4,8 @@ import { Header } from "./_components/Header";
 import { Footer } from "./_components/Footer";
 
 export const metadata: Metadata = {
-  title: "現調くん | 調査・工事のマッチングサービス",
-  description: "現地調査・工事の案件マッチングサービス「現調くん」のトップページです。",
+  title: "電工くん | 電気工事・調査のマッチングサービス",
+  description: "電気工事・調査のマッチングサービス「電工くん」のトップページです。",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

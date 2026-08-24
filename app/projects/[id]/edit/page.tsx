@@ -203,7 +203,7 @@ export default function EditProjectPage() {
           <Input
             id="title"
             disabled={isSubmitting}
-            placeholder="例：太陽光パネルの現地調査"
+            placeholder="例：太陽光パネルの設置工事"
             {...register("title", { required: "タイトルを入力してください" })}
           />
           {errors.title && (
@@ -211,26 +211,26 @@ export default function EditProjectPage() {
           )}
         </div>
 
-        {/* 調査可能内容 */}
+        {/* 案件内容 */}
         <div>
-          <Label htmlFor="investigationSummary">調査可能内容</Label>
+          <Label htmlFor="investigationSummary">案件内容</Label>
           <textarea
             id="investigationSummary"
             disabled={isSubmitting}
-            placeholder="例：太陽光パネル・蓄電池"
+            placeholder="例：創蓄の工事です。カナディアン・ソーラーの太陽光パネルと、ニチコン19.9kwの蓄電池の設置をお願いします。足場の手配、B材の調達、現地調査も相談したいです。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={2}
             {...register("investigationSummary")}
           />
         </div>
 
-        {/* 調査詳細 */}
+        {/* メモ・備考 */}
         <div>
-          <Label htmlFor="investigationDetails">調査詳細</Label>
+          <Label htmlFor="investigationDetails">メモ・備考</Label>
           <textarea
             id="investigationDetails"
             disabled={isSubmitting}
-            placeholder="詳細な内容を記載してください"
+            placeholder="例：お客様宅には駐車場がないため、訪問時は近隣のコインパーキングをご利用ください。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={3}
             {...register("investigationDetails")}
