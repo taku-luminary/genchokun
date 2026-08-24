@@ -188,9 +188,9 @@
             )}
           </div>
 
-          {/* 調査可能内容 */}
+          {/* 案件内容 */}
           <div>
-            <Label htmlFor="investigationSummary">内容</Label>
+            <Label htmlFor="investigationSummary">案件内容</Label>
             <textarea
               id="investigationSummary"
               disabled={isSubmitting}
@@ -201,7 +201,7 @@
             />
           </div>
 
-          {/* 調査詳細 */}
+          {/* メモ・備考 */}
           <div>
             <Label htmlFor="investigationDetails">メモ・備考</Label>
             <textarea
@@ -254,7 +254,7 @@
 
           {/* 送信ボタン */}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "投稿中..." : "工事案件を掲載する"}
+            {isSubmitting ? "投稿中..." : "工事案件を投稿する"}
           </Button>
         </form>
       </div>

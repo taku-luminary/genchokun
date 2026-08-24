@@ -54,7 +54,8 @@ export default function NewRequestPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-slate-800 mb-8 text-center">現調に行ける日の投稿フォーム</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-8 text-center">受注可能な情報の投稿フォーム
+      </h1>
 
       <form onSubmit={handleSubmit(createRequest)} className="space-y-5">
 
@@ -99,7 +100,7 @@ export default function NewRequestPage() {
           <Input
             id="title"
             disabled={isSubmitting}
-            placeholder="例：太陽光パネルの現地調査に対応できます"
+            placeholder="例：太陽光パネル・蓄電池の工事や現地調査はお任せください！"
             {...register("title", { required: "タイトルを入力してください" })}
           />
           {errors.title && (
@@ -107,26 +108,26 @@ export default function NewRequestPage() {
           )}
         </div>
 
-        {/* 調査可能内容 */}
+        {/* 受注できる内容 */}
         <div>
-          <Label htmlFor="investigationSummary">調査可能内容</Label>
+          <Label htmlFor="investigationSummary">受注できる内容</Label>
           <textarea
             id="investigationSummary"
             disabled={isSubmitting}
-            placeholder="例：太陽光パネル・蓄電池・エコキュート"
-            className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+            placeholder="例：太陽光パネル・蓄電池・エコキュート・防水・足場・高圧"
+            className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={2}
             {...register("investigationSummary")}
           />
         </div>
 
-        {/* 調査詳細 */}
+        {/* メモ・備考 */}
         <div>
-          <Label htmlFor="investigationDetails">調査詳細</Label>
+          <Label htmlFor="investigationDetails">メモ・備考</Label>
           <textarea
             id="investigationDetails"
             disabled={isSubmitting}
-            placeholder="対応可能な内容の詳細を記載してください"
+            placeholder="例：現地調査は土日以外でしたら基本対応可能です。架台や商材の選定のご相談も承ります。工事後の電力申請も対応可能です。"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={3}
             {...register("investigationDetails")}
@@ -172,7 +173,7 @@ export default function NewRequestPage() {
 
         {/* 送信ボタン */}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "投稿中..." : "対応できる枠を掲載する"}
+          {isSubmitting ? "投稿中..." : "あなたが受注できる情報を投稿する"}
         </Button>
       </form>
     </div>

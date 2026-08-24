@@ -50,7 +50,7 @@ export function ReviewPromptCard({
   return (
     <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
       <p className="text-lg md:text-2xl font-bold text-brand-green">
-        🔔 現地調査は完了しましたか？
+        🔔 案件対応（電気工事など）は完了しましたか？
       </p>
       <p className="text-slate-700 font-medium">
         完了していましたら、

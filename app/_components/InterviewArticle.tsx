@@ -9,7 +9,7 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
       <div>
         <h2 className="text-lg font-bold text-slate-700">取材記事</h2>
         <p className="text-xs text-slate-400">
-          現調くん運営が取材・編集し、掲載している記事です
+          電工くん運営が取材・編集し、掲載している記事です
         </p>
       </div>
 

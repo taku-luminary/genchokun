@@ -97,7 +97,7 @@ export default function ProjectDetailPage() {
           ) : (
             <MatchedContactCard
               title="🎉 あなたが選ばれました"
-              description="下記の連絡先に直接ご連絡し、現地調査の日程調整などを進めてください。"
+              description="下記の連絡先に直接ご連絡し、お仕事の日程調整などを進めてください。"
               contactLabel="販売店の連絡先"
               contact={data.salesContact}
             />

@@ -177,7 +177,7 @@ export default function RequestApplyPage() {
             rows={5}
             maxLength={1000}
             disabled={isSubmitting}
-            placeholder="自己紹介や、現地調査をお願いしたい背景などを書きましょう"
+            placeholder="自己紹介や、電気工事をお願いしたい背景などを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
             {...register('message', {
               onChange: (e) => {
