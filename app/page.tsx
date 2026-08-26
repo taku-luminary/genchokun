@@ -64,7 +64,7 @@ export default function Home() {
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />発注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                <img src="/input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
               </div>
             </Link>
 
@@ -74,7 +74,7 @@ export default function Home() {
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />受注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                <img src="/input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
               </div>
             </Link>
           </div>
