@@ -155,9 +155,22 @@ export default function MypageProjectDetailPage() {
               contactLabel="相手企業の連絡先"
               contact={matchedApp.contractor.contact}
             >
-              <p className="text-lg font-bold text-slate-800">
-                {matchedApp.contractor.companyName ?? '（会社名未登録）'}
-              </p>
+              {matchedApp.contractor.companyName ? (
+                matchedApp.contractor.companyId ? (
+                  <Link
+                    href={`/companies/${matchedApp.contractor.companyId}`}
+                    className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                  >
+                    {matchedApp.contractor.companyName}
+                  </Link>
+                ) : (
+                  <p className="text-lg font-bold text-slate-800">
+                    {matchedApp.contractor.companyName}
+                  </p>
+                )
+              ) : (
+                <p className="text-lg font-bold text-slate-400">（会社名未登録）</p>
+              )}
               {matchedApp.message && (
                 <p className="text-sm text-slate-700 whitespace-pre-wrap mt-2">
                   {matchedApp.message}
@@ -256,7 +269,7 @@ export default function MypageProjectDetailPage() {
                     disabled={submittingId !== null}
                     className="w-full py-2 rounded-2xl bg-brand-green text-white font-black text-base shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isThisSubmitting ? '送信中...' : 'この企業を採用する'}
+                    {isThisSubmitting ? '送信中...' : 'この企業とマッチングする'}
                   </button>
                   )}
                 </article>

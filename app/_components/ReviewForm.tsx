@@ -38,7 +38,7 @@ function StarPicker({
           type="button"
           onClick={() => onChange(n)}
           aria-label={`${n}点`}
-          className={`px-0.5 py-1.5 text-3xl leading-none ${
+          className={`px-1 py-2 text-2xl leading-none ${
             n <= value ? "text-amber-400" : "text-slate-300"
           }`}
         >
@@ -60,7 +60,7 @@ function OverallAverage({ control }: { control: Control<ReviewInput> }) {
   return average !== null ? (
     <StarRating rating={average} />
   ) : (
-    <span className="text-xs text-slate-400">5項目を選ぶと計算されます</span>
+    <span className="text-xs text-slate-400 -ml-3">5項目を選ぶと計算されます</span>
   );
 }
 

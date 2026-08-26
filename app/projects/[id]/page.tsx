@@ -100,7 +100,16 @@ export default function ProjectDetailPage() {
               description="下記の連絡先に直接ご連絡し、お仕事の日程調整などを進めてください。"
               contactLabel="相手企業の連絡先"
               contact={data.salesContact}
-            />
+            >
+              {data.company && (
+                <Link
+                  href={`/companies/${data.company.id}`}
+                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                >
+                  {data.company.name}
+                </Link>
+              )}
+            </MatchedContactCard>
           )
         )}
 

@@ -50,10 +50,10 @@ export function ReviewPromptCard({
   return (
     <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
       <p className="text-lg md:text-2xl font-bold text-brand-green">
-        🔔 案件対応（電気工事など）は完了しましたか？
+        🔔 案件対応は完了しましたか？
       </p>
-      <p className="text-slate-700 font-medium">
-        完了していましたら、一緒にお仕事をした
+      <p className="text-sm text-slate-700 font-medium">
+        完了後は、一緒にお仕事をした
         {partnerCompany ? (
           <Link
             href={`/companies/${partnerCompany.id}`}
@@ -64,7 +64,7 @@ export function ReviewPromptCard({
         ) : (
           <span className="font-bold">相手企業</span>
         )}
-        様を評価してください。評価を投稿すると、あなたの評価が相手企業の企業ページに公開されます。
+        への評価をお願い致します。<br />評価を投稿すると、あなたの評価が相手企業の企業ページに公開されます。
       </p>
 
       <div className="border-t border-brand-green/30 pt-3 mt-3 space-y-3">
