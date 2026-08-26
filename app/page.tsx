@@ -150,7 +150,7 @@ export default function Home() {
 
             {!isLoading && activeTab === 'requests' && (
               requests.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">対応できる工事店枠はまだありません</p>
+                <p className="text-center text-slate-500 py-10">発注待ちの事業者はまだありません</p>
               ) : (
                 // 依頼カード
                 requests.map((request) => (

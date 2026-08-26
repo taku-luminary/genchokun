@@ -197,7 +197,7 @@ export default function MyPage() {
                       : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
                   }`}
                 >
-                  募集中の工事案件
+                  応募できる案件
                 </button>
                 <button
                   onClick={() => setTab("requests")}
@@ -207,7 +207,7 @@ export default function MyPage() {
                       : "text-slate-600 hover:text-slate-800 hover:bg-white/100"
                   }`}
                 >
-                  対応できる工事店枠
+                  発注待ちの事業者
                 </button>
               </div>
             </>
@@ -266,7 +266,7 @@ export default function MyPage() {
           {!isLoading && !error && focusKind === null && mode === "posted" && tab === "projects" && (
             <div className="space-y-3 md:space-y-5">
               {projects.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">掲載した工事案件はありません</p>
+                <p className="text-center text-slate-500 py-10">あなまたが掲載した工事案件はありません</p>
               ) : (
                 projects.map((project) => (
                   <PostedProjectItem key={project.id} project={project} onSeen={markSeen} />
@@ -279,7 +279,7 @@ export default function MyPage() {
           {!isLoading && !error && focusKind === null && mode === "posted" && tab === "requests" && (
             <div className="space-y-3 md:space-y-5">
               {requests.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">掲載した工事店枠はありません</p>
+                <p className="text-center text-slate-500 py-10">あなたが掲載した発注待ち情報はありません</p>
               ) : (
                 requests.map((request) => (
                   <PostedRequestItem key={request.id} request={request} onSeen={markSeen} />
@@ -292,7 +292,7 @@ export default function MyPage() {
           {!isLoading && !error && focusKind === null && mode === "applied" && tab === "projects" && (
             <div className="space-y-3 md:space-y-5">
               {appliedProjects.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">応募した工事案件はありません</p>
+                <p className="text-center text-slate-500 py-10">あなたが応募した工事案件はありません</p>
               ) : (
                 appliedProjects.map((item) => (
                   <AppliedProjectItem key={item.matchId} item={item} onSeen={markSeen} />
@@ -305,7 +305,7 @@ export default function MyPage() {
           {!isLoading && !error && focusKind === null && mode === "applied" && tab === "requests" && (
             <div className="space-y-3 md:space-y-5">
               {appliedRequests.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">応募した工事店枠はありません</p>
+                <p className="text-center text-slate-500 py-10">あなたが応募した、事業者はありません</p>
               ) : (
                 appliedRequests.map((item) => (
                   <AppliedRequestItem key={item.matchId} item={item} onSeen={markSeen} />
