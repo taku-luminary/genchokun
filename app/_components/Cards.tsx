@@ -17,20 +17,6 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, applicationCount, attention }) => {
   const daysLeft = calcDaysLeft(project.workEndDate);
 
-  let daysLeftLabel: string | null;
-  if (daysLeft === null || daysLeft === undefined) {
-    daysLeftLabel = null;
-  } else if (daysLeft < 0) {
-    daysLeftLabel = "期限切れ";
-  } else {
-    daysLeftLabel = `${daysLeft}日`;
-  }
-
-  const daysLeftColor =
-    daysLeft !== null && daysLeft !== undefined && daysLeft > 0 && daysLeft <= 3
-      ? "text-red-500"
-      : "text-slate-700";
-
   const isCompleted =
     project.status === 'completed' ||
     isMatched === true ||  
@@ -42,13 +28,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
       project.workStartDate && project.workEndDate
       ? `${formatJpDate(project.workStartDate)}〜${formatJpDate(project.workEndDate)}`
       : "日程未定";
-  // 見積もり希望なら金額の代わりに文言を出す。金額指定なら「◯◯円」、未設定は「—」。
+  // 見積もり希望なら文言を出す。金額指定なら「◯◯円 (支払サイクル)」、サイクル未入力なら金額のみ、未設定は「—」。
   const amount =
     project.rewardType === "negotiable"
       ? "見積もり希望"
       : project.rewardYen
-        ? `${project.rewardYen.toLocaleString()}円`
-        : "—";
+        ? project.paymentCycle
+          ? `${project.rewardYen.toLocaleString()}円 (${project.paymentCycle})`
+          : `${project.rewardYen.toLocaleString()}円`
+        : project.paymentCycle
+          ? project.paymentCycle
+          : "—";
 
   // 応募ありかどうか (件数が1以上)
   const hasApplications = applicationCount !== undefined && applicationCount > 0;
@@ -68,19 +58,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
     }`}>
 
 
-      <div className="flex justify-between items-start mb-2 md:mb-4">
-        <div className="space-y-1">
-          <p className="text-xs md:text-sm font-medium text-slate-400">{date}</p>
-          <div className="flex items-center text-sm md:text-base text-slate-700 font-bold">
-            <span className="mr-1">›</span>
-            <span>{location}</span>
-          </div>
-        </div>
+      {/* 上段: 左に日付、右にステータスタグ（上端を揃える） */}
+      <div className="flex justify-between items-start mb-1 md:mb-2">
+        <p className="text-xs md:text-sm font-medium text-slate-400">{date}</p>
 
-        {/* 右上: ステータスタグ（応募/マッチング）と終了/募集中タグを横並びにする。
-            タイトルと日程がカード全幅を使えるよう、ボックスをタイトル横から上段へ移動した */}
+        {/* 右上: ステータスタグ（応募/マッチング）と終了/募集中タグを横並びにする */}
         <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-        {showStatusBox && (
+          {showStatusBox && (
             <span className={`w-20 md:w-24 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-bold text-center whitespace-nowrap border-2 bg-white ${
               isMatched ? 'border-brand-green text-brand-green' : 'border-red-400 text-red-400'
             }`}>
@@ -92,7 +76,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
           <span className={`w-20 md:w-24 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-bold text-white text-center border-2 ${
             isCompleted ? 'bg-slate-500 border-slate-500' : 'bg-brand-green border-brand-green'
           }`}>
-
             {isCompleted ? '終了' : '募集中'}
           </span>
         </div>
@@ -104,15 +87,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
         }`}>
           {project.title}
         </h3>
+
         <div className="space-y-1 md:space-y-2 text-sm md:text-base text-slate-700 font-medium">
-          {daysLeftLabel && (
-            <p className={`font-bold ${daysLeftColor}`}>・残り：{daysLeftLabel}</p>
-          )}
+          <p>・場所：{location}</p>
+          <p>・金額（支払サイクル）：{amount}</p>
           <p>・日程：{schedule}</p>
-          <p>・金額：{amount}</p>
           {project.companyName && (
             <p className="flex flex-wrap items-center gap-x-2">
-              <span>・発注者：{project.companyName}</span>
+              <span>・掲載元：{project.companyName}</span>
               {project.companyRating ? (
                 <StarRating
                   rating={project.companyRating.average}
@@ -172,14 +154,9 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
           : 'bg-white border border-slate-50'
         }`}>
 
-          <div className="flex justify-between items-start mb-2 md:mb-4">
-            <div className="space-y-1">
-              <p className="text-xs md:text-sm font-medium text-slate-400">{date}</p>
-              <div className="flex items-center text-sm md:text-base text-slate-700 font-bold">
-                <span className="mr-1">›</span>
-                <span>{location}</span>
-              </div>
-            </div>
+          {/* 上段: 左に日付、右にステータスタグ（上端を揃える） */}
+          <div className="flex justify-between items-start mb-1 md:mb-2">
+            <p className="text-xs md:text-sm font-medium text-slate-400">{date}</p>
     
             {/* 右上: マッチングタグと終了/募集中タグを横並びにする（ProjectCard と同じ構成） */}
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
@@ -206,12 +183,14 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
               {request.title}
             </h3>
             <div className="space-y-1 md:space-y-2 text-sm md:text-base text-slate-700 font-medium">
-              <p>・日程：{availableDates}</p>
-              <p>・受注できる内容：{request.summary ?? "—"}</p>
+              {/* 一覧・詳細ページのカードでは概要を1行に省略（末尾…）。全文は詳細の ContentCard で表示 */}
+              <p className="truncate">・発注できる内容：{request.summary ?? "—"}</p>
+              <p>・場所：{location}</p>
               <p>・金額（支払サイクル）：{preference}</p>
+              <p>・日程：{availableDates}</p>
               {request.companyName && (
                 <p className="flex flex-wrap items-center gap-x-2">
-                  <span>・企業：{request.companyName}</span>
+                  <span>・掲載元：{request.companyName}</span>
                   {request.companyRating ? (
                     <StarRating
                       rating={request.companyRating.average}

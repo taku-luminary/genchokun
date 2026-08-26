@@ -67,7 +67,7 @@ export type MypageRequest = {
 };
 
 
-// 詳細ページ専用: 一覧用 MypageProject に「メモ・備考(note)」と「投稿元(自社)情報」を足したもの。
+// 詳細ページ専用: 一覧用 MypageProject に「メモ・備考(note)」と「掲載元(自社)情報」を足したもの。
 // 一覧API/ProjectCard に影響を出さないよう、一覧型は変えず詳細だけ拡張する。
 export type MypageProjectDetail = MypageProject & {
   note: string | null;

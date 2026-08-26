@@ -139,7 +139,7 @@ export async function GET(
         // 「応募あり」「成立済み」などを判定するため、status だけを返す。
         matches: project.matches.map((m) => ({ status: m.status })), 
 
-        // ▼ 追加: 投稿元(自社)情報カード用。CompanyInfo 型に合わせて整形する。
+        // ▼ 追加: 掲載元(自社)情報カード用。CompanyInfo 型に合わせて整形する。
         company: c
           ? {
               id: c.id.toString(),

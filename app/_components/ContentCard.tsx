@@ -15,7 +15,7 @@ export function ContentCard({ summaryLabel, summary, noteLabel = "メモ・備�
     <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
       <div className="p-6 space-y-4">
         <div>
-          <p className="text-sm font-bold text-slate-700 mb-1">{summaryLabel}</p>
+          <p className="text-mm font-bold text-slate-700 mb-1">{summaryLabel}</p>
           {summary ? (
             <p className="text-slate-700 whitespace-pre-wrap">{summary}</p>
           ) : (
@@ -25,7 +25,7 @@ export function ContentCard({ summaryLabel, summary, noteLabel = "メモ・備�
 
         {note && (
           <div>
-            <p className="text-sm font-bold text-slate-700 mb-1">{noteLabel}</p>
+            <p className="text-mm font-bold text-slate-700 mb-1">{noteLabel}</p>
             <p className="text-slate-700 whitespace-pre-wrap">{note}</p>
           </div>
         )}

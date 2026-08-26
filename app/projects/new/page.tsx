@@ -7,6 +7,7 @@
   import { Input } from "@/app/_components/ui/Input";
   import { Button } from "@/app/_components/ui/Button";
   import { RewardTypeField } from "@/app/_components/RewardTypeField";
+  import { autoGrowTextarea } from "@/app/_utils/autoGrow";
   import type { CreateProjectRequest } from "@/app/_types/projects";  
 
   export default function NewProjectPage() {
@@ -195,9 +196,10 @@
               id="summary"
               disabled={isSubmitting}
               placeholder="例：創蓄の工事です。カナディアン・ソーラーの太陽光パネルと、ニチコン19.9kwの蓄電池の設置をお願いします。足場の手配、B材の調達、現地調査も相談したいです。"
-              className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+              className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
               rows={2}
               {...register("summary")}
+              onInput={autoGrowTextarea}
             />
           </div>
 
@@ -208,9 +210,10 @@
               id="note"
               disabled={isSubmitting}
               placeholder="例：お客様宅には駐車場がないため、訪問時は近隣のコインパーキングをご利用ください。"
-              className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+              className="w-full min-h-24 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
               rows={3}
               {...register("note")}
+              onInput={autoGrowTextarea}
             />
           </div>
 
