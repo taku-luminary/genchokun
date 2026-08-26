@@ -171,13 +171,13 @@ export default function RequestApplyPage() {
         {/* 2. コメント入力 */}
         <div className="bg-white rounded-2xl p-6 space-y-3 border border-slate-100">
           <label className="block text-sm font-bold text-slate-700">
-            相手へのコメント (任意)
+            掲載元企業へのメッセージ (任意)
           </label>
           <textarea
             rows={5}
             maxLength={1000}
             disabled={isSubmitting}
-            placeholder="自己紹介や、電気工事をお願いしたい背景などを書きましょう"
+            placeholder="自己紹介・自社の強みや、具体的な条件・相談事項など相手へ伝えたいことを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
             {...register('message', {
               onChange: (e) => {
@@ -208,7 +208,7 @@ export default function RequestApplyPage() {
           disabled={isSubmitting}
           className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? '送信中...' : 'この内容で応募する (即マッチング)'}
+          {isSubmitting ? '送信中...' : 'この内容でお願いする (即マッチングします)'}
         </button>
 
         {/* 5. 戻るリンク */}

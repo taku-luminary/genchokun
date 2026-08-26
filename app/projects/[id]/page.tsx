@@ -82,7 +82,7 @@ export default function ProjectDetailPage() {
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
               partnerCompany={data.reviewCard.partnerCompany}
-              contactLabel="販売店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={data.salesContact}
               onReviewed={mutate}
             />
@@ -98,7 +98,7 @@ export default function ProjectDetailPage() {
             <MatchedContactCard
               title="🎉 あなたが選ばれました"
               description="下記の連絡先に直接ご連絡し、お仕事の日程調整などを進めてください。"
-              contactLabel="販売店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={data.salesContact}
             />
           )
@@ -148,7 +148,7 @@ export default function ProjectDetailPage() {
                 disabled
                 className="w-full py-4 rounded-2xl bg-slate-500 text-white font-black text-lg cursor-not-allowed"
               >
-                応募済み・販売店の決定をお待ちください
+                【応募済み】掲載元企業の決定をお待ちください
               </button>
             </div>
           )}

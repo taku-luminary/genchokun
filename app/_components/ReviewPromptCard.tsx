@@ -12,7 +12,7 @@ type Props = {
   matchId: string; // レビューの投稿先
   targetRole: ReviewRole; // 表示する項目セット
   partnerCompany: { id: string; name: string } | null; // 相手企業（見出し・リンク用）
-  contactLabel: string; // 例: "工事店の連絡先"
+  contactLabel: string; // 例: "相手企業"
   contact: CompanyContact | null; // 折りたたみで見せる連絡先
   onReviewed: () => void; // 投稿成功後に親へ通知（親が再取得 → 状態③へ）
 };
@@ -53,7 +53,7 @@ export function ReviewPromptCard({
         🔔 案件対応（電気工事など）は完了しましたか？
       </p>
       <p className="text-slate-700 font-medium">
-        完了していましたら、
+        完了していましたら、一緒にお仕事をした
         {partnerCompany ? (
           <Link
             href={`/companies/${partnerCompany.id}`}
@@ -64,7 +64,7 @@ export function ReviewPromptCard({
         ) : (
           <span className="font-bold">相手企業</span>
         )}
-        様を評価してください。投稿すると、あなたの評価が相手企業の企業ページに公開されます。
+        様を評価してください。評価を投稿すると、あなたの評価が相手企業の企業ページに公開されます。
       </p>
 
       <div className="border-t border-brand-green/30 pt-3 mt-3 space-y-3">

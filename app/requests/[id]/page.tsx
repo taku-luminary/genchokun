@@ -97,7 +97,7 @@ export default function RequestDetailPage() {
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
               partnerCompany={data.reviewCard.partnerCompany}
-              contactLabel="工事店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={data.contractorContact}
               onReviewed={mutate}
             />
@@ -112,8 +112,8 @@ export default function RequestDetailPage() {
           ) : (
             <MatchedContactCard
               title="🎉 マッチング成立済み"
-              description="下記の連絡先に直接ご連絡し、電気工事の日程調整などを進めてください。"
-              contactLabel="工事店の連絡先"
+              description="下記の連絡先に直接ご連絡し、具体的な日程調整などを案件について進めてください。"
+              contactLabel="相手企業の連絡先"
               contact={data.contractorContact}
             />
           )
@@ -128,7 +128,7 @@ export default function RequestDetailPage() {
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
               partnerCompany={data.reviewCard.partnerCompany}
-              contactLabel="販売店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={data.salesContact}
               onReviewed={mutate}
             />
@@ -142,9 +142,9 @@ export default function RequestDetailPage() {
             />
           ) : (
             <MatchedContactCard
-              title="🎉 あなたの依頼にマッチが入りました"
-              description="下記の連絡先に直接ご連絡し、電気工事の日程調整などを進めてください。"
-              contactLabel="販売店の連絡先"
+              title="🎉 マッチング成立済み"
+              description="下記の連絡先に直接ご連絡し、具体的な日程調整などを案件について進めてください。"
+              contactLabel="相手企業の連絡先"
               contact={data.salesContact}
             />
           )
@@ -208,7 +208,7 @@ export default function RequestDetailPage() {
                 href={`/requests/${data.id}/apply`}
                 className="block w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition text-center"
               >
-                この工事店へ仕事を依頼する
+                こちらの内容で仕事を依頼をする
               </Link>
             </div>
           )}

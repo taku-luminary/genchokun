@@ -59,7 +59,7 @@ export default function MypageProjectDetailPage() {
   // 編集可否（このAPIは pending/active の応募だけ返すので、応募ゼロ && open で判定できる）
   const isEditable = project.status === 'open' && applications.length === 0;
 
-  // 「この工事店に決定」ボタンの処理
+  // 「この企業に決定」ボタンの処理
   const handleDecide = async (
     matchId: string,
     companyName: string | null,
@@ -136,7 +136,7 @@ export default function MypageProjectDetailPage() {
               matchId={data.reviewCard.matchId}
               targetRole={data.reviewCard.targetRole}
               partnerCompany={data.reviewCard.partnerCompany}
-              contactLabel="工事店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={matchedApp.contractor.contact}
               onReviewed={mutate}
             />
@@ -152,7 +152,7 @@ export default function MypageProjectDetailPage() {
             <MatchedContactCard
               title="✓ マッチング成立済み"
               description="こちらの案件については、下記の連絡先からマッチング相手に確認して進めてください。"
-              contactLabel="工事店の連絡先"
+              contactLabel="相手企業の連絡先"
               contact={matchedApp.contractor.contact}
             >
               <p className="text-lg font-bold text-slate-800">
@@ -256,7 +256,7 @@ export default function MypageProjectDetailPage() {
                     disabled={submittingId !== null}
                     className="w-full py-2 rounded-2xl bg-brand-green text-white font-black text-base shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isThisSubmitting ? '送信中...' : 'この工事店に決定'}
+                    {isThisSubmitting ? '送信中...' : 'この企業を採用する'}
                   </button>
                   )}
                 </article>

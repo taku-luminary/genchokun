@@ -169,13 +169,13 @@ export default function ProjectApplyPage() {
         {/* 2. コメント入力 */}
         <div className="bg-white rounded-2xl p-6 space-y-3 border border-slate-100">
           <label className="block text-sm font-bold text-slate-700">
-            販売店へのアピールコメント (任意)
+            掲載元企業へのメッセージ (任意)
           </label>
           <textarea
             rows={5}
             maxLength={1000}
             disabled={isSubmitting}
-            placeholder="自社の強みや、対応可能な日程・条件などを書きましょう"
+            placeholder="自己紹介・自社の強みや、具体的な条件・相談事項など相手へ伝えたいことを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
             {...register('message', {
               onChange: (e) => {
