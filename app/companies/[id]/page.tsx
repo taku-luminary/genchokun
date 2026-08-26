@@ -144,7 +144,7 @@ export default async function CompanyPublicPage({
 
         <CompanyInfoCard
           title="企業情報"
-          subtitle="こちら企業様が掲載している情報です"
+          subtitle="こちら企業が掲載している情報です"
           company={companyInfo}
         />
 
