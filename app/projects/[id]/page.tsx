@@ -116,7 +116,7 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 投稿元情報 */}
+        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 掲載元情報 */}
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
@@ -190,10 +190,10 @@ export default function ProjectDetailPage() {
           )}
         </ContentCard>
 
-        {/* 投稿元の販売店情報（共通カード） */}
+        {/* 掲載元の販売店情報（共通カード） */}
         {data.company && (
           <CompanyInfoCard
-            title="投稿元の販売店情報"
+            title="掲載元の販売店情報"
             subtitle="販売店が掲載している情報です"
             company={data.company}
           />

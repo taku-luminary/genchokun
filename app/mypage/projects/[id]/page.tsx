@@ -267,7 +267,7 @@ export default function MypageProjectDetailPage() {
         </section>
         )}
 
-        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 投稿元情報 */}
+        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 掲載元情報 */}
 
         {/* 編集/削除ボタン（自分の案件なので常に表示）。
             応募が来ていると disabled（グレーアウト）になり、下に理由を常時表示する */}
@@ -316,10 +316,10 @@ export default function MypageProjectDetailPage() {
           note={project.note}
         />
 
-        {/* 投稿元(自社)情報（共通カード） */}
+        {/* 掲載元(自社)情報（共通カード） */}
         {project.company && (
           <CompanyInfoCard
-            title="投稿元の販売店情報（自社）"
+            title="掲載元の販売店情報（自社）"
             subtitle="あなたが掲載している情報です"
             company={project.company}
           />

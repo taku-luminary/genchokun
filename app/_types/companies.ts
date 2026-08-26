@@ -50,7 +50,7 @@ export type CompanyContact = {
   note: string | null;
 };
 
-// 詳細ページなどで表示する「投稿元の会社情報」カード用の共通型。
+// 詳細ページなどで表示する「掲載元の会社情報」カード用の共通型。
 // projects/[id]・requests/[id]・mypage/projects/[id] で共用する。
 export type CompanyInfo = {
   id: string;          // ← 追加: 企業ページ /companies/[id] へのリンク用

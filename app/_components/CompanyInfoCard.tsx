@@ -3,7 +3,7 @@ import type { CompanyInfo } from "@/app/_types/companies";
 import { StarRating } from "@/app/_components/ui/StarRating"; // ← 追加
 
 type Props = {
-  // 例: "投稿元の販売店情報" / "投稿元の工事店情報"
+  // 例: "掲載元の販売店情報" / "掲載元の工事店情報"
   title: string;
   // 例: "販売店が掲載している情報です"
   subtitle: string;
