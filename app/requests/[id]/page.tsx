@@ -115,7 +115,16 @@ export default function RequestDetailPage() {
               description="下記の連絡先に直接ご連絡し、具体的な日程調整などを案件について進めてください。"
               contactLabel="相手企業の連絡先"
               contact={data.contractorContact}
-            />
+            >
+              {data.company && (
+                <Link
+                  href={`/companies/${data.company.id}`}
+                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                >
+                  {data.company.name}
+                </Link>
+              )}
+            </MatchedContactCard>
           )
         )}
 
@@ -146,7 +155,16 @@ export default function RequestDetailPage() {
               description="下記の連絡先に直接ご連絡し、具体的な日程調整などを案件について進めてください。"
               contactLabel="相手企業の連絡先"
               contact={data.salesContact}
-            />
+            >
+              {data.reviewCard?.partnerCompany && (
+                <Link
+                  href={`/companies/${data.reviewCard.partnerCompany.id}`}
+                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                >
+                  {data.reviewCard.partnerCompany.name}
+                </Link>
+              )}
+            </MatchedContactCard>
           )
         )}
 
@@ -208,7 +226,7 @@ export default function RequestDetailPage() {
                 href={`/requests/${data.id}/apply`}
                 className="block w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg shadow hover:opacity-90 transition text-center"
               >
-                こちらの内容で仕事を依頼をする
+                上記の内容で仕事を依頼をする
               </Link>
             </div>
           )}
@@ -218,7 +236,7 @@ export default function RequestDetailPage() {
             <div className="px-6 pb-6">
               <button
                 disabled
-                className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-black text-lg cursor-not-allowed"
+                className="w-full py-4 rounded-2xl bg-brand-green text-white font-black text-lg cursor-not-allowed"
               >
                 マッチング済みです
               </button>
