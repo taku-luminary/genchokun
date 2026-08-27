@@ -47,13 +47,13 @@ export default function CompanyReviewsPage() {
           <TabButton
             active={role === "sales"}
             onClick={() => setRole("sales")}
-            label="販売店として"
+            label="発注側としての評価"
             count={data.sales.count}
           />
           <TabButton
             active={role === "contractor"}
             onClick={() => setRole("contractor")}
-            label="工事店として"
+            label="受注側としての評価"
             count={data.contractor.count}
           />
         </div>
@@ -95,7 +95,7 @@ function TabButton({
           : "bg-white text-slate-600 border border-slate-200"
       }`}
     >
-      {label}（{count}件）
+      {label}<br/>（{count}件）
     </button>
   );
 }

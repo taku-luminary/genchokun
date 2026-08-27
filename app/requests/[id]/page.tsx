@@ -280,11 +280,11 @@ export default function RequestDetailPage() {
           )}
         </ContentCard>
 
-        {/* 掲載元の工事店情報（共通カード） */}
+        {/* 掲載元の企業情報（共通カード） */}
         {data.company && (
           <CompanyInfoCard
-            title="掲載元の工事店情報"
-            subtitle="工事店が掲載している情報です"
+            title="掲載元の企業情報"
+            subtitle="こちらの企業が掲載している情報です"
             company={data.company}
           />
         )}
