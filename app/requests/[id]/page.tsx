@@ -55,6 +55,7 @@ export default function RequestDetailPage() {
     rewardMinYen: data.rewardMinYen,
     status: data.isMatched ? "completed" : data.status,
     companyName: data.company?.name ?? null,
+    companyRating: data.company?.rating ?? null,
   };
 
   const handleEdit = () => {

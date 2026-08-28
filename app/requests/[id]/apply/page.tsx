@@ -111,6 +111,7 @@ export default function RequestApplyPage() {
     rewardMinYen: data.rewardMinYen,
     status: data.status,
     companyName: data.company?.name ?? null,
+    companyRating: data.company?.rating ?? null,
   };
 
   // 応募送信ハンドラ

@@ -112,6 +112,7 @@ export default function ProjectApplyPage() {
     paymentCycle: data.paymentCycle,
     status: data.status,
     companyName: data.company?.name ?? null,
+    companyRating: data.company?.rating ?? null,
   };
 
   // 応募送信ハンドラ

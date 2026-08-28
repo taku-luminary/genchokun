@@ -53,7 +53,9 @@ export default function ProjectDetailPage() {
     paymentCycle: data.paymentCycle,
     status: data.status,
     companyName: data.company?.name ?? null,
+    companyRating: data.company?.rating ?? null,
   };
+
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
