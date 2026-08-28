@@ -117,8 +117,10 @@ export async function GET(
         rewardType: project.rewardType,
         rewardYen: project.rewardYen === null ? null : Number(project.rewardYen),
         status: project.status,
-        // ▼ 変更: null固定 → 自社名（ProjectCard の会社名表示用）
-        companyName: c?.name ?? null,        
+        // 自社名（ProjectCard の会社名表示用）
+        companyName: c?.name ?? null,
+        // 案件カード(ProjectCard)の評価表示用。掲載元カードと同じ評価を使う
+        companyRating,  
 
         // ＝＝＝matches: project.matches.map((m) => ({ status: m.status })), の意味＝＝＝
         // 応募一覧を1件ずつ見て、それぞれの status だけを取り出した新しい配列を作るという意味
