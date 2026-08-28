@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { mutate } from 'swr';
 import Link from 'next/link';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
 import { ProjectCard } from '@/app/_components/Cards';
@@ -142,11 +143,16 @@ export default function ProjectApplyPage() {
         });
         return;
       }
-
       // 成功時のみ下書きを削除する
       sessionStorage.removeItem(storageKey);
 
-      // 詳細ページに戻る (hasApplied=true で「応募済み」表示になる)
+      // 詳細ページと同じSWRキャッシュ(/api/projects/${id})を取り直してから戻る。
+      // これをしないと応募前の古いデータ(myMatchStatus: null)が残り、
+      // 詳細ページで「応募する」ボタンのまま表示されてしまう。
+      // await で最新化の完了を待ってから遷移するので、戻った直後に「応募済み」表示になる。
+      await mutate(`/api/projects/${id}`);
+
+      // 詳細ページに戻る
       router.push(`/projects/${id}`);
     } catch {
       setError('root.serverError', {

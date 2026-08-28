@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+import { mutate } from 'swr';
 import { RequestCard } from '@/app/_components/Cards';
 import { calcDaysLeft } from '@/app/_utils/format';
 import type { RequestDetailResponse } from '@/app/_types/requests';
@@ -148,7 +149,9 @@ export default function RequestApplyPage() {
       // 成功時のみ下書きを削除する
       sessionStorage.removeItem(storageKey);
 
-      // 詳細ページに戻る (hasApplied=true で "マッチング済み" 表示になる)
+      // 詳細ページと同じキャッシュ(/api/requests/${id})を取り直してから戻る。
+      // これをしないと応募前の古いデータが残り、詳細で「応募する」のまま表示される。
+      await mutate(`/api/requests/${id}`);
       router.push(`/requests/${id}`);
     } catch {
       setError('root.serverError', {

@@ -4,6 +4,7 @@ import { PrefectureMultiSelect } from "@/app/_components/ui/PrefectureMultiSelec
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
+import { mutate } from 'swr';
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import { Label } from "@/app/_components/ui/Label";
@@ -69,6 +70,8 @@ export default function EditRequestPage() {
         });
         return;
       }
+      // 詳細と同じキャッシュを最新化してから戻る（編集内容が即反映されるように）
+      await mutate(`/api/requests/${id}`);
       // 保存できたら詳細ページに戻る
       router.push(`/requests/${id}`);
     } catch {
