@@ -204,8 +204,8 @@ export default function ProjectDetailPage() {
         {/* 掲載元の販売店情報（共通カード） */}
         {data.company && (
           <CompanyInfoCard
-            title="掲載元の販売店情報"
-            subtitle="販売店が掲載している情報です"
+            title="掲載元の企業情報"
+            subtitle="こちらの企業が掲載している情報です"
             company={data.company}
           />
         )}

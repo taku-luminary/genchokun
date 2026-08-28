@@ -332,7 +332,7 @@ export default function MypageProjectDetailPage() {
         {/* 掲載元(自社)情報（共通カード） */}
         {project.company && (
           <CompanyInfoCard
-            title="掲載元の販売店情報（自社）"
+            title="掲載元の企業情報（自社）"
             subtitle="あなたが掲載している情報です"
             company={project.company}
           />
