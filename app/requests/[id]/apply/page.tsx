@@ -4,11 +4,9 @@ import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
-import { mutate } from 'swr';
+import { useRequest } from '@/app/_hooks/useRequest';
 import { RequestCard } from '@/app/_components/Cards';
 import { calcDaysLeft } from '@/app/_utils/format';
-import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
 import type {
   CreateRequestApplicationRequest,
@@ -18,9 +16,9 @@ import type {
 export default function RequestApplyPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data, isLoading, error } = useAuthedFetch<RequestDetailResponse>(
-    `/api/requests/${id}`,
-  );
+  const { data, isLoading, error, mutate } = useRequest(id);
+
+
 
   // 下書き保存用の sessionStorage キー
   const storageKey = `request-apply-message:${id}`;
@@ -149,9 +147,9 @@ export default function RequestApplyPage() {
       // 成功時のみ下書きを削除する
       sessionStorage.removeItem(storageKey);
 
-      // 詳細ページと同じキャッシュ(/api/requests/${id})を取り直してから戻る。
-      // これをしないと応募前の古いデータが残り、詳細で「応募する」のまま表示される。
-      await mutate(`/api/requests/${id}`);
+      // 応募後の状態を詳細ページへ即反映させるため、キャッシュを最新化してから戻る。
+      // mutate() は useRequest のキー専用なので引数不要。await で完了を待ってから遷移する。
+      await mutate();
       router.push(`/requests/${id}`);
     } catch {
       setError('root.serverError', {

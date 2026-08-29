@@ -3,13 +3,12 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+import { useRequest } from '@/app/_hooks/useRequest';
 import { RequestCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { ContentCard } from '@/app/_components/ContentCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
-import type { RequestDetailResponse } from '@/app/_types/requests';
 import type { HomeRequest } from '@/app/_types/home';
 import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
 import { ReviewedCard } from '@/app/_components/ReviewedCard';
@@ -19,7 +18,7 @@ export default function RequestDetailPage() {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const { data, isLoading, error, mutate } = useAuthedFetch<RequestDetailResponse>(`/api/requests/${id}`);
+  const { data, isLoading, error, mutate } = useRequest(id);
 
 
   if (isLoading) {
