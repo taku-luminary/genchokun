@@ -5,11 +5,11 @@ import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
+import { useRequest } from "@/app/_hooks/useRequest";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-import type { CreateRequestRequest, RequestDetailResponse } from "@/app/_types/requests";
+import type { CreateRequestRequest } from "@/app/_types/requests";
 import { RequestRewardTypeField } from "@/app/_components/RequestRewardTypeField";
 import { autoGrowTextarea, resizeTextareaEl } from "@/app/_utils/autoGrow";
 
@@ -18,7 +18,7 @@ export default function EditRequestPage() {
   const { id } = useParams<{ id: string }>();
 
   // 現在の依頼内容を取得（フォームの初期値に使う）
-  const { data, isLoading, error } = useAuthedFetch<RequestDetailResponse>(`/api/requests/${id}`);
+  const { data, isLoading, error, mutate } = useRequest(id);
 
   const {
     register,
@@ -69,6 +69,8 @@ export default function EditRequestPage() {
         });
         return;
       }
+      // 編集内容を詳細ページへ即反映させるため、キャッシュを最新化してから戻る
+      await mutate();
       // 保存できたら詳細ページに戻る
       router.push(`/requests/${id}`);
     } catch {

@@ -4,10 +4,9 @@ import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+import { useProject } from '@/app/_hooks/useProject';
 import { ProjectCard } from '@/app/_components/Cards';
 import { calcDaysLeft } from '@/app/_utils/format';
-import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
 import type {
   CreateProjectApplicationRequest,
@@ -17,9 +16,8 @@ import type {
 export default function ProjectApplyPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(
-    `/api/projects/${id}`,
-  );
+  const { data, isLoading, error, mutate } = useProject(id);
+
 
   // 下書き保存用の sessionStorage キー (案件IDごとに分けて混在を防ぐ)
   const storageKey = `project-apply-message:${id}`;
@@ -142,11 +140,14 @@ export default function ProjectApplyPage() {
         });
         return;
       }
-
       // 成功時のみ下書きを削除する
       sessionStorage.removeItem(storageKey);
+      // 応募後の状態(pending)を詳細ページへ即反映させるため、キャッシュを最新化してから戻る。
+      // これをしないと古いデータ(myMatchStatus: null)が残り「応募する」ボタンのまま表示される。
+      // mutate() は useProject のキー専用なので引数不要。await で完了を待ってから遷移する。
+      await mutate();
 
-      // 詳細ページに戻る (hasApplied=true で「応募済み」表示になる)
+      // 詳細ページに戻る
       router.push(`/projects/${id}`);
     } catch {
       setError('root.serverError', {

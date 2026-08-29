@@ -2,22 +2,19 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useAuthedFetch } from '@/app/_hooks/useAuthedFetch';
+import { useProject } from '@/app/_hooks/useProject';
 import { ProjectCard } from '@/app/_components/Cards';
 import { MatchedContactCard } from '@/app/_components/MatchedContactCard';
 import { ContentCard } from '@/app/_components/ContentCard';
 import { CompanyInfoCard } from '@/app/_components/CompanyInfoCard';
 import { calcDaysLeft } from '@/app/_utils/format';
-import type { ProjectDetailResponse } from '@/app/_types/projects';
 import type { HomeProject } from '@/app/_types/home';
 import { ReviewPromptCard } from '@/app/_components/ReviewPromptCard';
 import { ReviewedCard } from '@/app/_components/ReviewedCard';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-
-  const { data, isLoading, error, mutate } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
-
+  const { data, isLoading, error, mutate } = useProject(id);
   if (isLoading) return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
   if (error || !data) return <p className="text-center text-red-500 py-20">案件の取得に失敗しました</p>;
 

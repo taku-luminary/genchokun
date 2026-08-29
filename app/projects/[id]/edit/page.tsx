@@ -5,12 +5,12 @@ import { useForm, Controller } from "react-hook-form";
 import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
+import { useProject } from "@/app/_hooks/useProject";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { RewardTypeField } from "@/app/_components/RewardTypeField";
-import type { CreateProjectRequest, ProjectDetailResponse } from "@/app/_types/projects";
+import type { CreateProjectRequest } from "@/app/_types/projects";
 import { autoGrowTextarea, resizeTextareaEl } from "@/app/_utils/autoGrow";
 
 export default function EditProjectPage() {
@@ -18,7 +18,7 @@ export default function EditProjectPage() {
   const { id } = useParams<{ id: string }>();
 
   // 現在の案件内容を取得（フォームの初期値に使う）
-  const { data, isLoading, error } = useAuthedFetch<ProjectDetailResponse>(`/api/projects/${id}`);
+  const { data, isLoading, error, mutate } = useProject(id);
 
   const {
     register,
@@ -92,6 +92,8 @@ export default function EditProjectPage() {
         });
         return;
       }
+      // 編集内容を詳細ページへ即反映させるため、キャッシュを最新化してから戻る
+      await mutate();
       // 保存できたら詳細ページに戻る
       router.push(`/projects/${id}`);
     } catch {
