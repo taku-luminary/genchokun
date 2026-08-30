@@ -12,12 +12,14 @@ import type {
   CreateProjectApplicationRequest,
   CreateProjectApplicationResponse,
 } from '@/app/_types/applications';
+import { useCompany } from '@/app/_hooks/useCompany';
+import { CompanyRequiredNotice } from '@/app/_components/ui/CompanyRequiredNotice';
 
 export default function ProjectApplyPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, error, mutate } = useProject(id);
-
+  const { isRegistered, isLoading: isCompanyLoading } = useCompany();
 
   // 下書き保存用の sessionStorage キー (案件IDごとに分けて混在を防ぐ)
   const storageKey = `project-apply-message:${id}`;
@@ -51,7 +53,7 @@ export default function ProjectApplyPage() {
   }, [storageKey, setValue]);
 
   // 読み込み中・取得失敗
-  if (isLoading) {
+  if (isLoading || isCompanyLoading) {
     return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
   }
   if (error || !data) {
@@ -59,6 +61,10 @@ export default function ProjectApplyPage() {
       <p className="text-center text-red-500 py-20">案件の取得に失敗しました</p>
     );
   }
+
+  if (!isRegistered) {
+    return <CompanyRequiredNotice />;
+  }  
 
   // 応募不可ガードを優先度順に判定する
   const daysLeft = calcDaysLeft(data.workEndDate);

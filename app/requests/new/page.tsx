@@ -9,7 +9,8 @@ import { Button } from "@/app/_components/ui/Button";
 import type { CreateRequestRequest } from "@/app/_types/requests";
 import { RequestRewardTypeField } from "@/app/_components/RequestRewardTypeField";
 import { autoGrowTextarea } from "@/app/_utils/autoGrow";
-
+import { useCompany } from "@/app/_hooks/useCompany";
+import { CompanyRequiredNotice } from "@/app/_components/ui/CompanyRequiredNotice";
 
 export default function NewRequestPage() {
   const router = useRouter();
@@ -21,8 +22,7 @@ export default function NewRequestPage() {
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<CreateRequestRequest>({ defaultValues: { rewardType: "fixed" } });
-
-
+  const { isRegistered, isLoading: isCompanyLoading } = useCompany();
   const createRequest = async (data: CreateRequestRequest) => {
     clearErrors('root.serverError');
 
@@ -52,6 +52,12 @@ export default function NewRequestPage() {
     }
   };
 
+  if (isCompanyLoading) {
+    return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
+  }
+  if (!isRegistered) {
+    return <CompanyRequiredNotice />;
+  }  
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
@@ -171,7 +177,7 @@ export default function NewRequestPage() {
 
         {/* サーバーエラー (root.serverError から参照) */}
         {errors.root?.serverError?.message && (
-          <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
+          <p className="text-red-500 text-sm text-center">{errors.root.serverError.message}</p>
         )}
 
         {/* 送信ボタン */}

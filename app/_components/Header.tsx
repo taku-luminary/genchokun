@@ -64,6 +64,14 @@ export const Header = async () => {
             )}
           </nav>
         </div>
+        {user && !companyId && (
+        <Link
+          href="/mypage/settings/company"
+          className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-1.5 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
+          >
+          自社情報が未登録です。投稿・応募には登録が必要です。
+        </Link>
+      )}
       </header>
     );
   };

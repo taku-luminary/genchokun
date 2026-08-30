@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { findCompanyByUserId } from "@/app/_libs/requireCompany";
 import type { CreateRequestRequest, CreateRequestResponse } from "@/app/_types/requests";
 
 export async function POST(request: NextRequest): Promise<NextResponse<CreateRequestResponse | { error: string }>>{
@@ -9,6 +10,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
   if (!user) {
     return NextResponse.json({ error: "ログインが必要です" } ,
      { status: 401 });//  401 は Unauthorizedで、ログインしていない、または認証できていない状態
+  }
+
+  // 自社情報が未登録なら依頼を出させない（本人特定できない取引を防ぐ）
+  const company = await findCompanyByUserId(user.id);
+  if (!company) {
+    return NextResponse.json(
+      { error: "この操作には自社情報の登録が必要です。" },
+      { status: 403 }
+    );
   }
 
   // リクエストボディを取得
