@@ -8,7 +8,10 @@
   import { Button } from "@/app/_components/ui/Button";
   import { RewardTypeField } from "@/app/_components/RewardTypeField";
   import { autoGrowTextarea } from "@/app/_utils/autoGrow";
-  import type { CreateProjectRequest } from "@/app/_types/projects";  
+  import type { CreateProjectRequest } from "@/app/_types/projects";
+  import { useCompany } from "@/app/_hooks/useCompany";
+  import { CompanyRequiredNotice } from "@/app/_components/ui/CompanyRequiredNotice";
+
 
   export default function NewProjectPage() {
     const router = useRouter();
@@ -25,6 +28,7 @@
     // このフォームでは、register("city") とか register("title") とか、CreateProjectRequest に存在する項目名を使います。
     // 送信時に handleSubmit が作る data も、CreateProjectRequest の形として扱います。
     // ただし、register や handleSubmit や isSubmitting 自体がCreateProjectRequest 型になるわけではありません。
+    const { isRegistered, isLoading: isCompanyLoading } = useCompany();
 
     const createProject = async (data: CreateProjectRequest) => {
       // 前回のサーバーエラーをクリア (root.serverError は予約名 root の下位キー)
@@ -56,7 +60,13 @@
       }
     };
   
-
+    if (isCompanyLoading) {
+      return <p className="text-center text-slate-500 py-20">読み込み中...</p>;
+    }
+    if (!isRegistered) {
+      return <CompanyRequiredNotice />;
+    }
+    
     return (
       <div className="max-w-xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-slate-800 mb-8 text-center">電気工事の案件投稿フォーム</h1>
@@ -252,7 +262,7 @@
           
           {/* サーバーエラー (root.serverError から参照) */}
           {errors.root?.serverError?.message && (
-            <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
+            <p className="text-red-500 text-sm text-center">{errors.root.serverError.message}</p>
           )}
 
           {/* 送信ボタン */}

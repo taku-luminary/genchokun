@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { findCompanyByUserId } from "@/app/_libs/requireCompany";
 import { calcDaysLeft } from "@/app/_utils/format";
 import type {
   CreateRequestApplicationRequest,
@@ -26,6 +27,15 @@ export async function POST(
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 自社情報が未登録なら応募させない（本人特定できない取引を防ぐ）
+    const company = await findCompanyByUserId(user.id);
+    if (!company) {
+      return NextResponse.json(
+        { error: "この操作には自社情報の登録が必要です。" },
+        { status: 403 }
+      );
     }
 
     // 2. リクエストボディからコメントを取得 (任意項目)

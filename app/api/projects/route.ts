@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
   import { prisma } from "@/app/_libs/prisma";
   import { getAuthUser } from "@/app/_libs/getAuthUser";
+  import { findCompanyByUserId } from "@/app/_libs/requireCompany";
   import type { CreateProjectRequest, CreateProjectResponse } from "@/app/_types/projects";
 
   export async function POST(request: NextRequest): Promise<NextResponse<CreateProjectResponse | { error: string }>> {
@@ -8,6 +9,15 @@ import { NextRequest, NextResponse } from "next/server";
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" } as never, { status: 401 });
+    }
+
+    // 自社情報が未登録なら投稿させない（本人特定できない取引を防ぐ）
+    const company = await findCompanyByUserId(user.id);
+    if (!company) {
+      return NextResponse.json(
+        { error: "この操作には自社情報の登録が必要です。" },
+        { status: 403 }
+      );
     }
 
     // リクエストボディを取得

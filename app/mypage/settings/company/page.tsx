@@ -1,19 +1,18 @@
 "use client";
-import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
+import { useCompany } from "@/app/_hooks/useCompany";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-import type {
-  CompanyMeResponse,
-  UpdateCompanyRequest,
-} from "@/app/_types/companies";
+import type { UpdateCompanyRequest } from "@/app/_types/companies";
 
 export default function CompanySettingsPage() {
   const [isNew, setIsNew] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -25,13 +24,7 @@ export default function CompanySettingsPage() {
     formState: { errors, isSubmitting },
   } = useForm<UpdateCompanyRequest>();
 
-  const {
-    data,
-    error,
-    isLoading,
-  } = useAuthedFetch<CompanyMeResponse>("/api/companies/me");
-
-
+  const { data, error, isLoading, mutate } = useCompany();
 
   // 画面初回表示：自社情報を取得し、登録済みならフォームに流し込む
   useEffect(() => {
@@ -100,6 +93,26 @@ export default function CompanySettingsPage() {
           type: 'server',
           message: json.error ?? "保存に失敗しました",
         });
+        return;
+      }
+      // 保存成功。登録状況のSWRキャッシュを最新化してから遷移する。
+      // これが無いと戻り先で古い company: null を見て、また案内が出てしまう。
+      await mutate();
+
+      // 案内から来た場合は ?return= に元の画面パスが入っている。
+      // window.location から読むのは、useSearchParams だと build 時に
+      // Suspense 境界が必要になり手間が増えるため（confirm 画面と同じやり方）。
+      const returnTo = new URLSearchParams(window.location.search).get("return");
+
+      // 外部サイトへ飛ばされる(オープンリダイレクト)のを防ぐため、内部パスのみ許可する。
+      // "//" や "/\" で始まる値は外部URL扱いになり得るので弾く。
+      if (
+        returnTo &&
+        returnTo.startsWith("/") &&
+        !returnTo.startsWith("//") &&
+        !returnTo.startsWith("/\\")
+      ) {
+        router.push(returnTo);
         return;
       }
       setSavedMessage("自社情報を保存しました");
