@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
-import type { AdminDashboardResponse, AdminUserRow } from "@/app/_types/adminDashboard";
+import type { AdminDashboardResponse, AdminUserRow } from "@/app/admin/_type/adminDashboard";
 import { BarChart } from "./BarChart";
 
 type Range = "1m" | "3m" | "all";

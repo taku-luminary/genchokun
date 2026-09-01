@@ -4,7 +4,7 @@ import { getAdminUser } from "@/app/_libs/getAdminUser";
 import type {
   AdminDashboardResponse,
   AdminUserRow,
-} from "@/app/_types/adminDashboard";
+} from "@/app/admin/_type/adminDashboard";
 import { calcDaysLeft } from "@/app/_utils/format";
 
 type ErrorResponse = { error: string };
