@@ -181,15 +181,17 @@ export async function GET(): Promise<
       touch(r.contractorUserId, r.createdAt);
     }
     for (const m of matches) {
-      // 案件に応募したのは contractor 側 / 依頼に応募したのは sales 側
-      if (m.projectId != null) {
+      // 応募先の案件が「生きている（未削除）」時だけ 案件応募 に数える
+      if (m.projectId != null && liveProjectIds.has(m.projectId.toString())) {
         const a = acc.get(m.contractorUserId);
         if (a) { a.projApply++; if (m.status === "active") a.projApplyMatch++; }
       }
-      if (m.requestId != null) {
+      // 応募先の依頼が「生きている（未削除）」時だけ 依頼応募 に数える
+      if (m.requestId != null && liveRequestIds.has(m.requestId.toString())) {
         const a = acc.get(m.salesUserId);
         if (a) { a.reqApply++; if (m.status === "active") a.reqApplyMatch++; }
       }
+      // 最終活動の時刻は「操作した事実」なので、後から削除されても更新は残す
       touch(m.salesUserId, m.createdAt);
       touch(m.contractorUserId, m.createdAt);
       touch(m.salesUserId, m.salesSeenAt);
