@@ -36,8 +36,8 @@ enum project_status {
 }
 
 enum reward_type {
-  fixed        // 金額を指定
-  negotiable   // 見積もり希望（相談して決める）
+  fixed // 金額を指定
+  negotiable // 見積もり希望（相談して決める）
 }
 
 enum request_status {
@@ -77,14 +77,14 @@ enum interview_block_type {
 }
 
 model users {
-  id               String   @id @db.Uuid
+  id               String    @id @db.Uuid
   email            String?
   isActive         Boolean
   isAdmin          Boolean
   stripeCustomerId String?
-  lastSeenAt       DateTime? @map("last_seen_at")   
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+  lastSeenAt       DateTime? @map("last_seen_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
 
   userSubscription          user_subscriptions?
   userSubscriptionHistories user_subscription_histories[]
@@ -98,14 +98,12 @@ model users {
 
   createdInterviewArticles company_interview_articles[] @relation("createdInterviewArticles")
   updatedInterviewArticles company_interview_articles[] @relation("updatedInterviewArticles")
-
 }
 
-  // ▼ リレーションの見方メモ
-  // email String? → 普通のカラム。文字列 or null。
-  // company companies? → companiesモデルとのリレーション。1件 or null。
-  // salesProjects projects[] → projectsモデルとのリレーション。複数件。
-
+// ▼ リレーションの見方メモ
+// email String? → 普通のカラム。文字列 or null。
+// company companies? → companiesモデルとのリレーション。1件 or null。
+// salesProjects projects[] → projectsモデルとのリレーション。複数件。
 
 model user_subscriptions {
   id                   BigInt              @id @default(autoincrement())
@@ -142,18 +140,18 @@ model user_subscription_histories {
 }
 
 model subscription_plans {
-  id                        BigInt                @id @default(autoincrement())
-  code                      String                @unique
-  name                      String
-  priceYen                  Int
-  interval                  subscription_interval
-  stripeProductId           String?
-  stripePriceId             String?
-  postLimitPerMonth         Int?
-  canUseProfile             Boolean
-  isActive                  Boolean
-  createdAt                 DateTime              @default(now()) @map("created_at")
-  updatedAt                 DateTime              @default(now()) @updatedAt @map("updated_at")
+  id                BigInt                @id @default(autoincrement())
+  code              String                @unique
+  name              String
+  priceYen          Int
+  interval          subscription_interval
+  stripeProductId   String?
+  stripePriceId     String?
+  postLimitPerMonth Int?
+  canUseProfile     Boolean
+  isActive          Boolean
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @default(now()) @updatedAt @map("updated_at")
 
   userSubscriptions         user_subscriptions[]
   userSubscriptionHistories user_subscription_histories[]
@@ -170,8 +168,8 @@ model stripe_webhook_events {
 }
 
 model companies {
-  id                 BigInt   @id @default(autoincrement())
-  userId             String   @unique @db.Uuid
+  id                 BigInt  @id @default(autoincrement())
+  userId             String  @unique @db.Uuid
   name               String
   prefectureId       Int
   city               String?
@@ -182,13 +180,22 @@ model companies {
   description        String?
   logoImageUrl       String?
 
-  contactPhone       String?
-  contactEmail       String?
-  contactLineId      String?
-  contactNote        String?
+  contactPhone  String?
+  contactEmail  String?
+  contactLineId String?
+  contactNote   String?
 
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+  // 施工体制・資格（企業ページで公開。すべて任意）
+  workExperience             String? // 工事区分と経験年数（1行1区分の自由記述）
+  qualifications             String[] @default([]) // 資格コードの配列。表示名は app/_constants/qualifications.ts で管理
+  qualificationsOther        String? // 選択肢にない資格・講習や、作業区分などの補足
+  hasInsurance               Boolean? // 工事保険 true=加入あり / false=加入なし / null=まだ選んでいない
+  insuranceNote              String? // 保険の内容（加入ありのときだけ保持する）
+  manufacturerCertifications String? // 施工ID・メーカー認定（メーカー名＋制度名。ID・認定番号は保存しない）
+  isInvoiceRegistered        Boolean? // インボイス登録 true=登録済み / false=未登録 / null=まだ選んでいない
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   user             users                       @relation(fields: [userId], references: [id])
   prefecture       prefectures                 @relation(fields: [prefectureId], references: [id])
@@ -196,26 +203,25 @@ model companies {
 
   reviewsWritten  reviews[] @relation("reviewsAsReviewer")
   reviewsReceived reviews[] @relation("reviewsAsReviewee")
-
 }
 
 model projects {
-  id                   BigInt    @id @default(autoincrement())
-  prefectureId         Int
-  city                 String?
-  title                String
-  summary              String?
-  note                 String?
-  workStartDate        DateTime? @db.Date
-  workEndDate          DateTime? @db.Date
-  rewardYen            Int?
-  rewardType           reward_type @default(fixed)
-  paymentCycle         String?
-  salesUserId          String    @db.Uuid
-  status               project_status
-  deletedAt            DateTime? @map("deleted_at")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  id            BigInt         @id @default(autoincrement())
+  prefectureId  Int
+  city          String?
+  title         String
+  summary       String?
+  note          String?
+  workStartDate DateTime?      @db.Date
+  workEndDate   DateTime?      @db.Date
+  rewardYen     Int?
+  rewardType    reward_type    @default(fixed)
+  paymentCycle  String?
+  salesUserId   String         @db.Uuid
+  status        project_status
+  deletedAt     DateTime?      @map("deleted_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
 
   prefecture prefectures @relation(fields: [prefectureId], references: [id])
   salesUser  users       @relation(fields: [salesUserId], references: [id])
@@ -223,24 +229,24 @@ model projects {
 }
 
 model requests {
-  id                   BigInt    @id @default(autoincrement())
-  city                 String?
-  title                String
-  summary              String?
-  note                 String?
-  availableStartDate   DateTime? @db.Date
-  availableEndDate     DateTime? @db.Date
-  rewardMinYen         Int?
-  rewardType           reward_type @default(fixed)
-  paymentCycle         String?
-  contractorUserId     String    @db.Uuid
-  status               request_status
-  deletedAt            DateTime? @map("deleted_at")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  id                 BigInt         @id @default(autoincrement())
+  city               String?
+  title              String
+  summary            String?
+  note               String?
+  availableStartDate DateTime?      @db.Date
+  availableEndDate   DateTime?      @db.Date
+  rewardMinYen       Int?
+  rewardType         reward_type    @default(fixed)
+  paymentCycle       String?
+  contractorUserId   String         @db.Uuid
+  status             request_status
+  deletedAt          DateTime?      @map("deleted_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @default(now()) @updatedAt @map("updated_at")
 
   prefectures    prefectures[] @relation("RequestPrefectures")
-  contractorUser users       @relation(fields: [contractorUserId], references: [id])
+  contractorUser users         @relation(fields: [contractorUserId], references: [id])
   match          matches?
 }
 
@@ -251,7 +257,7 @@ model prefectures {
 
   companies companies[]
   projects  projects[]
-  requests requests[] @relation("RequestPrefectures")
+  requests  requests[]  @relation("RequestPrefectures")
 }
 
 model application_details {
@@ -271,25 +277,24 @@ model matches {
   salesUserId      String       @db.Uuid
   contractorUserId String       @db.Uuid
   status           match_status
-  salesSeenAt      DateTime?    @map("sales_seen_at")       // 販売店側がこのマッチのカードを開いた時刻（未読=null）
-  contractorSeenAt DateTime?    @map("contractor_seen_at")  // 工事店側がこのマッチのカードを開いた時刻（未読=null）
+  salesSeenAt      DateTime?    @map("sales_seen_at") // 販売店側がこのマッチのカードを開いた時刻（未読=null）
+  contractorSeenAt DateTime?    @map("contractor_seen_at") // 工事店側がこのマッチのカードを開いた時刻（未読=null）
   createdAt        DateTime     @default(now()) @map("created_at")
   updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at")
 
-  project            projects?            @relation(fields: [projectId], references: [id])
-  request            requests?            @relation(fields: [requestId], references: [id])
-  salesUser          users                @relation("salesMatches", fields: [salesUserId], references: [id])
-  contractorUser     users                @relation("contractorMatches", fields: [contractorUserId], references: [id])
-  applicationDetail  application_details?
-  reviews            reviews[]
+  project           projects?            @relation(fields: [projectId], references: [id])
+  request           requests?            @relation(fields: [requestId], references: [id])
+  salesUser         users                @relation("salesMatches", fields: [salesUserId], references: [id])
+  contractorUser    users                @relation("contractorMatches", fields: [contractorUserId], references: [id])
+  applicationDetail application_details?
+  reviews           reviews[]
 }
-
 
 model reviews {
   id                BigInt             @id @default(autoincrement())
   matchId           BigInt
-  reviewerCompanyId BigInt             // レビューを書いた企業
-  revieweeCompanyId BigInt             // 評価される企業
+  reviewerCompanyId BigInt // レビューを書いた企業
+  revieweeCompanyId BigInt // 評価される企業
   targetRole        review_target_role // 評価される企業がこのマッチで担った役割
   item1Rating       Int
   item2Rating       Int
@@ -312,7 +317,7 @@ model company_interview_articles {
   companyId   BigInt         @unique
   title       String
   introText   String?
-  youtubeUrl  String?   
+  youtubeUrl  String?
   status      article_status
   publishedAt DateTime?
   createdBy   String         @db.Uuid
