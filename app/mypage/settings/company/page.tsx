@@ -7,6 +7,7 @@ import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
+import { CompanyCredentialsFields } from "@/app/_components/CompanyCredentialsFields";
 import type { UpdateCompanyRequest } from "@/app/_types/companies";
 
 export default function CompanySettingsPage() {
@@ -22,7 +23,11 @@ export default function CompanySettingsPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<UpdateCompanyRequest>();
+  } = useForm<UpdateCompanyRequest>({
+    // 新規登録で何も選ばなかったときも、資格は空配列・ラジオは「まだ選んでいない(null)」として送る
+    defaultValues: { qualifications: [], hasInsurance: null, isInvoiceRegistered: null },
+  });
+
 
   const { data, error, isLoading, mutate } = useCompany();
 
@@ -66,6 +71,14 @@ export default function CompanySettingsPage() {
           contactEmail: data.company.contactEmail ?? undefined,
           contactLineId: data.company.contactLineId ?? undefined,
           contactNote: data.company.contactNote ?? undefined,
+          // 保存値が null の自由記入欄は空のままにして、薄い文字の例文（placeholder）だけを見せる
+          workExperience: data.company.workExperience ?? undefined,
+          qualifications: data.company.qualifications,
+          qualificationsOther: data.company.qualificationsOther ?? undefined,
+          hasInsurance: data.company.hasInsurance,
+          insuranceNote: data.company.insuranceNote ?? undefined,
+          manufacturerCertifications: data.company.manufacturerCertifications ?? undefined,
+          isInvoiceRegistered: data.company.isInvoiceRegistered,
         });
 
       // 既存の会社情報があるので、この画面は「新規登録」ではなく「編集」モードにする
@@ -364,6 +377,14 @@ export default function CompanySettingsPage() {
             />
           </div>
         </div>
+
+        {/* 必須の連絡先を先に入力してもらい、任意の施工体制・資格は最後に置く */}
+        <CompanyCredentialsFields
+          control={control}
+          register={register}
+          savedQualifications={data?.company?.qualifications ?? []}
+          disabled={isSubmitting}
+        />
 
         {/* サーバーエラー / 成功メッセージ */}
         {errors.root?.serverError?.message && <p className="text-red-500 font-bold text-sm text-center">{errors.root.serverError.message}</p>}
