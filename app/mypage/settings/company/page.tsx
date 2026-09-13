@@ -99,6 +99,9 @@ export default function CompanySettingsPage() {
       // これが無いと戻り先で古い company: null を見て、また案内が出てしまう。
       await mutate();
 
+      // サーバー側の再レンダリングを促して、登録直後に帯を消す。
+      router.refresh();
+
       // 案内から来た場合は ?return= に元の画面パスが入っている。
       // window.location から読むのは、useSearchParams だと build 時に
       // Suspense 境界が必要になり手間が増えるため（confirm 画面と同じやり方）。
