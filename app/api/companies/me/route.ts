@@ -3,7 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { isQualificationCode } from "@/app/_constants/qualifications";
 import { CREDENTIAL_TEXT_MAX_LENGTH } from "@/app/_constants/companyCredentials";
-import { getPhoneError, getEmailError, getWebsiteUrlError } from "@/app/_utils/companyValidation";
+import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
 import type {CompanyMeResponse,UpdateCompanyRequest,} from "@/app/_types/companies";
 // このルート内で使うエラーレスポンス型
 type ErrorResponse = {
@@ -102,15 +102,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
       );
     }
 
-    // 電話番号・メール・WebサイトURLの形式チェック（フォームと同じルール）。
+    // 従業員数・電話番号・メール・WebサイトURLの形式チェック（フォームと同じルール）。
     // ?? は左が null のときだけ右を実行するので、最初に見つかったエラーだけが返る
     const formatError =
+      getEmployeeCountError(body.employeeCount) ??
       getPhoneError(body.contactPhone) ??
       getEmailError(body.contactEmail) ??
       getWebsiteUrlError(body.websiteUrl);
-    if (formatError) {
-      return NextResponse.json({ error: formatError }, { status: 400 });
-    }
 
     // 連絡先4項目のうち、最低1つは入力されていること（フロントを通さない直叩き防御）
     // .some()は配列の値を1つずつ取り出して、関数に渡す、配列の中に、条件に当てはまるものが1つでもあれば trueにするJavaScript の配列メソッド

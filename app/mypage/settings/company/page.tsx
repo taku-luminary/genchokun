@@ -8,7 +8,7 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { CompanyCredentialsFields } from "@/app/_components/CompanyCredentialsFields";
-import { getPhoneError, getEmailError, getWebsiteUrlError } from "@/app/_utils/companyValidation";
+import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
 import type { UpdateCompanyRequest } from "@/app/_types/companies";
 
 export default function CompanySettingsPage() {
@@ -284,10 +284,20 @@ export default function CompanySettingsPage() {
             id="employeeCount"
             disabled={isSubmitting}
             type="number"
+            // スマホで小数点のない数字キーボードを出し、小数の入力ミスを減らす
+            inputMode="numeric"
             placeholder="例：10"
-            {...register("employeeCount", { valueAsNumber: true })}
+            {...register("employeeCount", {
+              valueAsNumber: true,
+              // noValidate でブラウザ標準の整数チェックが外れているため、自前でチェックする
+              validate: (value) => getEmployeeCountError(value) ?? true,
+            })}
           />
+          {errors.employeeCount && (
+            <p className="text-red-500 text-xs mt-1">{errors.employeeCount.message}</p>
+          )}
         </div>
+
 
         {/* Webサイト */}
         <div>

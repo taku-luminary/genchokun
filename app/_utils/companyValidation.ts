@@ -51,3 +51,16 @@ export function getWebsiteUrlError(value: string | null | undefined): string | n
   }
   return null;
 }
+
+// 従業員数：1以上の整数（小数・0・マイナスは不可）。
+// DB は整数のカラムで小数を渡すと保存時にエラーになるため、フォームと API の両方で先に弾いて理由を伝える
+export function getEmployeeCountError(value: number | null | undefined): string | null {
+  // 空欄は valueAsNumber で NaN になるので、未入力として扱う
+  if (value === null || value === undefined || Number.isNaN(value)) return null;
+
+  if (!Number.isInteger(value) || value < 1) {
+    return "従業員数は1以上の整数で入力してください（例：10）";
+  }
+  return null;
+}
+
