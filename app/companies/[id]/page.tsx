@@ -129,8 +129,6 @@ export default async function CompanyPublicPage({
     isInvoiceRegistered: company.isInvoiceRegistered,
   };
 
-
-
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
@@ -162,9 +160,9 @@ export default async function CompanyPublicPage({
           company={companyInfo}
         />
 
-      <CompanyCredentialsCard credentials={credentials} />
+        <CompanyCredentialsCard credentials={credentials} />
 
-      {article && <InterviewArticle article={article} />}
+        {article && <InterviewArticle article={article} />}
       </div>
     </div>
   );

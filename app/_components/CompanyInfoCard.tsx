@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CompanyInfo } from "@/app/_types/companies";
-import { StarRating } from "@/app/_components/ui/StarRating"; // ← 追加
+import { CardHeader } from "@/app/_components/ui/CardHeader";
+import { StarRating } from "@/app/_components/ui/StarRating";
 
 type Props = {
   // 例: "掲載元の販売店情報" / "掲載元の工事店情報"
@@ -15,10 +16,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-3">
-      <div className="pb-2 flex items-center gap-2">
-        <p className="text-base font-bold text-slate-700">{title}</p>
-        <p className="text-xs text-slate-400">{subtitle}</p>
-      </div>
+      <CardHeader title={title} subtitle={subtitle} />
 
       <div className="flex gap-2">
         <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">会社名</p>
