@@ -7,6 +7,8 @@ import { PrefectureSelect } from "@/app/_components/ui/PrefectureSelect";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
+import { CompanyCredentialsFields } from "@/app/_components/CompanyCredentialsFields";
+import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
 import type { UpdateCompanyRequest } from "@/app/_types/companies";
 
 export default function CompanySettingsPage() {
@@ -22,7 +24,10 @@ export default function CompanySettingsPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<UpdateCompanyRequest>();
+  } = useForm<UpdateCompanyRequest>({
+    // 新規登録で何も選ばなかったときも、資格は空配列・ラジオは「まだ選んでいない(null)」として送る
+    defaultValues: { qualifications: [], hasInsurance: null, isInvoiceRegistered: null },
+  });
 
   const { data, error, isLoading, mutate } = useCompany();
 
@@ -66,6 +71,14 @@ export default function CompanySettingsPage() {
           contactEmail: data.company.contactEmail ?? undefined,
           contactLineId: data.company.contactLineId ?? undefined,
           contactNote: data.company.contactNote ?? undefined,
+          // 保存値が null の自由記入欄は空のままにして、薄い文字の例文（placeholder）だけを見せる
+          workExperience: data.company.workExperience ?? undefined,
+          qualifications: data.company.qualifications,
+          qualificationsOther: data.company.qualificationsOther ?? undefined,
+          hasInsurance: data.company.hasInsurance,
+          insuranceNote: data.company.insuranceNote ?? undefined,
+          installerIdManufacturers: data.company.installerIdManufacturers ?? undefined,
+          isInvoiceRegistered: data.company.isInvoiceRegistered,
         });
 
       // 既存の会社情報があるので、この画面は「新規登録」ではなく「編集」モードにする
@@ -150,7 +163,8 @@ export default function CompanySettingsPage() {
         登録した内容は、案件・依頼の詳細ページで相手に表示されます
       </p>
 
-      <form onSubmit={handleSubmit(saveCompany)} className="space-y-5">
+      {/* noValidate でブラウザ標準の吹き出しチェックを止め、すべて入力欄の下の赤字エラー（RHF）で案内する */}
+      <form onSubmit={handleSubmit(saveCompany)} className="space-y-5" noValidate>
         {/* 会社名 */}
         <div>
           <Label htmlFor="name">会社名 *</Label>
@@ -194,14 +208,22 @@ export default function CompanySettingsPage() {
 
         {/* 市区町村 */}
         <div>
-          <Label htmlFor="city">市区町村</Label>
+          <Label htmlFor="city">市区町村 *</Label>
           <Input
             id="city"
             disabled={isSubmitting}
             placeholder="例：文京区"
-            {...register("city")}
+            {...register("city", {
+              // スペースだけの入力も未入力として扱う（API のチェックと条件をそろえる）
+              validate: (value) =>
+                (value && value.trim() !== "") || "市区町村を入力してください",
+            })}
           />
+          {errors.city && (
+            <p className="text-red-500 text-xs mt-1">{errors.city.message}</p>
+          )}
         </div>
+
           {/*===registerの説明=== 
               ① 入力欄の名前をRHFに教える
               ② 入力が変わったら内部ストアを更新する onChange を渡す
@@ -229,7 +251,7 @@ export default function CompanySettingsPage() {
             */}
         {/* 住所 */}
         <div>
-          <Label htmlFor="address">住所</Label>
+          <Label htmlFor="address">町名・番地・建物名</Label>
           <Input
             id="address"
             disabled={isSubmitting}
@@ -262,10 +284,20 @@ export default function CompanySettingsPage() {
             id="employeeCount"
             disabled={isSubmitting}
             type="number"
+            // スマホで小数点のない数字キーボードを出し、小数の入力ミスを減らす
+            inputMode="numeric"
             placeholder="例：10"
-            {...register("employeeCount", { valueAsNumber: true })}
+            {...register("employeeCount", {
+              valueAsNumber: true,
+              // noValidate でブラウザ標準の整数チェックが外れているため、自前でチェックする
+              validate: (value) => getEmployeeCountError(value) ?? true,
+            })}
           />
+          {errors.employeeCount && (
+            <p className="text-red-500 text-xs mt-1">{errors.employeeCount.message}</p>
+          )}
         </div>
+
 
         {/* Webサイト */}
         <div>
@@ -275,8 +307,13 @@ export default function CompanySettingsPage() {
             disabled={isSubmitting}
             type="url"
             placeholder="https://example.com"
-            {...register("websiteUrl")}
+            {...register("websiteUrl", {
+              validate: (value) => getWebsiteUrlError(value) ?? true,
+            })}
           />
+          {errors.websiteUrl && (
+            <p className="text-red-500 text-xs mt-1">{errors.websiteUrl.message}</p>
+          )}
         </div>
 
         {/* 自社紹介 */}
@@ -294,13 +331,12 @@ export default function CompanySettingsPage() {
                 {/* 連絡先セクション ─ マッチング成立後に相手にだけ公開される */}
                 <div className="space-y-4 border-t-2 border-slate-200 pt-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">連絡先</h2>
-            <p className="text-xs text-slate-500 mt-1">
-              マッチング成立後に、相手にのみ表示されます。<br />
-              電話・メール・LINE・その他 のうち <strong>最低1つ</strong> を入力してください。
+            <h2 className="text-2xl font-bold text-slate-800">連絡先</h2>
+            <p className="text-xs text-brand-green font-bold mt-1">
+            <strong>連絡先はマッチング成立後に、相手にのみ表示されます。</strong><br />
+              電話・メール・LINE・その他 のうち 最低1つ を入力してください。
             </p>
           </div>
-
           {/* 電話番号 */}
           <div>
             <Label htmlFor="contactPhone">電話番号</Label>
@@ -310,16 +346,22 @@ export default function CompanySettingsPage() {
               type="tel"
               placeholder="例：090-1234-5678"
               {...register("contactPhone", {
-                // 4項目のどれか1つは入っていることをチェック。
-                // 第2引数 formValues には現在のフォーム全項目の値が入る。
-                validate: (_value, formValues) => {
-                  const anyFilled = [
-                    formValues.contactPhone,
-                    formValues.contactEmail,
-                    formValues.contactLineId,
-                    formValues.contactNote,
-                  ].some((v) => v && v.trim() !== "");
-                  return anyFilled || "連絡先（電話/メール/LINE/その他）のいずれか1つは入力してください";
+                // validate にオブジェクトを渡すと、複数のチェックを名前付きで順番に実行できる。
+                // 最初に引っかかったチェックのメッセージが errors.contactPhone.message に入る
+                validate: {
+                  // 4項目のどれか1つは入っていることをチェック。
+                  // 第2引数 formValues には現在のフォーム全項目の値が入る。
+                  anyFilled: (_value, formValues) => {
+                    const anyFilled = [
+                      formValues.contactPhone,
+                      formValues.contactEmail,
+                      formValues.contactLineId,
+                      formValues.contactNote,
+                    ].some((v) => v && v.trim() !== "");
+                    return anyFilled || "連絡先（電話/メール/LINE/その他）のいずれか1つは入力してください";
+                  },
+                  // 入力されている場合だけ、桁数や使える文字をチェックする
+                  format: (value) => getPhoneError(value) ?? true,
                 },
               })}
             />
@@ -336,8 +378,13 @@ export default function CompanySettingsPage() {
               disabled={isSubmitting}
               type="email"
               placeholder="例：eigyo@example.co.jp"
-              {...register("contactEmail")}
+              {...register("contactEmail", {
+                validate: (value) => getEmailError(value) ?? true,
+              })}
             />
+            {errors.contactEmail && (
+              <p className="text-red-500 text-xs mt-1">{errors.contactEmail.message}</p>
+            )}
           </div>
 
           {/* LINE ID / 招待URL */}
@@ -364,6 +411,14 @@ export default function CompanySettingsPage() {
             />
           </div>
         </div>
+
+        {/* 必須の連絡先を先に入力してもらい、任意の施工体制・資格は最後に置く */}
+        <CompanyCredentialsFields
+          control={control}
+          register={register}
+          savedQualifications={data?.company?.qualifications ?? []}
+          disabled={isSubmitting}
+        />
 
         {/* サーバーエラー / 成功メッセージ */}
         {errors.root?.serverError?.message && <p className="text-red-500 font-bold text-sm text-center">{errors.root.serverError.message}</p>}

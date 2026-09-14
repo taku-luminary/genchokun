@@ -117,7 +117,7 @@ export default function NewRequestPage() {
 
         {/* 受注できる内容 */}
         <div>
-          <Label htmlFor="summary">受注できる内容</Label>
+          <Label htmlFor="summary">依頼があれば受注できる内容</Label>
           <textarea
             id="summary"
             disabled={isSubmitting}

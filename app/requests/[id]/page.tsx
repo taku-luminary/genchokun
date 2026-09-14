@@ -213,9 +213,10 @@ export default function RequestDetailPage() {
         </div>
 
 
-        {/* 発注できる内容（共通カード）。マッチングボタン群は children として差し込む */}
+        {/* 対応可能業務の詳細（共通カード）。本文は「あなたがこちらの企業へ発注できる内容」。マッチングボタン群は children として差し込む */}
         <ContentCard
-          summaryLabel="発注できる内容"
+          title="対応可能業務の詳細"
+          summaryLabel="あなたがこちらの企業へ発注できる内容"
           summary={data.summary}
           note={data.note}
         >

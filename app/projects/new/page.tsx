@@ -199,9 +199,9 @@
             )}
           </div>
 
-          {/* 案件内容 */}
+          {/* 案件詳細 */}
           <div>
-            <Label htmlFor="summary">案件内容</Label>
+            <Label htmlFor="summary">案件詳細</Label>
             <textarea
               id="summary"
               disabled={isSubmitting}
