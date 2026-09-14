@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { isQualificationCode } from "@/app/_constants/qualifications";
 import { CREDENTIAL_TEXT_MAX_LENGTH } from "@/app/_constants/companyCredentials";
+import { getPhoneError, getEmailError, getWebsiteUrlError } from "@/app/_utils/companyValidation";
 import type {CompanyMeResponse,UpdateCompanyRequest,} from "@/app/_types/companies";
 // このルート内で使うエラーレスポンス型
 type ErrorResponse = {
@@ -92,6 +93,23 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         { error: "会社名と都道府県は必須です" },
         { status: 400 }
       );
+    }
+
+    if (!body.city || body.city.trim() === "") {
+      return NextResponse.json(
+        { error: "市区町村を入力してください" },
+        { status: 400 }
+      );
+    }
+
+    // 電話番号・メール・WebサイトURLの形式チェック（フォームと同じルール）。
+    // ?? は左が null のときだけ右を実行するので、最初に見つかったエラーだけが返る
+    const formatError =
+      getPhoneError(body.contactPhone) ??
+      getEmailError(body.contactEmail) ??
+      getWebsiteUrlError(body.websiteUrl);
+    if (formatError) {
+      return NextResponse.json({ error: formatError }, { status: 400 });
     }
 
     // 連絡先4項目のうち、最低1つは入力されていること（フロントを通さない直叩き防御）
