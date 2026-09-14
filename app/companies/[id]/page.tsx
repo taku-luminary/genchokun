@@ -8,6 +8,8 @@ import { CompanyInfoCard } from "@/app/_components/CompanyInfoCard";
 import { InterviewArticle } from "@/app/_components/InterviewArticle";
 import type { InterviewArticlePublic } from "@/app/_types/articles";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
+import { CompanyCredentialsCard } from "@/app/_components/CompanyCredentialsCard";
+import type { CompanyCredentials } from "@/app/_types/companies";
 
 // DB取得を cache() で包む。同じリクエスト内なら generateMetadata と
 // ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
@@ -116,6 +118,18 @@ export default async function CompanyPublicPage({
     rating: companyRating,
   };
 
+  // 表示に必要な7項目だけを取り出して渡す（連絡先など公開しない情報をカードに渡さないため）
+  const credentials: CompanyCredentials = {
+    workExperience: company.workExperience,
+    qualifications: company.qualifications,
+    qualificationsOther: company.qualificationsOther,
+    hasInsurance: company.hasInsurance,
+    insuranceNote: company.insuranceNote,
+    manufacturerCertifications: company.manufacturerCertifications,
+    isInvoiceRegistered: company.isInvoiceRegistered,
+  };
+
+
 
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
@@ -148,7 +162,9 @@ export default async function CompanyPublicPage({
           company={companyInfo}
         />
 
-        {article && <InterviewArticle article={article} />}
+      <CompanyCredentialsCard credentials={credentials} />
+
+      {article && <InterviewArticle article={article} />}
       </div>
     </div>
   );
