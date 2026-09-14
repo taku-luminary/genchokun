@@ -7,7 +7,7 @@ type Props = {
 
 // 公開企業ページの「施工体制・資格」カード。
 // 企業ごとに見比べやすいよう、未入力の項目も「未記入」として同じ位置に表示する。
-// ただし施工ID・メーカー認定は業種によって関係のない企業が多いので、未入力なら見出しごと表示しない（入力不足に見せないため）
+// ただし施工ID保有メーカーは業種によって関係のない企業が多いので、未入力なら見出しごと表示しない（入力不足に見せないため）
 export function CompanyCredentialsCard({ credentials }: Props) {
   // 資格は定数の並び（業種順）の表示名に変換し、その他の資格・補足を最後に続ける
   const qualificationLines = getQualificationLabels(credentials.qualifications);
@@ -46,8 +46,8 @@ export function CompanyCredentialsCard({ credentials }: Props) {
         value={qualificationLines.length > 0 ? qualificationLines.join("\n") : null}
       />
       <CredentialRow label="工事保険" value={insuranceText} />
-      {credentials.manufacturerCertifications && (
-        <CredentialRow label="施工ID・メーカー認定" value={credentials.manufacturerCertifications} />
+      {credentials.installerIdManufacturers && (
+        <CredentialRow label="施工ID保有メーカー" value={credentials.installerIdManufacturers} />
       )}
       <CredentialRow label="インボイス登録" value={invoiceText} />
     </div>

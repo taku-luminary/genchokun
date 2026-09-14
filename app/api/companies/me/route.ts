@@ -60,7 +60,7 @@ export async function GET(): Promise<NextResponse<CompanyMeResponse | ErrorRespo
         qualificationsOther: company.qualificationsOther,
         hasInsurance: company.hasInsurance,
         insuranceNote: company.insuranceNote,
-        manufacturerCertifications: company.manufacturerCertifications,
+        installerIdManufacturers: company.installerIdManufacturers,
         isInvoiceRegistered: company.isInvoiceRegistered,
       },
     });
@@ -129,7 +129,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
         body.hasInsurance === false || body.hasInsurance === null
           ? null
           : normalizeCredentialText(body.insuranceNote),
-      manufacturerCertifications: normalizeCredentialText(body.manufacturerCertifications),
+      installerIdManufacturers: normalizeCredentialText(body.installerIdManufacturers),
       isInvoiceRegistered: body.isInvoiceRegistered,
     };
 
@@ -188,7 +188,7 @@ function validateCredentials(body: UpdateCompanyRequest): string | null {
     { label: "工事区分／経験年数", value: body.workExperience },
     { label: "その他の資格・講習／補足", value: body.qualificationsOther },
     { label: "保険の内容", value: body.insuranceNote },
-    { label: "施工ID・メーカー認定", value: body.manufacturerCertifications },
+    { label: "施工ID保有メーカー", value: body.installerIdManufacturers },
   ];
   for (const text of texts) {
     if (text.value === undefined || text.value === null) continue;

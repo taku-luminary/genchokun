@@ -125,7 +125,7 @@ export default async function CompanyPublicPage({
     qualificationsOther: company.qualificationsOther,
     hasInsurance: company.hasInsurance,
     insuranceNote: company.insuranceNote,
-    manufacturerCertifications: company.manufacturerCertifications,
+    installerIdManufacturers: company.installerIdManufacturers,
     isInvoiceRegistered: company.isInvoiceRegistered,
   };
 

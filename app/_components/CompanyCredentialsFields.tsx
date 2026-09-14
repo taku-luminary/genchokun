@@ -150,19 +150,19 @@ export function CompanyCredentialsFields({ control, register, savedQualification
         )}
       </div>
 
-      {/* 施工ID・メーカー認定 */}
+      {/* 施工ID保有メーカー */}
       <div>
-        <Label htmlFor="manufacturerCertifications">施工ID・メーカー認定</Label>
+        <Label htmlFor="installerIdManufacturers">施工ID保有メーカー</Label>
         <p className="text-xs text-slate-500 mb-2">
-        保有している施工IDやメーカー認定がある場合に入力してください。1行に1件、メーカー名と対象の製品を記載してください。ID・認定番号は入力しないでください。
+        保有している施工IDがある場合に、そのメーカーを入力してください。1行に1社、メーカー名と対象の製品を記載してください。施工IDの番号は入力しないでください。
         </p>
         <Textarea
-          id="manufacturerCertifications"
+          id="installerIdManufacturers"
           rows={4}
           maxLength={CREDENTIAL_TEXT_MAX_LENGTH}
           disabled={disabled}
-          placeholder={"例：\n・所有している施工ID\n   パナソニック（太陽光パネル）\n   ニチコン（蓄電池）\n   長州産業（太陽光パネル・蓄電池）"}
-          {...register("manufacturerCertifications")}
+          placeholder={"例：\nパナソニック（太陽光パネル）\nニチコン（蓄電池）\n長州産業（太陽光パネル・蓄電池）"}
+          {...register("installerIdManufacturers")}
         />
       </div>
 

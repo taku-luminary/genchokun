@@ -24,7 +24,7 @@ export type UpdateCompanyRequest = {
   qualificationsOther?: string;
   hasInsurance?: boolean | null;
   insuranceNote?: string;
-  manufacturerCertifications?: string;
+  installerIdManufacturers?: string;
   isInvoiceRegistered?: boolean | null;
 };
 
@@ -35,7 +35,7 @@ export type CompanyCredentials = {
   qualificationsOther: string | null;
   hasInsurance: boolean | null;                // true=加入あり / false=加入なし / null=まだ選んでいない
   insuranceNote: string | null;
-  manufacturerCertifications: string | null;
+  installerIdManufacturers: string | null;
   isInvoiceRegistered: boolean | null;         // true=登録済み / false=未登録 / null=まだ選んでいない
 };
 

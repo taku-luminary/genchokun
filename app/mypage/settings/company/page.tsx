@@ -77,7 +77,7 @@ export default function CompanySettingsPage() {
           qualificationsOther: data.company.qualificationsOther ?? undefined,
           hasInsurance: data.company.hasInsurance,
           insuranceNote: data.company.insuranceNote ?? undefined,
-          manufacturerCertifications: data.company.manufacturerCertifications ?? undefined,
+          installerIdManufacturers: data.company.installerIdManufacturers ?? undefined,
           isInvoiceRegistered: data.company.isInvoiceRegistered,
         });
 

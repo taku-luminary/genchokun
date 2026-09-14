@@ -186,13 +186,13 @@ model companies {
   contactNote   String?
 
   // 施工体制・資格（企業ページで公開。すべて任意）
-  workExperience             String? // 工事区分と経験年数（1行1区分の自由記述）
-  qualifications             String[] @default([]) // 資格コードの配列。表示名は app/_constants/qualifications.ts で管理
-  qualificationsOther        String? // 選択肢にない資格・講習や、作業区分などの補足
-  hasInsurance               Boolean? // 工事保険 true=加入あり / false=加入なし / null=まだ選んでいない
-  insuranceNote              String? // 保険の内容（加入ありのときだけ保持する）
-  manufacturerCertifications String? // 施工ID・メーカー認定（メーカー名＋制度名。ID・認定番号は保存しない）
-  isInvoiceRegistered        Boolean? // インボイス登録 true=登録済み / false=未登録 / null=まだ選んでいない
+  workExperience           String? // 工事区分と経験年数（1行1区分の自由記述）
+  qualifications           String[] @default([]) // 資格コードの配列。表示名は app/_constants/qualifications.ts で管理
+  qualificationsOther      String? // 選択肢にない資格・講習や、作業区分などの補足
+  hasInsurance             Boolean? // 工事保険 true=加入あり / false=加入なし / null=まだ選んでいない
+  insuranceNote            String? // 保険の内容（加入ありのときだけ保持する）
+  installerIdManufacturers String? // 施工ID保有メーカー（1行1社、メーカー名と対象の製品。施工IDの番号は保存しない）
+  isInvoiceRegistered      Boolean? // インボイス登録 true=登録済み / false=未登録 / null=まだ選んでいない
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
