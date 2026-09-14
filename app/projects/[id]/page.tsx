@@ -124,16 +124,16 @@ export default function ProjectDetailPage() {
           </section>
         )}
 
-        {/* ▼ 連続ブロック: 案件カード → 案件内容 → 掲載元情報 */}
+        {/* ▼ 連続ブロック: 案件カード → 案件詳細 → 掲載元情報 */}
 
         {/* 案件カード（クリック無効） */}
         <div className="pointer-events-none">
           <ProjectCard project={homeProject} />
         </div>
 
-        {/* 案件内容（共通カード）。応募ボタン群は children として差し込む */}
+        {/* 案件詳細（共通カード）。見出しで内容が伝わるので本文のラベルは付けない。応募ボタン群は children として差し込む */}
         <ContentCard
-          summaryLabel="案件内容"
+          title="案件詳細"
           summary={data.summary}
           note={data.note}
         >
