@@ -31,21 +31,22 @@ export function CompanyCredentialsFields({ control, register, savedQualification
     <div className="space-y-5 border-t-2 border-slate-200 pt-6">
       <div>
         <h2 className="text-lg font-bold text-slate-800">施工体制・資格（任意）</h2>
-        <p className="text-xs text-slate-500 mt-1">
-          企業ページで公開され、発注を検討する企業が確認します。受注する場合は入力をおすすめします
+        <p className="text-xs text-brand-green mt-1">
+          こちらは企業ページに公開され、相手企業が依頼先を検討する際の判断材料になります。<br />
+          記載すると貴社の情報が伝わり、マッチングにつながりやすくなります。
         </p>
       </div>
 
       {/* 工事区分／経験年数 */}
       <div>
         <Label htmlFor="workExperience">工事区分／経験年数</Label>
-        <p className="text-xs text-slate-500 mb-2">1行に1つ、「工事区分：年数」の形で書いてください</p>
+        <p className="text-xs text-slate-500 mb-2">1行に1つ、「工事区分：年数（請負／人工）」の形で書いてください</p>
         <Textarea
           id="workExperience"
           rows={4}
           maxLength={CREDENTIAL_TEXT_MAX_LENGTH}
           disabled={disabled}
-          placeholder={"例：\nエアコン設置：15年\n足場組立：10年\n外壁塗装：5年"}
+          placeholder={"例：\n・太陽光パネル：10年（請負として）\n・蓄電池：3年（人工として）\n・塗装：2年（請負として）"}
           {...register("workExperience")}
         />
       </div>
@@ -153,14 +154,14 @@ export function CompanyCredentialsFields({ control, register, savedQualification
       <div>
         <Label htmlFor="manufacturerCertifications">施工ID・メーカー認定</Label>
         <p className="text-xs text-slate-500 mb-2">
-          保有している施工IDやメーカー認定がある場合に入力してください。1行に1件、メーカー名と制度名を記載してください。ID・認定番号は入力しないでください。
+        保有している施工IDやメーカー認定がある場合に入力してください。1行に1件、メーカー名と対象の製品を記載してください。ID・認定番号は入力しないでください。
         </p>
         <Textarea
           id="manufacturerCertifications"
           rows={4}
           maxLength={CREDENTIAL_TEXT_MAX_LENGTH}
           disabled={disabled}
-          placeholder={"例：\nパナソニック：太陽光発電の登録施工店\n日本ペイント：ダイヤモンドコート加盟施工店"}
+          placeholder={"例：\n・所有している施工ID\n   パナソニック（太陽光パネル）\n   ニチコン（蓄電池）\n   長州産業（太陽光パネル・蓄電池）"}
           {...register("manufacturerCertifications")}
         />
       </div>
