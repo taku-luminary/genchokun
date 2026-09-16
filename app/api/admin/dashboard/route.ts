@@ -54,11 +54,11 @@ export async function GET(): Promise<
         prisma.company_interview_articles.findMany({ select: { companyId: true, status: true, youtubeUrl: true } }),
       ]);
 
-    // 最終ログイン（auth.users）
-    const loginRows = await prisma.$queryRaw<
-      { id: string; last_sign_in_at: Date | null }[]
-    >`SELECT id, last_sign_in_at FROM auth.users`;
-    const lastLoginByUser = new Map(loginRows.map((r) => [r.id, r.last_sign_in_at]));
+    // メール認証の完了日時。public.users には無く auth スキーマにしかないため直接読む
+    const authRows = await prisma.$queryRaw<
+      { id: string; email_confirmed_at: Date | null }[]
+    >`SELECT id, email_confirmed_at FROM auth.users`;
+    const confirmedByUser = new Map(authRows.map((r) => [r.id, r.email_confirmed_at]));
 
     // マッチ済（active）を案件/依頼ごとに1件へ集約
     // 削除されていない（生きている）案件・依頼のIDだけを集合にしておく。
@@ -97,8 +97,11 @@ export async function GET(): Promise<
     };
     const projOpen = projects.filter((p) => p.status === "open" && !isExpired(p.workEndDate));
     const reqOpen = requests.filter((r) => r.status === "open" && !isExpired(r.availableEndDate));
+    // メール認証まで完了した人数。会員登録だけで止まっている人を把握するために出す
+    const confirmedUsers = users.filter((u) => confirmedByUser.get(u.id) != null).length;
     const overview = {
       totalUsers: users.length,
+      confirmedUsers,
       totalCompanies: companies.length,
       registrationRate: rate(companies.length, users.length),
       projects: { open: projOpen.length, matched: projMatchedMap.size, total: projects.length, matchRate: rate(projMatchedMap.size, projects.length) },
@@ -203,15 +206,15 @@ export async function GET(): Promise<
       const comp = companyByUser.get(u.id) ?? null;
       const rev = comp ? revByCompany.get(comp.id) : undefined;
       const art = comp ? articleByCompany.get(comp.id) : undefined;
-      const login = lastLoginByUser.get(u.id) ?? null;
+      const confirmed = confirmedByUser.get(u.id) ?? null;
       return {
         userId: u.id,
         email: u.email,
         companyId: comp?.id ?? null,
         companyName: comp?.name ?? null,
         registeredAt: u.createdAt.toISOString(),
+        emailConfirmedAt: confirmed ? confirmed.toISOString() : null,
         lastSeenAt: u.lastSeenAt ? u.lastSeenAt.toISOString() : null,
-        lastLoginAt: login ? login.toISOString() : null,
         lastActivityAt: a.lastActivity ? new Date(a.lastActivity).toISOString() : null,
         reviewCount: rev?.count ?? 0,
         reviewAvg: rev && rev.count > 0 ? Math.round((rev.sum / rev.count) * 10) / 10 : null,

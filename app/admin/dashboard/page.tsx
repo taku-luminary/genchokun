@@ -7,7 +7,7 @@ import type { AdminDashboardResponse, AdminUserRow } from "@/app/admin/_type/adm
 import { BarChart } from "./BarChart";
 
 type Range = "1m" | "3m" | "all";
-type SortKey = "registered" | "lastSeen" | "projPosts" | "postTotal" | "matches";
+type SortKey = "unconfirmed" | "registered" | "lastSeen" | "projPosts" | "postTotal" | "matches";
 
 const daysSince = (iso: string | null) =>
   iso == null ? null : (Date.now() - new Date(iso).getTime()) / 86400000;
@@ -56,6 +56,13 @@ export default function AdminDashboardPage() {
   const postTotal = (u: AdminUserRow) => u.projPost + u.reqPost + u.projApply + u.reqApply;
   const matchAll = (u: AdminUserRow) => u.projMatch + u.reqMatch + u.projApplyMatch + u.reqApplyMatch;
   const sorters: Record<SortKey, (a: AdminUserRow, b: AdminUserRow) => number> = {
+    // 未認証を先頭に。同じ状態なら登録が古い順＝放置が長い人ほど上に来るので催促リストになる
+    unconfirmed: (a, b) => {
+      const av = a.emailConfirmedAt == null ? 0 : 1;
+      const bv = b.emailConfirmedAt == null ? 0 : 1;
+      if (av !== bv) return av - bv;
+      return new Date(a.registeredAt).getTime() - new Date(b.registeredAt).getTime();
+    },
     registered: (a, b) => new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime(),
     lastSeen: (a, b) => (daysSince(a.lastSeenAt) ?? 1e9) - (daysSince(b.lastSeenAt) ?? 1e9), 
     projPosts: (a, b) => b.projPost - a.projPost,
@@ -125,8 +132,19 @@ export default function AdminDashboardPage() {
               {o.totalCompanies}
               <span className="ml-1 text-sm font-semibold text-slate-500">社</span>
             </div>
+            {/* 営業フローの3段階（登録代行→相手が認証→会社登録）をそのまま並べ、どこで止まっているか見えるようにする */}
             <div className="text-xs text-slate-500">
-              会員登録 <b className="text-slate-700">{o.totalUsers}</b> 名 ・ 登録率 {o.registrationRate}%
+              会員登録 <b className="text-slate-700">{o.totalUsers}</b> 名
+              <span className="mx-1.5 text-slate-300">→</span>
+              認証済 <b className="text-slate-700">{o.confirmedUsers}</b> 名
+              <span className="mx-1.5 text-slate-300">→</span>
+              自社情報登録 <b className="text-slate-700">{o.totalCompanies}</b> 社
+              <span className="ml-2">（登録率 {o.registrationRate}%）</span>
+              {o.totalUsers > o.confirmedUsers && (
+                <span className="ml-2 font-bold text-red-600">
+                  未認証 {o.totalUsers - o.confirmedUsers} 名
+                </span>
+              )}
             </div>
           </div>
           <div className="mt-1">
@@ -141,6 +159,7 @@ export default function AdminDashboardPage() {
           <span className="mr-1 text-xs text-slate-500">並び替え</span>
           {(
             [
+              ["unconfirmed", "未認証優先"],
               ["registered", "登録順"],
               ["lastSeen", "最終訪問"],
               ["projPosts", "案件投稿数"],
@@ -164,18 +183,35 @@ export default function AdminDashboardPage() {
           <span className="ml-auto text-xs text-slate-500">{data.users.length}名を表示</span>
         </div>
 
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full table-fixed border-collapse text-sm">
+          {/* 列幅を固定して、会社名・メールに広く、数値列は狭く割り当てる */}
+          <colgroup>
+            <col className="w-[240px]" />{/* 会社 / メール */}
+            <col className="w-[88px]" />{/* 登録 / 認証 */}
+            <col className="w-[72px]" />{/* 最終訪問 */}
+            <col className="w-[72px]" />{/* 最終活動 */}
+            <col className="w-[76px]" />{/* レビュー */}
+            <col className="w-[46px]" />{/* 記事 */}
+            <col className="w-[46px]" />{/* 動画 */}
+            <col className="w-[56px]" />{/* 案件投稿 */}
+            <col className="w-[56px]" />{/* ﾏｯﾁ */}
+            <col className="w-[56px]" />{/* 依頼投稿 */}
+            <col className="w-[56px]" />{/* ﾏｯﾁ */}
+            <col className="w-[56px]" />{/* 案件応募 */}
+            <col className="w-[56px]" />{/* ﾏｯﾁ */}
+            <col className="w-[56px]" />{/* 依頼応募 */}
+            <col className="w-[56px]" />{/* ﾏｯﾁ */}
+          </colgroup>
           <thead>
             <tr className="[&_th]:sticky [&_th]:top-[41px] [&_th]:z-10 [&_th]:bg-slate-50 [&_th]:px-3 [&_th]:pt-2 [&_th]:pb-1 [&_th]:text-left [&_th]:text-[11px] [&_th]:font-bold [&_th]:text-slate-500">
-            <th colSpan={8}>基本情報</th>
+              <th colSpan={7}>基本情報</th>
               <th colSpan={4} className="border-l border-slate-300 !text-[#12795a]">投稿（自分が出す）</th>
               <th colSpan={4} className="border-l border-slate-300 !text-[#12795a]">応募（自分が応募する）</th>
             </tr>
             <tr className="[&_th]:sticky [&_th]:top-[67px] [&_th]:z-10 [&_th]:border-b [&_th]:border-slate-300 [&_th]:bg-slate-50 [&_th]:px-3 [&_th]:pb-2 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:text-slate-600">
-              <th className="!text-left">会社 / メール</th>
-              <th className="!text-left">登録</th>
-              <th className="!text-left">最終訪問</th>{/* ← 追加 */}
-              <th className="!text-left">最終ログイン</th>
+            <th className="!text-left">会社 / メール</th>
+              <th className="!text-left">登録 / 認証</th>
+              <th className="!text-left">最終訪問</th>
               <th className="!text-left">最終活動</th>
               <th className="!text-right">レビュー</th>
               <th className="!text-right">記事</th>
@@ -203,16 +239,17 @@ export default function AdminDashboardPage() {
                         {u.companyName}
                       </Link>
                     )}
-                    <div className="text-[11px] text-slate-400">{u.email}</div>
+                    {/* 列幅を固定したので、長いメールは途中で折り返して収める */}
+                    <div className="break-all text-[11px] text-slate-400">{u.email}</div>
                   </td>
                   <td className="px-2 py-2.5 text-xs tabular-nums text-slate-700">
                     {u.registeredAt.slice(2, 10).replace(/-/g, "/")}
+                    <div className="mt-1">
+                      <AuthBadge confirmedAt={u.emailConfirmedAt} />
+                    </div>
                   </td>
                   <td className={"px-2 py-2.5 text-xs tabular-nums " + recencyClass(u.lastSeenAt)}>
                     {agoLabel(u.lastSeenAt)}
-                  </td>
-                  <td className={"px-2 py-2.5 text-xs tabular-nums " + recencyClass(u.lastLoginAt)}>
-                    {agoLabel(u.lastLoginAt)}
                   </td>
                   <td className={"px-2 py-2.5 text-xs tabular-nums " + recencyClass(u.lastActivityAt)}>
                     {agoLabel(u.lastActivityAt)}
@@ -239,9 +276,15 @@ export default function AdminDashboardPage() {
 
       <div className="mt-3 space-y-1 text-xs text-slate-500">
         <p>
-          <b className="text-slate-600">最終ログイン</b>
-          ＝メール・パスワードで<b>サインインし直した</b>最後の日時。一度ログインするとセッション（Cookie）が保持されるため、
-          <b>再ログインせずに開いている間は更新されません</b>（実際はもっと最近使っている場合があります）。3日以上オレンジ・7日以上赤。
+          <b className="text-slate-600">登録 / 認証</b>
+          ＝上段は<b>会員登録ボタンが押された日</b>（代理登録した日）。下段はメール認証の状態で、
+          <b className="text-red-600">未認証</b>＝届いた確認メールのリンクから<b>まだアプリで認証していない</b>状態。
+          この人はまだアプリにログインできないため、認証を促す連絡が必要です。
+        </p>
+        <p>
+          <b className="text-slate-600">（会社未登録）</b>
+          ＝会員登録は済んでいるが<b>自社情報をまだ入力していない</b>状態。認証の有無とは別の話で、
+          認証済みでも自社情報が未入力ならこの表示になります。
         </p>
         <p>
           <b className="text-slate-600">最終訪問</b>
@@ -310,6 +353,22 @@ function Flag({ v }: { v: boolean | null }) {
     <span className="inline-grid h-5 w-5 place-items-center rounded bg-[#34b38a]/15 font-bold text-[#12795a]">✓</span>
   ) : (
     <span className="inline-grid h-5 w-5 place-items-center rounded bg-red-500/10 font-bold text-red-600">−</span>
+  );
+}
+
+function AuthBadge({ confirmedAt }: { confirmedAt: string | null }) {
+  // email_confirmed_at が null ＝ 確認メールのリンクをまだ踏んでいない（ログインできない状態）
+  if (confirmedAt == null) {
+    return (
+      <span className="inline-block rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-600">
+        未認証
+      </span>
+    );
+  }
+  return (
+    <span className="inline-block rounded bg-[#34b38a]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#12795a]">
+      認証済
+    </span>
   );
 }
 
