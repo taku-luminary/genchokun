@@ -6,7 +6,8 @@ export type CategoryStats = {
 };
 
 export type AdminOverview = {
-  totalUsers: number;
+  totalUsers: number; // 会員登録した人数（未認証も含む）
+  confirmedUsers: number; // メール認証まで完了した人数
   totalCompanies: number;
   registrationRate: number;
   projects: CategoryStats; // 応募できる案件
@@ -29,8 +30,8 @@ export type AdminUserRow = {
   companyId: number | null; // 会社詳細リンク用（/companies/[id]）
   companyName: string | null;
   registeredAt: string;
-  lastSeenAt: string | null; // ← 追加：最終訪問（未記録は null）
-  lastLoginAt: string | null;
+  emailConfirmedAt: string | null; // null＝メール認証がまだ（会員登録だけ済んだ状態）
+  lastSeenAt: string | null; // 最終訪問（未記録は null）
   lastActivityAt: string | null; // ISO（最後に操作した日）
   reviewCount: number;
   reviewAvg: number | null; // 1〜5（小数1桁）
@@ -46,7 +47,6 @@ export type AdminUserRow = {
   reqApplyMatch: number; // 依頼応募のマッチ
 };
 
-// AdminDashboardResponse を置き換え
 export type AdminDashboardResponse = {
   overview: AdminOverview;
   daily: AdminDaily;
