@@ -31,8 +31,6 @@ export const Header = async () => {
     });
     companyId = company ? company.id.toString() : null;
   }
-  // 企業ページがあればそこへ、なければ登録（編集）ページへ
-  const companyHref = companyId ? `/companies/${companyId}` : "/mypage/settings/company";
     return (
       <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 px-4 py-3 md:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -61,10 +59,13 @@ export const Header = async () => {
                 マイページ
                 <MypageNoticeDot />
               </Link>
-              <Link href={companyHref} className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              <Link
+                href="/mypage/settings"
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
-                自社情報
+                各種設定
               </Link>
+
               <LogoutButton />
             </>
           ) : (
