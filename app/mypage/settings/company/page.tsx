@@ -12,14 +12,13 @@ import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError
 import type { UpdateCompanyRequest } from "@/app/_types/companies";
 
 export default function CompanySettingsPage() {
-  const [isNew, setIsNew] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    control, // ← 追加。Controller に渡す「接続口」
+    control, // Controller に渡す「接続口」
     reset,
     setError,
     clearErrors,
@@ -29,7 +28,11 @@ export default function CompanySettingsPage() {
     defaultValues: { qualifications: [], hasInsurance: null, isInvoiceRegistered: null },
   });
 
-  const { data, error, isLoading, mutate } = useCompany();
+  const { data, error, isLoading, mutate, isRegistered } = useCompany();
+
+  // 会社情報が未登録なら「新規登録」、登録済みなら「編集」として表示する。
+  // 取得したデータから毎回計算できるので、state にはしない（保存後は mutate() で data が更新され、自動で「編集」になる）
+  const isNew = !isRegistered;
 
   // 画面初回表示：自社情報を取得し、登録済みならフォームに流し込む
   useEffect(() => {
@@ -66,7 +69,7 @@ export default function CompanySettingsPage() {
           employeeCount: data.company.employeeCount ?? undefined,
           websiteUrl: data.company.websiteUrl ?? undefined,
           description: data.company.description ?? undefined,
-          // ▼ 追加: 連絡先4項目も既存値があれば入れる
+          // 連絡先4項目も既存値があれば入れる
           contactPhone: data.company.contactPhone ?? undefined,
           contactEmail: data.company.contactEmail ?? undefined,
           contactLineId: data.company.contactLineId ?? undefined,
@@ -80,12 +83,6 @@ export default function CompanySettingsPage() {
           installerIdManufacturers: data.company.installerIdManufacturers ?? undefined,
           isInvoiceRegistered: data.company.isInvoiceRegistered,
         });
-
-      // 既存の会社情報があるので、この画面は「新規登録」ではなく「編集」モードにする
-      setIsNew(false);
-    } else {
-      // 会社情報がまだ存在しない場合は「新規登録」モードにする
-      setIsNew(true);
     }
   }, [data, reset]);
 
@@ -132,7 +129,6 @@ export default function CompanySettingsPage() {
         return;
       }
       setSavedMessage("自社情報を保存しました");
-      setIsNew(false);
     } catch (e) {
       console.error(e);
       setError('root.serverError', {
