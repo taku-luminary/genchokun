@@ -16,7 +16,6 @@ import { getYouTubeEmbedUrl } from "@/app/_utils/youtube";
 
 export default function AdminArticleEditPage() {
   const { id } = useParams<{ id: string }>();
-  const [isNew, setIsNew] = useState(false);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const {
@@ -31,9 +30,13 @@ export default function AdminArticleEditPage() {
   });
 
   // 既存記事の取得（管理者でなければ API が 403 → error に入る）
-  const { data, error, isLoading } = useAuthedFetch<AdminArticleResponse>(
+  const { data, error, isLoading, mutate } = useAuthedFetch<AdminArticleResponse>(
     `/api/admin/companies/${id}/article`
   );
+
+  // 記事がまだ無い（null）なら「作成」、あれば「編集」として表示する。
+  // 取得したデータから毎回計算できるので、state にはしない（保存後は mutate() で data が更新され、自動で「編集」になる）
+  const isNew = data?.article == null;
 
   // 初回表示：既存記事があればフォームに流し込む
   useEffect(() => {
@@ -48,9 +51,6 @@ export default function AdminArticleEditPage() {
         // 既存が archived でも、簡易版の編集では draft/published のみ扱う
         status: data.article.status === "published" ? "published" : "draft",
       });
-      setIsNew(false);
-    } else {
-      setIsNew(true);
     }
   }, [data, reset]);
 
@@ -73,8 +73,9 @@ export default function AdminArticleEditPage() {
         });
         return;
       }
+      // 保存した記事を取り直して、見出しとボタンを「編集」に切り替える
+      await mutate();
       setSavedMessage("記事を保存しました");
-      setIsNew(false);
     } catch (e) {
       console.error(e);
       setError("root.serverError", {
