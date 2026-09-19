@@ -2,6 +2,7 @@
 
 import { BuildingOffice2Icon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { LinkList, LinkListItem } from "@/app/_components/ui/LinkList";
+import { LogoutButton } from "@/app/_components/LogoutButton";
 
 // 各種設定の入口（ヘッダーの「各種設定」から来る）。
 // 自社情報（取引相手に見える情報）とパスワード（ログインにだけ使う情報）は性質が違うので、
@@ -21,10 +22,17 @@ export default function SettingsPage() {
         <LinkListItem
           href="/mypage/settings/password"
           icon={<LockClosedIcon className="h-5 w-5" />}
-          title="パスワード設定"
+          title="パスワードの変更"
           description="ログインに使うパスワードを変更します。取引相手には表示されません。"
         />
       </LinkList>
+
+      {/* ログアウトは設定を変える項目とは性質が違う操作なので、別のカードに分けて押し間違いを防ぐ */}
+      <div className="mt-6">
+        <LinkList>
+          <LogoutButton />
+        </LinkList>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
@@ -64,14 +63,7 @@ export default function PasswordSettingsPage() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-10">
-      <Link
-        href="/mypage/settings"
-        className="inline-block py-3 text-sm text-slate-500 hover:text-brand-green"
-      >
-        ‹ 各種設定に戻る
-      </Link>
-
-      <h1 className="text-2xl font-bold text-slate-800 mt-2 mb-2 text-center">
+      <h1 className="text-2xl font-bold text-slate-800 mb-2 text-center">
         パスワードの変更
       </h1>
       <p className="text-sm text-slate-500 mb-8 text-center">

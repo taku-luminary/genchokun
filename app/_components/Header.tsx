@@ -2,7 +2,6 @@ import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";
 import { recordLastSeen } from "@/app/_libs/recordLastSeen";
-import { LogoutButton } from "./LogoutButton";
 import { MypageNoticeDot } from "./MypageNoticeDot";
 import Link from "next/link";
 
@@ -22,6 +21,8 @@ export const Header = async () => {
     });
     companyId = company ? company.id.toString() : null;
   }
+  // 企業ページがあればそこへ、なければ登録（編集）ページへ
+  const companyHref = companyId ? `/companies/${companyId}` : "/mypage/settings/company";
     return (
       <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 px-4 py-3 md:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -51,13 +52,18 @@ export const Header = async () => {
                 <MypageNoticeDot />
               </Link>
               <Link
+                href={companyHref}
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              >
+                自社情報
+              </Link>
+              <Link
                 href="/mypage/settings"
                 className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
                 各種設定
               </Link>
 
-              <LogoutButton />
             </>
           ) : (
               <>
