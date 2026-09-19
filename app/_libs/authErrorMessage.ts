@@ -6,11 +6,11 @@ import type { AuthError } from "@supabase/supabase-js";
 export function getAuthErrorMessage(error: AuthError): string {
   switch (error.code) {
     case "same_password":
-      return "新しいパスワードが現在のパスワードと同じです。別のパスワードを入力してください";
+      return "新しいパスワードは、現在のパスワードとは別にして下さい";
     case "weak_password":
-      return "パスワードが簡単すぎます。より長く、推測されにくいものにしてください";
+      return "パスワードが簡単すぎます。より長く、推測されにくいものにして下さい";
     case "over_request_rate_limit":
-      return "短時間に操作が集中しています。しばらく時間をおいて再度お試しください";
+      return "短時間に操作が集中しています。しばらく時間をおいて再度お試し下さい";
     default:
       return "処理に失敗しました。時間をおいて再度お試しください";
   }
