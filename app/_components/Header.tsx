@@ -1,6 +1,7 @@
 import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
-import { prisma } from "@/app/_libs/prisma";          // ← 追加
+import { prisma } from "@/app/_libs/prisma";
+import { recordLastSeen } from "@/app/_libs/recordLastSeen";
 import { LogoutButton } from "./LogoutButton";
 import { MypageNoticeDot } from "./MypageNoticeDot";
 import Link from "next/link";
@@ -12,18 +13,8 @@ export const Header = async () => {
   // ログイン中なら自社の企業IDを取得（未登録なら null）
   let companyId: string | null = null;
   if (user) {
-    // 「今アプリを開いた」ことを記録する。ただし直近5分に記録済みなら何もしない（書き込みを間引く）。
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    await prisma.users.updateMany({
-      where: {
-        id: user.id,
-        OR: [
-          { lastSeenAt: null }, // まだ一度も記録がない
-          { lastSeenAt: { lt: fiveMinutesAgo } }, // 前回記録が5分より前
-        ],
-      },
-      data: { lastSeenAt: new Date() }, // 今の時刻で更新
-    });
+    // 「今アプリを開いた」ことを記録する（管理ダッシュボードの「最終訪問」に使う）
+    await recordLastSeen(user.id);
 
     const company = await prisma.companies.findUnique({
       where: { userId: user.id },
