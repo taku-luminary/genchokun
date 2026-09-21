@@ -11,6 +11,10 @@ export function getAuthErrorMessage(error: AuthError): string {
       return "パスワードが簡単すぎます。より長く、推測されにくいものにして下さい";
     case "over_request_rate_limit":
       return "短時間に操作が集中しています。しばらく時間をおいて再度お試し下さい";
+    case "over_email_send_rate_limit":
+      return "メールの送信回数が多すぎるため、一時的に送信できません。しばらく時間をおいて再度お試し下さい";
+    case "otp_expired":
+      return "メールのリンクの有効期限が切れているか、すでに使われています。お手数ですが、もう一度メールを送信して下さい";
     default:
       return "処理に失敗しました。時間をおいて再度お試しください";
   }

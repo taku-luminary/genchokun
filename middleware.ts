@@ -5,13 +5,18 @@ import { type NextRequest, NextResponse } from "next/server";
     "/",
     "/login",
     "/signup",
+    "/password-reset",
+    "/password-reset/new",
     "/auth/callback",
     "/auth/confirm",
     "/api/auth/signup",
     "/api/auth/login",
+    "/api/auth/password-reset",
+    "/api/auth/password-reset/new",
     "/api/auth/confirm",
     "/api/home",
   ];
+
 
   
   // 数字IDの企業ページ・企業APIだけを公開許可する。
