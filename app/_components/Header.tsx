@@ -2,7 +2,6 @@ import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";
 import { recordLastSeen } from "@/app/_libs/recordLastSeen";
-import { LogoutButton } from "./LogoutButton";
 import { MypageNoticeDot } from "./MypageNoticeDot";
 import Link from "next/link";
 
@@ -52,11 +51,19 @@ export const Header = async () => {
                 マイページ
                 <MypageNoticeDot />
               </Link>
-              <Link href={companyHref} className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              <Link
+                href={companyHref}
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
               >
                 自社情報
               </Link>
-              <LogoutButton />
+              <Link
+                href="/mypage/settings"
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+              >
+                各種設定
+              </Link>
+
             </>
           ) : (
               <>
