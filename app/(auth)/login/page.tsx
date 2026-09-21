@@ -1,6 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
@@ -91,13 +92,22 @@ text-center">ログイン</h1>
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500 mt-6">
-        アカウントをお持ちでない方は{" "}
-        <a href="/signup" className="text-brand-green font-bold hover:underline">
-          会員登録
-        </a>
-      </p>
+      {/* ログイン以外への導線は、入力の流れを邪魔しないようボタンの下にまとめ、同じ見た目で並べる。
+          文全体をリンクにして押せる範囲を広げ、リンクの文字だけで行き先が分かるようにする */}
+      <div className="mt-4 text-center">
+        <Link
+          href="/password-reset"
+          className="block py-3 text-sm text-brand-green font-bold hover:underline"
+        >
+          パスワードをお忘れの方はこちら
+        </Link>
+        <Link
+          href="/signup"
+          className="block py-3 text-sm text-brand-green font-bold hover:underline"
+        >
+          会員登録がまだの方はこちら
+        </Link>
+      </div>
     </div>
   );
 }
-                      

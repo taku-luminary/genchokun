@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -19,6 +20,8 @@ type FormData = Omit<NewPasswordRequest, "token_hash"> & {
 
 export default function NewPasswordPage() {
   const router = useRouter();
+  // 成功したら、フォームの代わりに完了のお知らせを出す（再設定メールの送信画面と同じ作り）
+  const [done, setDone] = useState(false);
 
   const {
     register,
@@ -60,10 +63,10 @@ export default function NewPasswordPage() {
         return;
       }
 
-      // API の中でログインした状態になっているので、ログイン画面を通さずにマイページへ進める。
-      // refresh() で、ヘッダーなどサーバーで作られた部分も、ログインした状態の表示に作り直す
-      router.push("/mypage");
+      // API の中でログインした状態になっている。
+      // refresh() で、ヘッダーなどサーバーで作られた部分を、ログインした状態の表示に作り直す
       router.refresh();
+      setDone(true);
     } catch (e) {
       console.error(e);
       setError("root.serverError", {
@@ -72,6 +75,20 @@ export default function NewPasswordPage() {
       });
     }
   };
+
+  if (done) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
+        <h1 className="text-xl font-black text-brand-green mb-4">パスワードを再設定しました</h1>
+        <p className="text-sm text-slate-600 leading-relaxed text-left mb-6">
+          次回から新しいパスワードでログインして下さい。<br/>現在はログインした状態になっています。
+        </p>
+        <Button type="button" onClick={() => router.push("/")}>
+          トップページへ進む
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">

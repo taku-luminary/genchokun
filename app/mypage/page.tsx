@@ -266,7 +266,7 @@ export default function MyPage() {
           {!isLoading && !error && focusKind === null && mode === "posted" && tab === "projects" && (
             <div className="space-y-3 md:space-y-5">
               {projects.length === 0 ? (
-                <p className="text-center text-slate-500 py-10">あなまたが掲載した工事案件はありません</p>
+                <p className="text-center text-slate-500 py-10">あなたが掲載した工事案件はありません</p>
               ) : (
                 projects.map((project) => (
                   <PostedProjectItem key={project.id} project={project} onSeen={markSeen} />
