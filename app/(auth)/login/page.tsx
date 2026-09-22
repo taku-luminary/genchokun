@@ -5,11 +5,7 @@ import Link from "next/link";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
-
-type FormData = {
-  email: string;
-  password: string;
-};
+import type { LoginRequest, LoginResponse } from "@/app/(auth)/login/_type/login";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,29 +16,38 @@ export default function LoginPage() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>();
+  } = useForm<LoginRequest>();
 
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LoginRequest) => {
     clearErrors('root.serverError');
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const json = await res.json();
-      setError('root.serverError', {
-        type: 'server',
-        message: json.error,
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-      return;
-    }
+      const json: LoginResponse = await res.json();
 
-    router.push("/");
-    router.refresh();
+      if (!res.ok) {
+        setError('root.serverError', {
+          type: 'server',
+          message: "error" in json ? json.error : "ログインに失敗しました",
+        });
+        return;
+      }
+
+      router.push("/");
+      router.refresh();
+    } catch (e) {
+      // 電波が悪いなどで API に届かなかったときも、画面が止まらずに理由が分かるようにする
+      console.error(e);
+      setError('root.serverError', {
+        type: 'network',
+        message: "通信に失敗しました。時間をおいて再度お試しください",
+      });
+    }
   };
 
   return (
@@ -56,6 +61,9 @@ text-center">ログイン</h1>
           <Input
             id="email"
             type="email"
+            // ブラウザやパスワード管理機能に保存されているメールアドレスを候補に出してもらう
+            autoComplete="email"
+            disabled={isSubmitting}
             {...register("email", {
               required: "メールアドレスを入力してください",
               pattern: {
@@ -74,6 +82,9 @@ text-center">ログイン</h1>
           <Input
             id="password"
             type="password"
+            // パスワード管理機能に「ログイン用の今のパスワード」だと伝え、保存したパスワードを自動入力してもらう
+            autoComplete="current-password"
+            disabled={isSubmitting}
             {...register("password", {
               required: "パスワードを入力してください",
             })}
