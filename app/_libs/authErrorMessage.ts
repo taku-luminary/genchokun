@@ -5,6 +5,12 @@ import type { AuthError } from "@supabase/supabase-js";
 // コードの一覧: https://supabase.com/docs/guides/auth/debugging/error-codes
 export function getAuthErrorMessage(error: AuthError): string {
   switch (error.code) {
+    case "invalid_credentials":
+      return "メールアドレスまたはパスワードが正しくありません";
+    case "email_not_confirmed":
+      return "メールアドレスの確認が済んでいません。会員登録のときに届いた確認メールのリンクから、登録を完了して下さい";
+    case "email_address_invalid":
+      return "このメールアドレスは使用できません。入力に誤りがないかご確認下さい";
     case "same_password":
       return "新しいパスワードは、現在のパスワードとは別にして下さい";
     case "weak_password":
