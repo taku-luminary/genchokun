@@ -13,8 +13,9 @@ import type {
 } from "@/app/(auth)/password-reset/_type/passwordReset";
 
 export default function PasswordResetPage() {
-  // 送信に成功したら、フォームの代わりに完了のお知らせを出す（会員登録の画面と同じ作り）
-  const [sent, setSent] = useState(false);
+  // 送信に成功したら送り先のアドレスを覚えておき、フォームの代わりに完了のお知らせを出す。
+  // アドレスを完了表示に見せることで、打ち間違いに気づけるようにする
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
 
   const {
     register,
@@ -43,7 +44,7 @@ export default function PasswordResetPage() {
         return;
       }
 
-      setSent(true);
+      setSentEmail(data.email.trim());
     } catch (e) {
       console.error(e);
       setError("root.serverError", {
@@ -53,22 +54,36 @@ export default function PasswordResetPage() {
     }
   };
 
-  if (sent) {
+  if (sentEmail) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         <p className="text-2xl mb-2">📩</p>
         <h1 className="text-xl font-black text-brand-green mb-4">メールを送信しました</h1>
+        {/* 長いアドレスでも画面からはみ出さないよう、break-all で途中でも折り返す */}
+        <p className="text-sm font-bold text-slate-700 break-all">{sentEmail}</p>
         {/* 登録の有無で文言を変えると、そのアドレスが登録済みかどうかを他人に知られてしまうため、どちらの場合もこの文言にする */}
-        <p className="text-sm text-slate-600 leading-relaxed text-left">
-          入力したメールアドレスが登録されている場合は、パスワード再設定用のメールが届きます。メール内のリンクから、新しいパスワードを設定してください。
+        <p className="text-sm text-slate-600 leading-relaxed text-left mt-4">
+          このメールアドレスが登録されている場合は、パスワード再設定用のメールが届きます。メール内のリンクから、新しいパスワードを設定してください。
         </p>
-        <p className="text-xs text-slate-500 leading-relaxed text-left mt-3">
-          数分たっても届かない場合は、迷惑メールフォルダもご確認ください。
-        </p>
-        <Link
-          href="/login"
-          className="inline-block mt-4 py-3 text-sm text-brand-green font-bold hover:underline"
+
+        {/* 届かない原因を並べておき、登録の有無を明かさずに、利用者が自分で原因に気づけるようにする */}
+        <div className="mt-4 rounded-xl bg-slate-50 p-4 text-left">
+          <p className="text-sm font-bold text-slate-600">数分たっても届かない場合</p>
+          <ul className="mt-2 list-disc pl-4 space-y-1 text-sm text-slate-500 leading-relaxed">
+            <li>迷惑メールフォルダに入っていないか</li>
+            <li>メールアドレスに打ち間違いがないか</li>
+            <li>会員登録のときに使ったメールアドレスか（自社情報の連絡用メールアドレスとは別の場合があります）</li>
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSentEmail(null)}
+          className="block w-full mt-4 py-3 text-sm text-brand-green font-bold hover:underline"
         >
+          メールアドレスを入力し直す
+        </button>
+        <Link href="/login" className="block py-3 text-sm text-brand-green font-bold hover:underline">
           ログイン画面に戻る
         </Link>
       </div>
