@@ -381,6 +381,11 @@ export default function CompanySettingsPage() {
             {errors.contactEmail && (
               <p className="text-red-500 text-xs mt-1">{errors.contactEmail.message}</p>
             )}
+            {/* ログイン用のメールアドレスと混同しやすいので、誰に見えるアドレスかと、
+                ログイン用はどこで変えるのかを添える */}
+            <p className="text-slate-500 text-xs mt-1 leading-relaxed">
+              マッチングが成立した相手に表示されるアドレスです。ログインに使うメールアドレスとは別に設定できます（同じでも構いません）。ログイン用は「各種設定」から変更できます。
+            </p>
           </div>
 
           {/* LINE ID / 招待URL */}
