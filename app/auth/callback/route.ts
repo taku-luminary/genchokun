@@ -56,10 +56,9 @@ export async function GET(request: NextRequest) {
     // 6. セッション情報を返す
     // 7. @supabase/ssr が Cookie に保存しようとする
 
-    // 変更後
     if (user) {
       // callback は新規登録者だけでなく既存ユーザーも来る可能性があるため、
-      // users テーブルに存在しなければ作成、存在すればそのまま通す
+      // users テーブルに存在しなければ作成、存在すればメールアドレスを最新にそろえる
       await ensureUserRecord(user);
     }
       }

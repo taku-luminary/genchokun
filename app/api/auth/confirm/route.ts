@@ -6,14 +6,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { EmailOtpType } from "@supabase/supabase-js";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
+import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 
-export async function POST(request: NextRequest) {
-  const { token_hash, type } = (await request.json()) as {
-    token_hash?: string;
-    type?: EmailOtpType;
-  };
+// 会員登録の確認（type: "signup"）と、ログイン用メールアドレス変更の確認（type: "email_change"）が
+// 共通で使う。どちらも token_hash を確かめ、成功すればログインした状態の Cookie を返す
+export async function POST(request: NextRequest): Promise<NextResponse<ConfirmResponse>> {
+  const { token_hash, type }: ConfirmRequest = await request.json();
 
   if (!token_hash || !type) {
     return NextResponse.json(
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 成功時の返事。ここに確認後のログインセッションCookieを書き込む。
-  const response = NextResponse.json({ success: true });
+  const response = NextResponse.json<ConfirmResponse>({ success: true });
 
   const cookieStore = await cookies();
   const supabase = createServerClient(
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // メール確認は成功済み。users 行の作成に失敗しても確認を無効化しないよう、
+  // メール確認は成功済み。users 行の作成やメールアドレスの更新に失敗しても確認を無効化しないよう、
   // ログだけ残して成功として扱う（users 行はログイン時にも保証され自己修復できる）。
   try {
     await ensureUserRecord(data.user);
