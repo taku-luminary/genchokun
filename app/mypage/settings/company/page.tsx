@@ -418,7 +418,7 @@ export default function CompanySettingsPage() {
 
         {/* サーバーエラー / 成功メッセージ */}
         {errors.root?.serverError?.message && <p className="text-red-500 font-bold text-sm text-center">{errors.root.serverError.message}</p>}
-        {savedMessage && <p className="text-green-600 font-bold text-sm text-center">{savedMessage}</p>}
+        {savedMessage && <p className="text-brand-green font-bold text-sm text-center">{savedMessage}</p>}
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "保存中..." : isNew ? "登録する" : "更新する"}

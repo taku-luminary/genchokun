@@ -11,6 +11,8 @@ export function getAuthErrorMessage(error: AuthError): string {
       return "メールアドレスの確認が済んでいません。会員登録のときに届いた確認メールのリンクから、登録を完了して下さい";
     case "email_address_invalid":
       return "このメールアドレスは使用できません。入力に誤りがないかご確認下さい";
+    case "email_exists":
+      return "このメールアドレスは、すでに別のアカウントで使われています";
     case "same_password":
       return "新しいパスワードは、現在のパスワードとは別にして下さい";
     case "weak_password":
