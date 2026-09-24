@@ -29,6 +29,8 @@ export function getPhoneError(value: string | null | undefined): string | null {
 }
 
 // メールアドレス：打ち間違いに気付いてもらうための一般的なチェック（「文字@文字.文字」の形で空白を含まない）
+// ドットの前後は「ドットを含まない文字」に限定している。ここを [^\s@] にすると
+// 「どれが区切りのドットか」が一通りに決まらず、長い文字列のときチェックに極端な時間がかかるため
 export function getEmailError(value: string | null | undefined): string | null {
   if (!value || value.trim() === "") return null;
   const email = value.trim();
@@ -36,17 +38,18 @@ export function getEmailError(value: string | null | undefined): string | null {
   if (!email.includes("@")) {
     return "メールアドレスに「@」が含まれていません";
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!/^[^\s@.]+(\.[^\s@.]+)*@[^\s@.]+(\.[^\s@.]+)+$/.test(email)) {
     return "メールアドレスの形式が正しくありません（例：info@example.co.jp）";
   }
   return null;
 }
 
 // Webサイト URL：http:// または https:// から始まり、空白を含まない
+// ドットの扱いは getEmailError と同じ理由で、区切りのドットを一通りに決まる形にしている
 export function getWebsiteUrlError(value: string | null | undefined): string | null {
   if (!value || value.trim() === "") return null;
 
-  if (!/^https?:\/\/\S+\.\S+$/.test(value.trim())) {
+  if (!/^https?:\/\/[^\s.]+(\.[^\s.]+)+$/.test(value.trim())) {
     return "WebサイトURLは https:// から始まる形で入力してください（例：https://example.com）";
   }
   return null;
