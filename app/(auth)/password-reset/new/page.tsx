@@ -79,7 +79,7 @@ export default function NewPasswordPage() {
   if (done) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
-        <h1 className="text-xl font-black text-brand-green mb-4">パスワードを再設定しました</h1>
+        <h1 className="text-xl font-black text-brand-green-dark mb-4">パスワードを再設定しました</h1>
         <p className="text-sm text-slate-600 leading-relaxed text-left mb-6">
           次回から新しいパスワードでログインして下さい。<br/>現在はログインした状態になっています。
         </p>
@@ -92,7 +92,7 @@ export default function NewPasswordPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-black text-brand-green mb-2 text-center">新しいパスワードの設定</h1>
+      <h1 className="text-2xl font-black text-brand-green-dark mb-2 text-center">新しいパスワードの設定</h1>
       <p className="text-sm text-slate-500 mb-6 leading-relaxed">
         新しいパスワードを入力してください。設定が終わると、そのままログインした状態になります。
       </p>
@@ -153,7 +153,7 @@ export default function NewPasswordPage() {
         <p className="text-xs text-slate-500">リンクの有効期限が切れた場合や、使用済みの場合は</p>
         <Link
           href="/password-reset"
-          className="inline-block py-3 text-sm text-brand-green font-bold hover:underline"
+          className="inline-block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           再設定メールを送り直す
         </Link>

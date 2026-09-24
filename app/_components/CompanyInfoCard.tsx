@@ -22,7 +22,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
         <p className="text-sm font-bold text-slate-700 w-20 md:w-24 flex-shrink-0">会社名</p>
         <Link
           href={`/companies/${company.id}`}
-          className="text-brand-green font-bold underline hover:opacity-80 transition break-all"
+          className="text-brand-green-dark font-bold underline hover:opacity-80 transition break-all"
         >
           {company.name}
         </Link>
@@ -37,7 +37,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
             className="min-w-0 flex-1 space-y-1 hover:opacity-80 transition"
           >
             <StarRating rating={rating.average} count={rating.count} />
-            <span className="block text-xs text-brand-green underline">
+            <span className="block text-xs text-brand-green-dark underline">
               評価詳細を見る
             </span>
           </Link>
@@ -64,7 +64,7 @@ export function CompanyInfoCard({ title, subtitle, company }: Props) {
             href={company.websiteUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-green underline break-all"
+            className="text-brand-green-dark underline break-all"
           >
             {company.websiteUrl}
           </a>

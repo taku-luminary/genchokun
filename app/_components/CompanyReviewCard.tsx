@@ -70,7 +70,7 @@ export function CompanyReviewCard({ review, onChanged }: Props) {
   if (editing) {
     return (
       <li className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-4 md:p-6 space-y-3">
-        <p className="text-base font-bold text-brand-green">評価を編集する</p>
+        <p className="text-base font-bold text-brand-green-dark">評価を編集する</p>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <ReviewForm
           targetRole={review.targetRole}
@@ -125,7 +125,7 @@ export function CompanyReviewCard({ review, onChanged }: Props) {
           </div>
           <Link
             href={`/${post.kind === "project" ? "projects" : "requests"}/${post.id}`}
-            className="block text-lg md:text-xl font-bold text-brand-green underline hover:opacity-80 transition break-words"
+            className="block text-lg md:text-xl font-bold text-brand-green-dark underline hover:opacity-80 transition break-words"
           >
             {post.title}
           </Link>
@@ -167,7 +167,7 @@ export function CompanyReviewCard({ review, onChanged }: Props) {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="text-sm font-bold text-brand-green underline py-2"
+              className="text-sm font-bold text-brand-green-dark underline py-2"
             >
               編集
             </button>

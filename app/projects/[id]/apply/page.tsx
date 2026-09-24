@@ -76,7 +76,7 @@ export default function ProjectApplyPage() {
       <p className="text-slate-600">{text}</p>
       <Link
         href={`/projects/${id}`}
-        className="inline-block text-brand-green underline"
+        className="inline-block text-brand-green-dark underline"
       >
         詳細ページへ戻る
       </Link>

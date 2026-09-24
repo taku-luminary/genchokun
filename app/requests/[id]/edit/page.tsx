@@ -93,7 +93,7 @@ export default function EditRequestPage() {
         <p className="text-slate-600">
           この依頼は編集できません（マッチング済み、または募集が終了しています）。
         </p>
-        <Link href={`/requests/${id}`} className="text-brand-green underline">
+        <Link href={`/requests/${id}`} className="text-brand-green-dark underline">
           依頼詳細に戻る
         </Link>
       </div>

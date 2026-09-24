@@ -57,7 +57,7 @@ export default function EmailChangePage() {
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         {status === "done" ? (
           <>
-            <h1 className="text-xl font-black text-brand-green mb-4">
+            <h1 className="text-xl font-black text-brand-green-dark mb-4">
               メールアドレスを変更しました
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed text-left mb-6">
@@ -71,7 +71,7 @@ export default function EmailChangePage() {
           </>
         ) : (
           <>
-            <h1 className="text-xl font-black text-brand-green mb-4">
+            <h1 className="text-xl font-black text-brand-green-dark mb-4">
               メールアドレス変更の確認
             </h1>
             <p className="text-sm text-slate-500 mb-6 leading-relaxed">

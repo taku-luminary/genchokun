@@ -26,7 +26,7 @@ export default function CompanyReviewsPage() {
   return (
     <div className="bg-[#e8e8e8] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-        <Link href={`/companies/${id}`} className="inline-block text-sm text-brand-green underline">
+        <Link href={`/companies/${id}`} className="inline-block text-sm text-brand-green-dark underline">
           ← 企業ページに戻る
         </Link>
 

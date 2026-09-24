@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 @theme {
+  /* 塗り（ボタンの背景・「募集中」タグ）と枠線に使う色 */
   --color-brand-green: #34b38a;
+  /* 文字に使う色。#34b38a は白背景だとコントラスト比が約 2.4:1 しかなく読みにくいため、
+     文字にはこちら（白背景で約 5.3:1）を使う */
+  --color-brand-green-dark: #1a7a5c;
   --color-brand-light-green: #4ade80;
   --color-brand-bg: #f0fdf4;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",

@@ -49,7 +49,7 @@ export function ReviewPromptCard({
 
   return (
     <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
-      <p className="text-lg md:text-2xl font-bold text-brand-green">
+      <p className="text-lg md:text-2xl font-bold text-brand-green-dark">
         🔔 案件対応は完了しましたか？
       </p>
       <p className="text-sm text-slate-700 font-medium">
@@ -57,7 +57,7 @@ export function ReviewPromptCard({
         {partnerCompany ? (
           <Link
             href={`/companies/${partnerCompany.id}`}
-            className="font-bold text-brand-green underline hover:opacity-80 transition"
+            className="font-bold text-brand-green-dark underline hover:opacity-80 transition"
           >
             {partnerCompany.name}
           </Link>
@@ -75,7 +75,7 @@ export function ReviewPromptCard({
 
         {/* 連絡先は折りたたみで残す（まだ連絡したいとき開ける） */}
         <details className="pt-1">
-          <summary className="cursor-pointer text-sm font-bold text-brand-green">
+          <summary className="cursor-pointer text-sm font-bold text-slate-600 underline hover:text-slate-800">
             {contactLabel}をもう一度見る
           </summary>
           <div className="mt-3">

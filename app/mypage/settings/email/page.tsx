@@ -154,7 +154,7 @@ export default function EmailSettingsPage() {
           </p>
         )}
         {savedMessage && (
-          <p className="text-center text-sm font-bold text-brand-green">{savedMessage}</p>
+          <p className="text-center text-sm font-bold text-brand-green-dark">{savedMessage}</p>
         )}
 
         <Button type="submit" disabled={isSubmitting}>

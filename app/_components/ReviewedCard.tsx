@@ -69,7 +69,7 @@ export function ReviewedCard({
   if (editing) {
     return (
       <section className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-6 space-y-3">
-        <p className="text-base font-bold text-brand-green">評価を編集する</p>
+        <p className="text-base font-bold text-brand-green-dark">評価を編集する</p>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <ReviewForm
           targetRole={targetRole}
@@ -109,7 +109,7 @@ export function ReviewedCard({
         {partnerCompany ? (
           <Link
             href={`/companies/${partnerCompany.id}`}
-            className="text-brand-green underline hover:opacity-80 transition"
+            className="text-brand-green-dark underline hover:opacity-80 transition"
           >
             {partnerCompany.name}
           </Link>
@@ -125,7 +125,7 @@ export function ReviewedCard({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="text-xs font-bold text-brand-green underline pt-1"
+        className="text-xs font-bold text-brand-green-dark underline pt-1"
       >
         投稿した内容を見る・編集する ›
       </button>

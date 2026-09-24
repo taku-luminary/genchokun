@@ -10,15 +10,16 @@ export const Footer: React.FC = () => {
             <path d="M12 20L18 26L28 16" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div>
+            {/* サービス名はブランドの見え方を優先し、文字用の brand-green-dark ではなく brand-green のままにする */}
             <h2 className="text-lg font-bold text-brand-green leading-tight">電工くん</h2>
             <p className="text-[10px] text-slate-400 font-medium">電気工事・調査のマッチングサービス</p>
           </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 text-xs text-slate-500">
-          <a href="#" className="hover:text-brand-green transition-colors">お問い合わせ・報告</a>
-          <a href="#" className="hover:text-brand-green transition-colors">利用規約</a>
-          <a href="#" className="hover:text-brand-green transition-colors">運営会社</a>
+          <a href="#" className="hover:text-brand-green-dark transition-colors">お問い合わせ・報告</a>
+          <a href="#" className="hover:text-brand-green-dark transition-colors">利用規約</a>
+          <a href="#" className="hover:text-brand-green-dark transition-colors">運営会社</a>
         </div>
       </div>
     </footer>

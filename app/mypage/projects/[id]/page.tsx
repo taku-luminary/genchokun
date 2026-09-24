@@ -42,7 +42,7 @@ export default function MypageProjectDetailPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
         <p className="text-slate-600">{data.error}</p>
-        <Link href="/mypage" className="inline-block text-brand-green underline">
+        <Link href="/mypage" className="inline-block text-brand-green-dark underline">
           マイページに戻る
         </Link>
       </div>
@@ -159,7 +159,7 @@ export default function MypageProjectDetailPage() {
                 matchedApp.contractor.companyId ? (
                   <Link
                     href={`/companies/${matchedApp.contractor.companyId}`}
-                    className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                    className="text-lg font-bold text-brand-green-dark underline hover:opacity-80 transition"
                   >
                     {matchedApp.contractor.companyName}
                   </Link>
@@ -219,12 +219,12 @@ export default function MypageProjectDetailPage() {
                       app.contractor.companyId ? (
                         <Link
                           href={`/companies/${app.contractor.companyId}`}
-                          className="text-xl font-bold text-brand-green underline hover:opacity-80 transition"
+                          className="text-xl font-bold text-brand-green-dark underline hover:opacity-80 transition"
                         >
                           {app.contractor.companyName}
                         </Link>
                       ) : (
-                        <p className="text-xl font-bold text-brand-green">
+                        <p className="text-xl font-bold text-brand-green-dark">
                           {app.contractor.companyName}
                         </p>
                       )

@@ -85,7 +85,7 @@ export function PrefectureSelect({ value, onChange, disabled, id }: Props) {
                   // 選択中の県だけ brand-green でハイライトする
                   className={
                     p.id === value
-                      ? "border-2 border-brand-green bg-brand-green/10 text-brand-green font-bold rounded-xl px-1 py-3 text-sm"
+                      ? "border-2 border-brand-green bg-brand-green/10 text-brand-green-dark font-bold rounded-xl px-1 py-3 text-sm"
                       : "border-2 border-slate-300 text-slate-700 rounded-xl px-1 py-3 text-sm"
                   }
                 >
