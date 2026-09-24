@@ -58,7 +58,7 @@ export default function PasswordResetPage() {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         <p className="text-2xl mb-2">📩</p>
-        <h1 className="text-xl font-black text-brand-green mb-4">メールを送信しました</h1>
+        <h1 className="text-xl font-black text-brand-green-dark mb-4">メールを送信しました</h1>
         {/* 長いアドレスでも画面からはみ出さないよう、break-all で途中でも折り返す */}
         <p className="text-sm font-bold text-slate-700 break-all">{sentEmail}</p>
         {/* 登録の有無で文言を変えると、そのアドレスが登録済みかどうかを他人に知られてしまうため、どちらの場合もこの文言にする */}
@@ -79,11 +79,11 @@ export default function PasswordResetPage() {
         <button
           type="button"
           onClick={() => setSentEmail(null)}
-          className="block w-full mt-4 py-3 text-sm text-brand-green font-bold hover:underline"
+          className="block w-full mt-4 py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           メールアドレスを入力し直す
         </button>
-        <Link href="/login" className="block py-3 text-sm text-brand-green font-bold hover:underline">
+        <Link href="/login" className="block py-3 text-sm text-brand-green-dark font-bold hover:opacity-80">
           ログイン画面に戻る
         </Link>
       </div>
@@ -92,7 +92,7 @@ export default function PasswordResetPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-black text-brand-green mb-2 text-center">パスワードの再設定</h1>
+      <h1 className="text-2xl font-black text-brand-green-dark mb-2 text-center">パスワードの再設定</h1>
       <p className="text-sm text-slate-500 mb-6 leading-relaxed">
         登録しているメールアドレスを入力してください。パスワードを再設定するためのリンクをお送りします。
       </p>
@@ -127,7 +127,7 @@ export default function PasswordResetPage() {
       </form>
 
       <p className="text-center mt-3">
-        <Link href="/login" className="inline-block py-3 text-sm text-brand-green font-bold hover:underline">
+        <Link href="/login" className="inline-block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800">
           ログイン画面に戻る
         </Link>
       </p>

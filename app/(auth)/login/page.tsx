@@ -52,8 +52,7 @@ export default function LoginPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-black text-brand-green mb-6
-text-center">ログイン</h1>
+      <h1 className="text-2xl font-black text-brand-green-dark mb-6 text-center">ログイン</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
@@ -108,13 +107,13 @@ text-center">ログイン</h1>
       <div className="mt-4 text-center">
         <Link
           href="/password-reset"
-          className="block py-3 text-sm text-brand-green font-bold hover:underline"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           パスワードをお忘れの方はこちら
         </Link>
         <Link
           href="/signup"
-          className="block py-3 text-sm text-brand-green font-bold hover:underline"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           会員登録がまだの方はこちら
         </Link>

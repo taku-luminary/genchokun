@@ -70,7 +70,7 @@ export default function SignupPage() {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         <p className="text-2xl mb-2">📩</p>
-        <h1 className="text-xl font-black text-brand-green mb-4">確認メールを送りました</h1>
+        <h1 className="text-xl font-black text-brand-green-dark mb-4">確認メールを送りました</h1>
         {/* 長いアドレスでも画面からはみ出さないよう、break-all で途中でも折り返す */}
         <p className="text-sm font-bold text-slate-700 break-all">{sentEmail}</p>
         <p className="text-sm text-slate-600 leading-relaxed text-left mt-4">
@@ -90,11 +90,11 @@ export default function SignupPage() {
         <button
           type="button"
           onClick={() => setSentEmail(null)}
-          className="block w-full mt-4 py-3 text-sm text-brand-green font-bold hover:underline"
+          className="block w-full mt-4 py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           メールアドレスを入力し直す
         </button>
-        <Link href="/login" className="block py-3 text-sm text-brand-green font-bold hover:underline">
+        <Link href="/login" className="block py-3 text-sm text-brand-green-dark font-bold hover:opacity-80">
           ログイン画面へ
         </Link>
       </div>
@@ -103,8 +103,7 @@ export default function SignupPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-      <h1 className="text-2xl font-black text-brand-green mb-6
-text-center">会員登録</h1>
+      <h1 className="text-2xl font-black text-brand-green-dark mb-6 text-center">会員登録</h1>
 
       <form onSubmit={handleSubmit(sendSignupData)} className="space-y-4">
 
@@ -196,7 +195,7 @@ text-center">会員登録</h1>
       <div className="mt-4 text-center">
         <Link
           href="/login"
-          className="block py-3 text-sm text-brand-green font-bold hover:underline"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
         >
           会員登録済みの方はこちら
         </Link>
