@@ -287,7 +287,7 @@ export default function AdminArticleEditPage() {
           </p>
         )}
         {savedMessage && (
-          <p className="text-green-600 font-bold text-sm text-center">
+          <p className="text-brand-green font-bold text-sm text-center">
             {savedMessage}
           </p>
         )}

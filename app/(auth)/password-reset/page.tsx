@@ -72,7 +72,7 @@ export default function PasswordResetPage() {
           <ul className="mt-2 list-disc pl-4 space-y-1 text-sm text-slate-500 leading-relaxed">
             <li>迷惑メールフォルダに入っていないか</li>
             <li>メールアドレスに打ち間違いがないか</li>
-            <li>会員登録のときに使ったメールアドレスか（自社情報の連絡用メールアドレスとは別の場合があります）</li>
+            <li>ログインに使っているメールアドレスか（自社情報の連絡用メールアドレスとは別の場合があります）</li>
           </ul>
         </div>
 

@@ -9,6 +9,7 @@ import { type NextRequest, NextResponse } from "next/server";
     "/password-reset/new",
     "/auth/callback",
     "/auth/confirm",
+    "/auth/email-change",
     "/api/auth/signup",
     "/api/auth/login",
     "/api/auth/password-reset",
@@ -16,6 +17,7 @@ import { type NextRequest, NextResponse } from "next/server";
     "/api/auth/confirm",
     "/api/home",
   ];
+
 
   // 数字IDの企業ページ・企業APIだけを公開許可する。
   // 例: /companies/123, /api/companies/123 → 許可
