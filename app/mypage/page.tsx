@@ -180,7 +180,7 @@ export default function MyPage() {
                 <span className="flex-1 h-px bg-slate-400" />
                 <p className="font-bold text-slate-600 whitespace-nowrap">
                   あなたが
-                  <span className="text-xl text-brand-green mx-0.5">
+                  <span className="text-xl text-brand-green-dark mx-0.5">
                     {mode === "posted" ? "掲載" : "応募"}
                   </span>
                   した案件
@@ -389,7 +389,7 @@ function resolveCardStatus(p: {
 
 function statusTextClass(tone: CardTone): string {
   if (tone === "red") return "text-red-600";
-  if (tone === "green") return "text-brand-green";
+  if (tone === "green") return "text-brand-green-dark";
   return "text-slate-600";
 }
 

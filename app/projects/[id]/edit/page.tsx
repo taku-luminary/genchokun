@@ -116,7 +116,7 @@ export default function EditProjectPage() {
         <p className="text-slate-600">
           この案件は編集できません（応募が来ている、または募集が終了しています）。
         </p>
-        <Link href={`/projects/${id}`} className="text-brand-green underline">
+        <Link href={`/projects/${id}`} className="text-brand-green-dark underline">
           案件詳細に戻る
         </Link>
       </div>

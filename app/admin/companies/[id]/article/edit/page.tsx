@@ -96,7 +96,7 @@ export default function AdminArticleEditPage() {
         <p className="text-red-500 font-bold text-sm">
           この画面は管理者専用です。または読み込みに失敗しました。
         </p>
-        <Link href="/" className="inline-block text-brand-green underline">
+        <Link href="/" className="inline-block text-brand-green-dark underline">
           トップに戻る
         </Link>
       </div>
@@ -287,7 +287,7 @@ export default function AdminArticleEditPage() {
           </p>
         )}
         {savedMessage && (
-          <p className="text-brand-green font-bold text-sm text-center">
+          <p className="text-brand-green-dark font-bold text-sm text-center">
             {savedMessage}
           </p>
         )}
@@ -301,7 +301,7 @@ export default function AdminArticleEditPage() {
       <div className="text-center mt-6">
         <Link
           href={`/companies/${id}`}
-          className="text-sm text-brand-green underline"
+          className="text-sm text-brand-green-dark underline"
         >
           公開ページを確認する
         </Link>

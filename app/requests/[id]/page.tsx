@@ -119,7 +119,7 @@ export default function RequestDetailPage() {
               {data.company && (
                 <Link
                   href={`/companies/${data.company.id}`}
-                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                  className="text-lg font-bold text-brand-green-dark underline hover:opacity-80 transition"
                 >
                   {data.company.name}
                 </Link>
@@ -159,7 +159,7 @@ export default function RequestDetailPage() {
               {data.reviewCard?.partnerCompany && (
                 <Link
                   href={`/companies/${data.reviewCard.partnerCompany.id}`}
-                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                  className="text-lg font-bold text-brand-green-dark underline hover:opacity-80 transition"
                 >
                   {data.reviewCard.partnerCompany.name}
                 </Link>

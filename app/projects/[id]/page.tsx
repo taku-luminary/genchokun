@@ -66,7 +66,7 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-slate-600">こちらはあなたが掲載した案件です。</p>
             <Link
               href={`/mypage/projects/${data.id}`}
-              className="block text-sm font-bold text-brand-green underline hover:opacity-80 transition"
+              className="block text-sm font-bold text-brand-green-dark underline hover:opacity-80 transition"
             >
               マイページで応募状況・連絡先を確認する
             </Link>
@@ -103,7 +103,7 @@ export default function ProjectDetailPage() {
               {data.company && (
                 <Link
                   href={`/companies/${data.company.id}`}
-                  className="text-lg font-bold text-brand-green underline hover:opacity-80 transition"
+                  className="text-lg font-bold text-brand-green-dark underline hover:opacity-80 transition"
                 >
                   {data.company.name}
                 </Link>

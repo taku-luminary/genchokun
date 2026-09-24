@@ -328,7 +328,7 @@ export default function CompanySettingsPage() {
                 <div className="space-y-4 border-t-2 border-slate-200 pt-6">
           <div>
             <h2 className="text-2xl font-bold text-slate-800">連絡先</h2>
-            <p className="text-xs text-brand-green font-bold mt-1">
+            <p className="text-xs text-brand-green-dark font-bold mt-1">
             <strong>連絡先はマッチング成立後に、相手にのみ表示されます。</strong><br />
               電話・メール・LINE・その他 のうち 最低1つ を入力してください。
             </p>
@@ -423,7 +423,7 @@ export default function CompanySettingsPage() {
 
         {/* サーバーエラー / 成功メッセージ */}
         {errors.root?.serverError?.message && <p className="text-red-500 font-bold text-sm text-center">{errors.root.serverError.message}</p>}
-        {savedMessage && <p className="text-brand-green font-bold text-sm text-center">{savedMessage}</p>}
+        {savedMessage && <p className="text-brand-green-dark font-bold text-sm text-center">{savedMessage}</p>}
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "保存中..." : isNew ? "登録する" : "更新する"}

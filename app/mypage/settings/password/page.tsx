@@ -138,7 +138,7 @@ export default function PasswordSettingsPage() {
           </p>
         )}
         {savedMessage && (
-          <p className="text-brand-green font-bold text-sm text-center">{savedMessage}</p>
+          <p className="text-brand-green-dark font-bold text-sm text-center">{savedMessage}</p>
         )}
 
         <Button type="submit" disabled={isSubmitting}>
