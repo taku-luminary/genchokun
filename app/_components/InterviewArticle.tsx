@@ -31,7 +31,7 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
         {/* 会社紹介セクション */}
         {article.companyIntroText && (
           <section className="space-y-2">
-            <h4 className="font-bold text-brand-green border-l-4 border-brand-green pl-2">
+            <h4 className="font-bold text-brand-green-dark border-l-4 border-brand-green pl-2">
               会社紹介
             </h4>
             <p className="text-slate-700 whitespace-pre-wrap">
@@ -43,7 +43,7 @@ export function InterviewArticle({ article }: { article: InterviewArticlePublic 
         {/* 働き方セクション */}
         {article.workStyleText && (
           <section className="space-y-2">
-            <h4 className="font-bold text-brand-green border-l-4 border-brand-green pl-2">
+            <h4 className="font-bold text-brand-green-dark border-l-4 border-brand-green pl-2">
               働き方
             </h4>
             <p className="text-slate-700 whitespace-pre-wrap">

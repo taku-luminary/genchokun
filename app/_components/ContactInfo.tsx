@@ -37,7 +37,7 @@ export function ContactInfo({ phone, email, lineId, note }: ContactInfoProps) {
         <ContactRow icon="📞" label="電話">
           <a
             href={`tel:${phone.trim()}`}
-            className="text-brand-green underline break-all"
+            className="text-brand-green-dark underline break-all"
           >
             {phone}
           </a>
@@ -49,7 +49,7 @@ export function ContactInfo({ phone, email, lineId, note }: ContactInfoProps) {
         <ContactRow icon="✉️" label="メール">
           <a
             href={`mailto:${email.trim()}`}
-            className="text-brand-green underline break-all"
+            className="text-brand-green-dark underline break-all"
           >
             {email}
           </a>
@@ -64,7 +64,7 @@ export function ContactInfo({ phone, email, lineId, note }: ContactInfoProps) {
               href={lineId.trim()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-green underline break-all"
+              className="text-brand-green-dark underline break-all"
             >
               {lineId}
             </a>

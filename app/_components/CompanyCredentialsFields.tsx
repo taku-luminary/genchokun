@@ -31,7 +31,7 @@ export function CompanyCredentialsFields({ control, register, savedQualification
     <div className="space-y-5 border-t-2 border-slate-200 pt-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-800">施工体制・資格（任意）</h2>
-        <p className="text-xs font-bold text-brand-green mt-1">
+        <p className="text-xs font-bold text-brand-green-dark mt-1">
           こちらは企業ページに公開され、相手企業が依頼先を検討する際の判断材料になります。<br />
           記載すると貴社の情報が伝わり、マッチングにつながりやすくなります。
         </p>
@@ -84,7 +84,7 @@ export function CompanyCredentialsFields({ control, register, savedQualification
                   <span>{category.label}</span>
                   {/* 閉じていても何件選んだか分かるように、見出しに件数を出す */}
                   {selectedCount > 0 && (
-                    <span className="ml-auto text-xs text-brand-green">{selectedCount}件選択中</span>
+                    <span className="ml-auto text-xs text-brand-green-dark">{selectedCount}件選択中</span>
                   )}
                 </summary>
                 <div className="flex flex-wrap gap-2 px-4 pb-4 pt-1">
