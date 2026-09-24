@@ -34,7 +34,7 @@ export const Header = async () => {
                 <path d="M10 10L30 30" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round"/>
               </svg>
               <div className="ml-2">
-                <h1 className="text-xl font-bold text-brand-green leading-tight">電工くん</h1>
+                <h1 className="text-xl font-bold text-brand-green-dark leading-tight">電工くん</h1>
                 <p className="hidden md:block text-[10px] text-slate-400 font-medium">電気工事・調査のマッチングサービス</p>
               </div>
             </Link>
@@ -46,20 +46,20 @@ export const Header = async () => {
               <span className="text-sm text-slate-500 hidden md:block">{user.email}</span>
               <Link
                 href="/mypage"
-                className="relative text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                className="relative text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
               >
                 マイページ
                 <MypageNoticeDot />
               </Link>
               <Link
                 href={companyHref}
-                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
               >
                 自社情報
               </Link>
               <Link
                 href="/mypage/settings"
-                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
               >
                 各種設定
               </Link>
@@ -67,9 +67,9 @@ export const Header = async () => {
             </>
           ) : (
               <>
-                <Link href="/signup" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                <Link href="/signup" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
                 >会員登録</Link>
-                <Link href="/login" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green transition-colors whitespace-nowrap"
+                <Link href="/login" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
                 >ログイン</Link>
               </>
             )}

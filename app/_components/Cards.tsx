@@ -66,7 +66,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
         <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
           {showStatusBox && (
             <span className={`w-20 md:w-24 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-bold text-center whitespace-nowrap border-2 bg-white ${
-              isMatched ? 'border-brand-green text-brand-green' : 'border-red-400 text-red-400'
+              isMatched ? 'border-brand-green text-brand-green-dark' : 'border-red-400 text-red-400'
             }`}>
               {statusLabel}
             </span>
@@ -83,7 +83,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, isMatched, ap
 
       <div>
         <h3 className={`text-lg md:text-2xl font-bold mb-1 md:mb-4 ${
-          isCompleted ? 'text-slate-700' : 'text-brand-green'
+          isCompleted ? 'text-slate-700' : 'text-brand-green-dark'
         }`}>
           {project.title}
         </h3>
@@ -161,7 +161,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
             {/* 右上: マッチングタグと終了/募集中タグを横並びにする（ProjectCard と同じ構成） */}
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             {isMatched && (
-                <span className="w-20 md:w-24 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-bold text-center whitespace-nowrap border-2 bg-white border-brand-green text-brand-green">
+                <span className="w-20 md:w-24 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-bold text-center whitespace-nowrap border-2 bg-white border-brand-green text-brand-green-dark">
                   マッチング
                 </span>
               )}
@@ -178,7 +178,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ request, isMatched, at
     
           <div>
             <h3 className={`text-lg md:text-2xl font-bold mb-1 md:mb-4 leading-tight ${
-              isCompleted ? 'text-slate-700' : 'text-brand-green'
+              isCompleted ? 'text-slate-700' : 'text-brand-green-dark'
             }`}>
               {request.title}
             </h3>
