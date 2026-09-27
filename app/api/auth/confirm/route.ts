@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
+import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 
 // 会員登録の確認（type: "signup"）と、ログイン用メールアドレス変更の確認（type: "email_change"）が
@@ -33,7 +34,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfirmRe
         getAll: () => cookieStore.getAll(),
         setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
+            // Supabase が渡す options を残したうえで、httpOnly などの安全側の設定で上書きする
+            response.cookies.set(name, value, { ...options, ...COOKIE_OPTIONS });
           });
         },
       },
