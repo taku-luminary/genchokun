@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { COOKIE_OPTIONS } from '@/app/_libs/supabase/cookieOptions'
 
   export async function createClient() {
     const cookieStore = await cookies()
@@ -29,7 +30,9 @@ import { cookies } from 'next/headers'
           // supabaseに渡すsupabaseが使う関数で、createServerClientが読まれても実行されない
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
+                // Supabase が渡す options（有効期限・削除指示など）を残したうえで、
+                // httpOnly などの安全側の設定で上書きする。順序を逆にすると上書きされない
+                cookieStore.set(name, value, { ...options, ...COOKIE_OPTIONS })
               )
             } catch {
               // Server Component からは Cookie を書き込めないため無視

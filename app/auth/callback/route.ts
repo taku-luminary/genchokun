@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";                                    
 import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
+import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
                                                                                        
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -37,8 +38,9 @@ export async function GET(request: NextRequest) {
           // supabaseに渡すsupabaseが使う関数で、createServerClientが読まれても実行されない
           setAll: (cookiesToSet) => {                                                  
             cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options); // レスポンスに直接セット    
-            });                                                                        
+              // Supabase が渡す options を残したうえで、httpOnly などの安全側の設定で上書きする
+              response.cookies.set(name, value, { ...options, ...COOKIE_OPTIONS }); // レスポンスに直接セット
+            });
           },
         },                                                                             
       }                          

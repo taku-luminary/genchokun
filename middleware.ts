@@ -1,5 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";                                            
+import { type NextRequest, NextResponse } from "next/server";
   import { createServerClient } from "@supabase/ssr";
+  import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
 
   const PUBLIC_PATHS = [
     "/",
@@ -40,13 +41,9 @@ import { type NextRequest, NextResponse } from "next/server";
             // このリクエストはそのまま通してOKですというCookieをブラウザに返すためのレスポンス（オブジェクト）を作る
             cookiesToSet.forEach(({ name, value, options }) =>
             // Supabaseから渡されたCookie一覧を1つずつ処理する
-              ref.response.cookies.set(name, value, {   
-              // ブラウザに保存してほしいCookieを、レスポンスに追加する                              
-                ...options,
-                httpOnly: true,                                                                            
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax" as const,
-              })                                                                                           
+              // ブラウザに保存してほしいCookieを、レスポンスに追加する。
+              // Supabase が渡す options を残したうえで、httpOnly などの安全側の設定で上書きする
+              ref.response.cookies.set(name, value, { ...options, ...COOKIE_OPTIONS })
             );
           },                                                                                               
         },                         
