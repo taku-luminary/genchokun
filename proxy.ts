@@ -25,16 +25,16 @@ import { type NextRequest, NextResponse } from "next/server";
   //     /api/companies/me は数字ではないので対象外（＝認証必須のまま）
   const isPublicCompanyPath = (pathname: string) =>
     /^\/companies\/\d+$/.test(pathname) || /^\/api\/companies\/\d+$/.test(pathname);
-  
-  export const middleware = async (request: NextRequest) => {                                              
+
+  export const proxy = async (request: NextRequest) => {
     const ref = { response: NextResponse.next({ request }) };
-                                                                                                           
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {                                                                                                    
+      {
         cookies: {
-          getAll: () => request.cookies.getAll(),                                                          
+          getAll: () => request.cookies.getAll(),
           setAll: (cookiesToSet) => {
             // cookiesToSet はSupabaseが「ブラウザに保存し直してほしい」と渡してくるCookieの一覧
             ref.response = NextResponse.next({ request });
@@ -45,8 +45,8 @@ import { type NextRequest, NextResponse } from "next/server";
               // Supabase が渡す options を残したうえで、httpOnly などの安全側の設定で上書きする
               ref.response.cookies.set(name, value, { ...options, ...COOKIE_OPTIONS })
             );
-          },                                                                                               
-        },                         
+          },
+        },
       }
     );
 
@@ -59,15 +59,15 @@ import { type NextRequest, NextResponse } from "next/server";
       !PUBLIC_PATHS.includes(request.nextUrl.pathname) &&
       !isPublicCompanyPath(request.nextUrl.pathname)
     ) {      const url = request.nextUrl.clone();
-      url.pathname = "/login";                                                                             
+      url.pathname = "/login";
       ref.response = NextResponse.redirect(url);
     }
 
     return ref.response;
   };
 
-  export const config = {                                                                                  
+  export const config = {
     matcher: [
-      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",                 
-    ],                             
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    ],
   };

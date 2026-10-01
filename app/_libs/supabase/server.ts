@@ -36,7 +36,7 @@ import { COOKIE_OPTIONS } from '@/app/_libs/supabase/cookieOptions'
               )
             } catch {
               // Server Component からは Cookie を書き込めないため無視
-              // middleware.ts が代わりに処理する
+              // proxy.ts が代わりに処理する
             }
           },
         },

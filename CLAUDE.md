@@ -51,7 +51,7 @@
 
 - OS は macOS (BSD)。grep の OR は `\|` ではなく `-E "A|B"` を使う
 - 「未使用/不在」と断言する前に関連ファイルを直接 Read で確認する
-- 認証系ルート（confirm/callback/reset等）を追加/変更したら middleware の PUBLIC_PATHS に画面パスとAPIパスの両方を登録する。参照調査の grep は app/ 限定にせずリポジトリ全体で行う
+- 認証系ルート（confirm/callback/reset等）を追加/変更したら proxy.ts の PUBLIC_PATHS に画面パスとAPIパスの両方を登録する。参照調査の grep は app/ 限定にせずリポジトリ全体で行う
 
 # 進め方
 
@@ -90,3 +90,13 @@
 # コード外のDB設定
 
 - Supabase本番にDBトリガーあり: auth.users INSERT時に public.users へ自動で行を作成（詳細は docs/sql/create_users_trigger.sql）。users行の作成はこのトリガーとアプリ側 ensureUserRecord の二重体制
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
