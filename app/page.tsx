@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import Image from "next/image";
 import React, { useState } from 'react';
 import { useAuthedFetch } from './_hooks/useAuthedFetch';
 import { ProjectCard, RequestCard } from './_components/Cards';
@@ -58,25 +59,43 @@ export default function Home() {
 
           {/* Action Buttons */}
           <div className="flex justify-center items-center gap-4 md:gap-10">
-            <Link href="/projects/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-10 md:pt-12 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
+            <Link href="/projects/new" className="flex-1 aspect-square max-w-40 md:max-w-72 group relative bg-white rounded-full flex flex-col items-center justify-start pt-10 md:pt-12 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
                 {/* トップの入口はブランドの見え方を優先し、文字用の brand-green-dark ではなく brand-green のままにする */}
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />発注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="/input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                {/* width / height は元画像の実寸。表示サイズは h-full・w-auto 側で決まる（先に縦横比を伝えて読み込み中のガタつきを防ぐ目的） */}
+                {/* ファーストビューに出る画像なので遅延読み込みはしない */}
+                <Image
+                  src="/input_file_0.png"
+                  alt="販売店"
+                  width={154}
+                  height={258}
+                  loading="eager"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </Link>
 
-            <Link href="/requests/new" className="flex-shrink-0 group relative bg-white rounded-full w-40 h-40 md:w-72 md:h-72 flex flex-col items-center justify-start pt-10 md:pt-12 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
+            <Link href="/requests/new" className="flex-1 aspect-square max-w-40 md:max-w-72 group relative bg-white rounded-full flex flex-col items-center justify-start pt-10 md:pt-12 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] transition-all hover:scale-105 active:scale-95 overflow-hidden border border-white/20">
               <div className="absolute inset-0 bg-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative z-10 text-center px-4">
                 {/* トップの入口はブランドの見え方を優先し、文字用の brand-green-dark ではなく brand-green のままにする */}
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />受注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="/input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                {/* width / height は元画像の実寸。表示サイズは h-full・w-auto 側で決まる（先に縦横比を伝えて読み込み中のガタつきを防ぐ目的） */}
+                {/* ファーストビューに出る画像なので遅延読み込みはしない */}
+                <Image
+                  src="/input_file_1.png"
+                  alt="工事店"
+                  width={179}
+                  height={251}
+                  loading="eager"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </Link>
           </div>
