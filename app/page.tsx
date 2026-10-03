@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import Image from "next/image";
 import React, { useState } from 'react';
 import { useAuthedFetch } from './_hooks/useAuthedFetch';
 import { ProjectCard, RequestCard } from './_components/Cards';
@@ -65,7 +66,16 @@ export default function Home() {
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />発注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="/input_file_0.png" alt="販売店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                {/* width / height は元画像の実寸。表示サイズは h-full・w-auto 側で決まる（先に縦横比を伝えて読み込み中のガタつきを防ぐ目的） */}
+                {/* ファーストビューに出る画像なので遅延読み込みはしない */}
+                <Image
+                  src="/input_file_0.png"
+                  alt="販売店"
+                  width={154}
+                  height={258}
+                  loading="eager"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </Link>
 
@@ -76,7 +86,16 @@ export default function Home() {
                 <h3 className="text-base md:text-3xl font-black text-brand-green leading-tight mb-2 md:mb-4">仕事を<br />受注したい</h3>
               </div>
               <div className="absolute bottom-0 w-full h-[45%] md:h-[50%] flex justify-center items-end pb-2 md:pb-4">
-                <img src="/input_file_1.png" alt="工事店" className="h-full w-auto object-contain" referrerPolicy="no-referrer" />
+                {/* width / height は元画像の実寸。表示サイズは h-full・w-auto 側で決まる（先に縦横比を伝えて読み込み中のガタつきを防ぐ目的） */}
+                {/* ファーストビューに出る画像なので遅延読み込みはしない */}
+                <Image
+                  src="/input_file_1.png"
+                  alt="工事店"
+                  width={179}
+                  height={251}
+                  loading="eager"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </Link>
           </div>
