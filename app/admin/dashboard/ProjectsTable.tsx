@@ -135,10 +135,12 @@ export function ProjectsTable() {
 
   const [sort, setSort] = useState<SortKey>("created");
   const [salesFilter, setSalesFilter] = useState("");
-  // 状態の絞り込み。3つとも外した状態が既定で、「削除済み以外のすべて」を出す。
-  // 終了案件を既定で出すのは、落選フォローや「決めずに期限切れ」を取りこぼさないため。
-  const [onlyOpen, setOnlyOpen] = useState(false);
-  const [onlyExpired, setOnlyExpired] = useState(false);
+  // 状態の絞り込み。チェックが入っている状態の案件だけを出す。
+  // 削除済みだけ既定でオフにし、終了した案件は既定で出す。落選フォローや
+  // 「決めずに期限切れ」の案件を取りこぼさないため。
+  const [showOpen, setShowOpen] = useState(true);
+  const [showExpired, setShowExpired] = useState(true);
+  const [showMatched, setShowMatched] = useState(true);
   const [showDeleted, setShowDeleted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<ModalState>(null);
@@ -159,14 +161,12 @@ export function ProjectsTable() {
   const visible = data.projects.filter((p) => {
     if (salesFilter !== "" && p.salesUser.companyName !== salesFilter)
       return false;
-    // 削除済みは独立したトグル。ONのときだけ表示対象に加える
+    // チェックが入っている状態だけを出す。open（応募0）と hasApplicants（応募あり）は
+    // どちらも画面上は「募集中」なので、募集中のチェックでまとめて扱う
     if (p.state === "deleted") return showDeleted;
-    // 「〜のみ表示」で絞り込む。どちらも外していれば削除済み以外すべて出す
-    if (!onlyOpen && !onlyExpired) return true;
-    if (onlyOpen && (p.state === "open" || p.state === "hasApplicants"))
-      return true;
-    if (onlyExpired && p.state === "expiredClosed") return true;
-    return false;
+    if (p.state === "expiredClosed") return showExpired;
+    if (p.state === "matched") return showMatched;
+    return showOpen;
   });
   const rows = [...visible].sort(SORTERS[sort]);
 
@@ -188,7 +188,27 @@ export function ProjectsTable() {
       {/* min-h は、掲載者で絞り込んで0〜1件になっても枠がつぶれないようにするため */}
       <div className="max-h-[calc(100vh-72px)] min-h-[340px] overflow-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
-          <span className="mr-1 text-xs text-slate-500">並び替え</span>
+          <StateCheck
+            label="募集中"
+            checked={showOpen}
+            onChange={setShowOpen}
+          />
+          <StateCheck
+            label="終了（不成立）"
+            checked={showExpired}
+            onChange={setShowExpired}
+          />
+          <StateCheck
+            label="マッチ成立"
+            checked={showMatched}
+            onChange={setShowMatched}
+          />
+          <StateCheck
+            label="削除済"
+            checked={showDeleted}
+            onChange={setShowDeleted}
+          />
+          <span className="ml-2 mr-1 text-xs text-slate-500">ソート</span>
           {SORT_LABELS.map(([key, label]) => (
             <button
               key={key}
@@ -204,33 +224,6 @@ export function ProjectsTable() {
               {label}
             </button>
           ))}
-          <label className="ml-2 flex items-center gap-1 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={onlyOpen}
-              onChange={(e) => setOnlyOpen(e.target.checked)}
-              className="accent-[#34b38a]"
-            />
-            募集中のみ表示
-          </label>
-          <label className="flex items-center gap-1 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={onlyExpired}
-              onChange={(e) => setOnlyExpired(e.target.checked)}
-              className="accent-[#34b38a]"
-            />
-            終了（不成立）のみ表示
-          </label>
-          <label className="flex items-center gap-1 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={showDeleted}
-              onChange={(e) => setShowDeleted(e.target.checked)}
-              className="accent-[#34b38a]"
-            />
-            削除済表示
-          </label>
           <span className="ml-auto flex items-center gap-2 text-xs">
             {greenCount > 0 && (
               <span className="rounded bg-[#34b38a]/15 px-1.5 py-0.5 font-bold text-[#12795a]">
@@ -323,7 +316,7 @@ export function ProjectsTable() {
                 >
                   該当する案件がありません。
                   <br />
-                  終了案件や削除済みを隠している場合は、上のチェックを見直してください。
+                  状態のチェック（募集中・終了（不成立）・マッチ成立・削除済）が外れていないか見直してください。
                 </td>
               </tr>
             ) : (
@@ -369,6 +362,29 @@ export function ProjectsTable() {
         )}
       </Modal>
     </>
+  );
+}
+
+/* ---- 状態の絞り込みチェック ---- */
+function StateCheck({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center gap-1 text-xs text-slate-600">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="accent-[#34b38a]"
+      />
+      {label}
+    </label>
   );
 }
 
@@ -888,16 +904,15 @@ function Legend() {
       </p>
       <p>
         <b className="text-slate-600">
-          募集中のみ表示 / 終了（不成立）のみ表示 / 削除済表示
+          募集中 / 終了（不成立） / マッチ成立 / 削除済
         </b>
         ＝状態での絞り込みです。
-        <b>3つとも外した状態が既定</b>で、
-        <b>削除済み以外のすべて（募集中・マッチ成立・終了（不成立））</b>
-        が出ます。終了した案件を既定で出しているのは、落選フォローや「決めずに期限切れ」を取りこぼさないためです。
-        「〜のみ表示」は<b>両方同時にチェックもできます</b>
-        （その場合は募集中と終了（不成立）の2種類が出ます）。削除済みは独立したトグルで、ONにすると表示対象に加わります。
-        なお<b>「マッチ成立」だけを絞り込むチェックはありません</b>
-        ので、成立済みの案件を見たいときは3つとも外した既定の状態でご覧ください。
+        <b>チェックを入れた状態の案件だけ</b>
+        が出ます（組み合わせは自由）。既定は
+        <b>削除済だけオフ</b>
+        で、終了した案件を既定で出しているのは、落選フォローや「決めずに期限切れ」を取りこぼさないためです。
+        「募集中」は応募0の案件と応募が来ている案件の両方を指します（状態列がどちらも「募集中」のため）。
+        4つすべて外すと1件も出ません。
       </p>
       <p>
         対象は<b>応募できる案件（projects）のみ</b>
