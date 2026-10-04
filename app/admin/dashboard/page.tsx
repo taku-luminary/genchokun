@@ -74,8 +74,9 @@ export default function AdminDashboardPage() {
   };
   const users = [...data.users].sort(sorters[sort]);
 
+  // 管理者のPC運用前提。表が多いので幅を広く取る（1180pxでは案件一覧が横スクロールした）
   return (
-    <main className="mx-auto max-w-[1180px] px-6 pb-14">
+    <main className="mx-auto max-w-[1600px] px-6 pb-14">
       <div className="mt-4 mb-3 flex items-center justify-between">
         <h2 className="text-base font-bold tracking-wide">概況</h2>
         <div className="flex items-center gap-2">

@@ -63,7 +63,9 @@ const APPLICANT_BADGE: Record<
 const TONE_CLASS: Record<AdminProjectFollowUp["tone"], string> = {
   red: "text-red-600",
   amber: "text-amber-700",
-  slate: "text-slate-500",
+  green: "text-[#12795a]", // 本日掲載。すぐに周知する
+  slateStrong: "text-slate-700", // やることはあるが急がない（周知）
+  slate: "text-slate-500", // 対応不要
 };
 
 // "2026-05-17" → "26/05/17"
@@ -149,7 +151,8 @@ export function ProjectsTable() {
   });
   const rows = [...visible].sort(SORTERS[sort]);
 
-  // その日の作業量が先に分かるように、絞り込み後の赤・橙を数える
+  // その日の作業量が先に分かるように、絞り込み後の件数を数える
+  const greenCount = rows.filter((p) => p.followUp.tone === "green").length;
   const redCount = rows.filter((p) => p.followUp.tone === "red").length;
   const amberCount = rows.filter((p) => p.followUp.tone === "amber").length;
 
@@ -201,6 +204,11 @@ export function ProjectsTable() {
             削除済表示
           </label>
           <span className="ml-auto flex items-center gap-2 text-xs">
+            {greenCount > 0 && (
+              <span className="rounded bg-[#34b38a]/15 px-1.5 py-0.5 font-bold text-[#12795a]">
+                本日掲載 {greenCount}件
+              </span>
+            )}
             {redCount > 0 && (
               <span className="rounded bg-red-500/10 px-1.5 py-0.5 font-bold text-red-600">
                 急ぎ {redCount}件
@@ -216,16 +224,18 @@ export function ProjectsTable() {
         </div>
 
         <table className="w-full table-fixed border-collapse text-sm">
-          {/* 案件名/掲載者 226・掲載日 68・作業期間 96・状態 80・応募 48・応募者 268・訪問状況 76・要対応 268 ＝ 1130 */}
+          {/* 案件名/掲載者 300・掲載日 72・作業期間 104・状態 88・応募 52・応募者 356・訪問状況 80・要対応 288 ＝ 1340。
+              使える幅（1440pxの画面で約1375px）より少なめにしてある。ぴったり合わせると
+              縦スクロールバーの幅だけで横スクロールが出るため。 */}
           <colgroup>
-            <col className="w-[226px]" />
-            <col className="w-[68px]" />
-            <col className="w-[96px]" />
+            <col className="w-[300px]" />
+            <col className="w-[72px]" />
+            <col className="w-[104px]" />
+            <col className="w-[88px]" />
+            <col className="w-[52px]" />
+            <col className="w-[356px]" />
             <col className="w-[80px]" />
-            <col className="w-[48px]" />
-            <col className="w-[268px]" />
-            <col className="w-[76px]" />
-            <col className="w-[268px]" />
+            <col className="w-[288px]" />
           </colgroup>
           <thead>
             <tr className="[&_th]:sticky [&_th]:top-[41px] [&_th]:z-10 [&_th]:border-b [&_th]:border-slate-300 [&_th]:bg-slate-50 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-[11px] [&_th]:font-semibold [&_th]:text-slate-600">
@@ -545,11 +555,48 @@ function ApplicantModalBody({
 }: {
   applicant: AdminProjectApplicant;
 }) {
+  // 落選者に電話でフォローする場面があるので、メールだけでなく電話・LINEも出す
+  const contactRows: [string, string | null][] = [
+    ["電話", a.contactPhone],
+    ["メール", a.contactEmail],
+    ["LINE", a.contactLineId],
+    ["備考", a.contactNote],
+  ];
+  const hasContact = contactRows.some(([, value]) => value !== null);
+
   return (
     <>
-      <p className="text-sm text-slate-500">
-        メール: {a.email ?? "未登録"}
-      </p>
+      <div className="rounded-lg border border-slate-200 p-3 text-sm">
+        <p className="font-bold text-slate-600">
+          自社情報に登録された連絡先（companies）
+        </p>
+        {hasContact ? (
+          contactRows.map(([label, value]) =>
+            value === null ? null : (
+              <p key={label} className="mt-1">
+                <span className="text-slate-500">{label}</span>　{value}
+              </p>
+            ),
+          )
+        ) : (
+          <p className="mt-1 text-slate-400">
+            連絡先が登録されていません（下のログイン用メールしか手段がありません）
+          </p>
+        )}
+      </div>
+
+      <div className="mt-3 rounded-lg border border-slate-200 p-3 text-sm">
+        <p className="font-bold text-slate-600">
+          ログイン用メールアドレス（users）
+        </p>
+        <p className="mt-1">
+          {a.loginEmail ?? <span className="text-slate-400">未登録</span>}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">
+          ※ 会員登録・ログインに使うアドレスです。上の連絡先とは別物です。
+        </p>
+      </div>
+
       <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
         <p className="font-bold text-slate-600">案件への応募実績（累計）</p>
         <p className="mt-1">
@@ -587,23 +634,49 @@ function SalesModalBody({
   onFilter: () => void;
 }) {
   const s = p.salesUser;
-  const rows: [string, string | null][] = [
-    ["電話", s.phone],
-    ["メール", s.email],
-    ["LINE", s.lineId],
-    ["備考", s.note],
+  // 自社情報（companies）の連絡先。ログイン用メールとは出どころが違うので分けて出す
+  const contactRows: [string, string | null][] = [
+    ["電話", s.contactPhone],
+    ["メール", s.contactEmail],
+    ["LINE", s.contactLineId],
+    ["備考", s.contactNote],
   ];
+  const hasContact = contactRows.some(([, value]) => value !== null);
+
   return (
     <>
-      <div className="text-sm">
-        {rows.map(([label, value]) =>
-          value === null ? null : (
-            <p key={label} className="mt-1">
-              <span className="text-slate-500">{label}</span>　{value}
-            </p>
-          ),
+      <div className="rounded-lg border border-slate-200 p-3 text-sm">
+        <p className="font-bold text-slate-600">
+          自社情報に登録された連絡先（companies）
+        </p>
+        {hasContact ? (
+          contactRows.map(([label, value]) =>
+            value === null ? null : (
+              <p key={label} className="mt-1">
+                <span className="text-slate-500">{label}</span>　{value}
+              </p>
+            ),
+          )
+        ) : (
+          <p className="mt-1 text-slate-400">
+            連絡先が登録されていません（下のログイン用メールしか手段がありません）
+          </p>
         )}
       </div>
+
+      <div className="mt-3 rounded-lg border border-slate-200 p-3 text-sm">
+        <p className="font-bold text-slate-600">
+          ログイン用メールアドレス（users）
+        </p>
+        <p className="mt-1">
+          {s.loginEmail ?? <span className="text-slate-400">未登録</span>}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">
+          ※
+          会員登録・ログインに使うアドレスです。上の連絡先とは別物で、本人が連絡用に指定したものではありません。
+        </p>
+      </div>
+
       <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
         <p className="font-bold text-slate-600">案件の投稿実績（累計）</p>
         <p className="mt-1">
@@ -626,9 +699,6 @@ function SalesModalBody({
       >
         この掲載者の案件だけ表示
       </button>
-      <p className="mt-3 text-xs text-slate-400">
-        ※ 連絡先は掲載者が自社情報に登録した内容です。
-      </p>
     </>
   );
 }
@@ -715,7 +785,12 @@ function Legend() {
         </b>
         もの<b>だけ</b>に付けます。
         <b className="text-amber-700">橙</b>＝急がないが連絡したいもの。
-        <b>グレー</b>＝通常のフローの中なので、いま動かなくてよいもの。
+        <b className="text-[#12795a]">緑</b>
+        ＝本日掲載。すぐに全ユーザーへ周知するもの。
+        <b className="text-slate-700">濃いグレー</b>
+        ＝やることはあるが急がないもの（周知がまだ行き届いていない可能性）。
+        <b className="text-slate-500">薄いグレー</b>
+        ＝通常のフローの中なので、いま動かなくてよいもの。
       </p>
       <p className="pl-3">
         ・<b className="text-slate-600">応募を知らせる</b>
@@ -739,10 +814,20 @@ function Legend() {
         <b>マッチングまで進めないと案件が完結しない</b>ことを伝えます。
         <br />・<b className="text-slate-600">落選者にフォロー</b>
         ＝マッチが決まり、選ばれなかった人がいる。落ちた人にも声をかけます。
+        <br />・
+        <b className="text-[#12795a]">【本日掲載】全ユーザーへ新規案件周知</b>
+        ＝<b>今日掲載された、まだ応募0件の案件</b>
+        です。掲載初日は条件の見直しではなく周知が先なので、
+        <b>すぐにLINEで全ユーザーへ知らせます</b>
+        。ツールバー右端の「本日掲載N件」がその日の周知件数です。
+        <br />・<b className="text-slate-700">全ユーザーへ新規案件周知</b>
+        ＝応募0件だが終了日まで8日以上あります。
+        <b>周知がまだ行き届いていない可能性</b>があるので、改めて知らせます。
         <br />・<b className="text-slate-600">応募が来るようフォロー</b>
-        ＝まだ応募0件。条件・金額・地域の見直しや受け手への声かけが必要です（残り3日以内は
+        ＝応募0件で<b>終了日が近い</b>
+        案件です。周知だけでは間に合わないので、条件・金額・地域の見直しが必要です（残り3日以内は
         <b className="text-red-600">赤</b>、7日以内は
-        <b className="text-amber-700">橙</b>、それ以上はグレー）。
+        <b className="text-amber-700">橙</b>）。
         <br />・<b className="text-slate-600">応募0で終了</b>
         ＝誰も応募しないまま終わった。受け手が足りていない記録として残します。
         <br />・<b className="text-red-600">⚠ ○○ N連続落選</b>

@@ -17,9 +17,13 @@ export type AdminProjectFollowUp = {
   priority: number; // 1〜6。小さいほど先に手を打つ
   label: string; // 上段＝管理者が取る行動（例「応募を知らせる」）
   sub: string | null; // 下段＝理由と期限（例「応募3件・掲載者は未訪問」）
-  // 赤は「放っておくと不成立が確定する／すでに不成立になった」ものだけに付ける。
-  // ここを崩すと「赤＝必ず手を打つ行」という読み方が成立しなくなる。
-  tone: "red" | "amber" | "slate";
+  // 色の意味。赤を増やすと「赤が付いた行＝必ず手を打つ行」という読み方が崩れるので慎重に。
+  //   red         … 放っておくと不成立が確定する／すでに不成立になった
+  //   amber       … 急がないが連絡したい
+  //   green       … 本日掲載。すぐに全ユーザーへ周知する
+  //   slateStrong … やることはあるが急がない（周知が行き届いていない可能性）
+  //   slate       … 対応不要
+  tone: "red" | "amber" | "green" | "slateStrong" | "slate";
 };
 
 export type AdminProjectApplicant = {
@@ -28,7 +32,14 @@ export type AdminProjectApplicant = {
   appliedAt: string; // ISO（応募日時）
   companyId: string | null; // null＝会社未登録。リンクを張らない
   companyName: string | null;
-  email: string | null;
+  // ▼ companies（自社情報）に登録された連絡先。
+  //   落選者へ電話でフォローするために使うので、電話とLINEも返す。
+  contactPhone: string | null;
+  contactEmail: string | null;
+  contactLineId: string | null;
+  contactNote: string | null;
+  // ▼ users（認証）のメール。ログイン・会員登録に使うもので、上の連絡先とは別物。
+  loginEmail: string | null;
   message: string | null; // 応募コメント全文（モーダルで表示）
   // この会社の「案件への応募」累計。
   // 依頼(requests)は応募＝即成立で落選が起きないため含めない。
@@ -55,10 +66,13 @@ export type AdminProjectRow = {
   salesUser: {
     companyId: string | null;
     companyName: string | null;
-    email: string | null;
-    phone: string | null;
-    lineId: string | null;
-    note: string | null;
+    // ▼ companies（自社情報）に登録された連絡先
+    contactPhone: string | null;
+    contactEmail: string | null;
+    contactLineId: string | null;
+    contactNote: string | null;
+    // ▼ users（認証）のメール。ログイン・会員登録に使うもので、上の連絡先とは別物
+    loginEmail: string | null;
     // 連絡先モーダルに出す投稿実績。「決めない癖」があるかを電話前に把握する
     postTotal: number;
     postWon: number;

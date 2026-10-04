@@ -83,7 +83,16 @@ export async function GET(): Promise<
             contractorUser: {
               select: {
                 email: true,
-                company: { select: { id: true, name: true, contactEmail: true } },
+                company: {
+                  select: {
+                    id: true,
+                    name: true,
+                    contactPhone: true,
+                    contactEmail: true,
+                    contactLineId: true,
+                    contactNote: true,
+                  },
+                },
               },
             },
           },
@@ -94,6 +103,9 @@ export async function GET(): Promise<
     const now = Date.now();
     const elapsedDays = (from: Date) =>
       Math.floor((now - from.getTime()) / 86400000);
+
+    // 「本日掲載」の判定用。日本時間の今日の日付（YYYY-MM-DD）
+    const todayJst = toJstYmd(new Date());
 
     // ---- 応募者（工事店）ごとの累計と連続落選 ----
     // 全案件の応募を1本にならしてユーザー単位でまとめる。取得済みの配列から作るので追加クエリは不要。
@@ -212,11 +224,12 @@ export async function GET(): Promise<
         postOpen: 0,
       };
       const salesCompany = p.salesUser.company;
+      const createdAtJst = toJstYmd(p.createdAt);
 
       return {
         projectId: p.id.toString(),
         title: p.title,
-        createdAtJst: toJstYmd(p.createdAt),
+        createdAtJst,
         createdAt: p.createdAt.toISOString(),
         workStartDate: toYmd(p.workStartDate),
         workEndDate: toYmd(p.workEndDate),
@@ -226,11 +239,11 @@ export async function GET(): Promise<
         salesUser: {
           companyId: salesCompany?.id.toString() ?? null,
           companyName: salesCompany?.name ?? null,
-          // 連絡用に登録されたメールを優先し、未登録ならログイン用メールを出す
-          email: salesCompany?.contactEmail ?? p.salesUser.email,
-          phone: salesCompany?.contactPhone ?? null,
-          lineId: salesCompany?.contactLineId ?? null,
-          note: salesCompany?.contactNote ?? null,
+          contactPhone: salesCompany?.contactPhone ?? null,
+          contactEmail: salesCompany?.contactEmail ?? null,
+          contactLineId: salesCompany?.contactLineId ?? null,
+          contactNote: salesCompany?.contactNote ?? null,
+          loginEmail: p.salesUser.email,
           postTotal: salesStat.postTotal,
           postWon: salesStat.postWon,
           postLost: salesStat.postLost,
@@ -251,6 +264,7 @@ export async function GET(): Promise<
           waitDays,
           daysLeft,
           visitedAfterApply,
+          postedToday: createdAtJst === todayJst,
         }),
         applicants: p.matches.map((m): AdminProjectApplicant => {
           const company = m.contractorUser.company;
@@ -260,7 +274,11 @@ export async function GET(): Promise<
             appliedAt: m.createdAt.toISOString(),
             companyId: company?.id.toString() ?? null,
             companyName: company?.name ?? null,
-            email: company?.contactEmail ?? m.contractorUser.email,
+            contactPhone: company?.contactPhone ?? null,
+            contactEmail: company?.contactEmail ?? null,
+            contactLineId: company?.contactLineId ?? null,
+            contactNote: company?.contactNote ?? null,
+            loginEmail: m.contractorUser.email,
             message: m.applicationDetail?.message ?? null,
             stats: statsByContractor.get(m.contractorUserId) ?? {
               applied: 0,
@@ -300,6 +318,7 @@ function buildFollowUp(a: {
   waitDays: number | null;
   daysLeft: number | null;
   visitedAfterApply: boolean | null;
+  postedToday: boolean;
 }): AdminProjectFollowUp {
   const left = a.daysLeft === null ? "終了日未設定" : `残り${a.daysLeft}日`;
 
@@ -370,17 +389,37 @@ function buildFollowUp(a: {
     };
   }
 
-  // 募集中・応募0。終了日が近いほど急ぐ
-  const tone =
-    a.daysLeft !== null && a.daysLeft <= 3
-      ? "red"
-      : a.daysLeft !== null && a.daysLeft <= 7
-        ? "amber"
-        : "slate";
+  // 募集中・応募0。
+  // 掲載したばかりの案件は「周知がまだ行き届いていない」状態なので、条件の見直しではなく
+  // まず全ユーザーへ知らせるのが正しい行動。期限が近づいてから条件の見直しに切り替える。
+  if (a.postedToday) {
+    return {
+      priority: 5,
+      tone: "green",
+      label: "【本日掲載】全ユーザーへ新規案件周知",
+      sub: `応募0・${left}`,
+    };
+  }
+  if (a.daysLeft !== null && a.daysLeft <= 3) {
+    return {
+      priority: 5,
+      tone: "red",
+      label: "応募が来るようフォロー",
+      sub: `応募0・${left}`,
+    };
+  }
+  if (a.daysLeft !== null && a.daysLeft <= 7) {
+    return {
+      priority: 5,
+      tone: "amber",
+      label: "応募が来るようフォロー",
+      sub: `応募0・${left}`,
+    };
+  }
   return {
     priority: 5,
-    tone,
-    label: "応募が来るようフォロー",
+    tone: "slateStrong",
+    label: "全ユーザーへ新規案件周知",
     sub: `応募0・${left}`,
   };
 }
