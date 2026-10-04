@@ -188,27 +188,7 @@ export function ProjectsTable() {
       {/* min-h は、掲載者で絞り込んで0〜1件になっても枠がつぶれないようにするため */}
       <div className="max-h-[calc(100vh-72px)] min-h-[340px] overflow-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
-          <StateCheck
-            label="募集中"
-            checked={showOpen}
-            onChange={setShowOpen}
-          />
-          <StateCheck
-            label="終了（不成立）"
-            checked={showExpired}
-            onChange={setShowExpired}
-          />
-          <StateCheck
-            label="マッチ成立"
-            checked={showMatched}
-            onChange={setShowMatched}
-          />
-          <StateCheck
-            label="削除済"
-            checked={showDeleted}
-            onChange={setShowDeleted}
-          />
-          <span className="ml-2 mr-1 text-xs text-slate-500">ソート</span>
+          <span className="mr-1 text-xs text-slate-500">並び替え</span>
           {SORT_LABELS.map(([key, label]) => (
             <button
               key={key}
@@ -224,6 +204,25 @@ export function ProjectsTable() {
               {label}
             </button>
           ))}
+          {/* 並び替え（1つだけ選ぶ）と絞り込み（複数チェックできる）は別物なので区切る */}
+          <span className="mx-1 text-xs text-slate-300">/</span>
+          <span className="mr-1 text-xs text-slate-500">絞り込み</span>
+          <StateCheck label="募集中" checked={showOpen} onChange={setShowOpen} />
+          <StateCheck
+            label="終了"
+            checked={showExpired}
+            onChange={setShowExpired}
+          />
+          <StateCheck
+            label="マッチ成立"
+            checked={showMatched}
+            onChange={setShowMatched}
+          />
+          <StateCheck
+            label="削除済"
+            checked={showDeleted}
+            onChange={setShowDeleted}
+          />
           <span className="ml-auto flex items-center gap-2 text-xs">
             {greenCount > 0 && (
               <span className="rounded bg-[#34b38a]/15 px-1.5 py-0.5 font-bold text-[#12795a]">
@@ -316,7 +315,7 @@ export function ProjectsTable() {
                 >
                   該当する案件がありません。
                   <br />
-                  状態のチェック（募集中・終了（不成立）・マッチ成立・削除済）が外れていないか見直してください。
+                  絞り込みのチェック（募集中・終了・マッチ成立・削除済）が外れていないか見直してください。
                 </td>
               </tr>
             ) : (
@@ -903,16 +902,16 @@ function Legend() {
         がいます。離脱しやすいので優先して声をかけます。
       </p>
       <p>
-        <b className="text-slate-600">
-          募集中 / 終了（不成立） / マッチ成立 / 削除済
-        </b>
+        <b className="text-slate-600">絞り込み（募集中 / 終了 / マッチ成立 / 削除済）</b>
         ＝状態での絞り込みです。
         <b>チェックを入れた状態の案件だけ</b>
         が出ます（組み合わせは自由）。既定は
         <b>削除済だけオフ</b>
         で、終了した案件を既定で出しているのは、落選フォローや「決めずに期限切れ」を取りこぼさないためです。
-        「募集中」は応募0の案件と応募が来ている案件の両方を指します（状態列がどちらも「募集中」のため）。
-        4つすべて外すと1件も出ません。
+        <b>「終了」は状態列の「終了（不成立）」</b>
+        を指します（マッチ成立は別のチェックです）。
+        <b>「募集中」は応募0の案件と応募が来ている案件の両方</b>
+        を指します（状態列がどちらも「募集中」のため）。4つすべて外すと1件も出ません。
       </p>
       <p>
         対象は<b>応募できる案件（projects）のみ</b>
