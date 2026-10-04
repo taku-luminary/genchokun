@@ -18,7 +18,7 @@ export function formatJpDate(dateStr: string | null): string {
 // 与えられた日時を「日本時間の年月日」文字列(YYYY-MM-DD)に変換する
 // timeZone に Asia/Tokyo を明示することで、実行場所(サーバーUTC / ブラウザ)に
 // 依存せず常に日本時間の日付として扱える。en-CA は "2026-08-11" 形式で扱いやすい
-function toJstYmd(date: Date): string {
+export function toJstYmd(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tokyo",
     year: "numeric",
