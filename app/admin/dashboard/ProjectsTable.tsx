@@ -99,13 +99,25 @@ const toJstDateTime = (iso: string | null) =>
 const byDeadline = (a: AdminProjectRow, b: AdminProjectRow) =>
   (a.daysLeft ?? 9999) - (b.daysLeft ?? 9999);
 
+// 要対応順で上に出す色の順番。急ぎ(赤)を最優先にし、次に今日しかできない周知(緑)を置く。
+// 優先度(priority)より色を先に見るのは、優先度1のグレー（＝通常フローで動かなくてよい案件）が
+// 優先度5の赤（＝期限が迫っていて今日動くべき案件）より上に来てしまうのを防ぐため。
+const TONE_ORDER: Record<AdminProjectFollowUp["tone"], number> = {
+  red: 0,
+  green: 1,
+  amber: 2,
+  slateStrong: 3,
+  slate: 4,
+};
+
 const SORTERS: Record<
   SortKey,
   (a: AdminProjectRow, b: AdminProjectRow) => number
 > = {
   created: (a, b) => b.createdAt.localeCompare(a.createdAt),
-  // 優先度 → 同じ優先度なら作業完了日が近い順（取り返しがつくうちに手を打てる順）
+  // 色（急ぎ順）→ 優先度 → 作業完了日が近い順（取り返しがつくうちに手を打てる順）
   followUp: (a, b) =>
+    TONE_ORDER[a.followUp.tone] - TONE_ORDER[b.followUp.tone] ||
     a.followUp.priority - b.followUp.priority ||
     byDeadline(a, b) ||
     b.createdAt.localeCompare(a.createdAt),
@@ -123,8 +135,10 @@ export function ProjectsTable() {
 
   const [sort, setSort] = useState<SortKey>("created");
   const [salesFilter, setSalesFilter] = useState("");
-  // 終了案件は既定で表示する（落選フォローや「決めずに期限切れ」を取りこぼさないため）
-  const [hideClosed, setHideClosed] = useState(false);
+  // 状態の絞り込み。3つとも外した状態が既定で、「削除済み以外のすべて」を出す。
+  // 終了案件を既定で出すのは、落選フォローや「決めずに期限切れ」を取りこぼさないため。
+  const [onlyOpen, setOnlyOpen] = useState(false);
+  const [onlyExpired, setOnlyExpired] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<ModalState>(null);
@@ -145,9 +159,14 @@ export function ProjectsTable() {
   const visible = data.projects.filter((p) => {
     if (salesFilter !== "" && p.salesUser.companyName !== salesFilter)
       return false;
+    // 削除済みは独立したトグル。ONのときだけ表示対象に加える
     if (p.state === "deleted") return showDeleted;
-    if (isClosedState(p.state)) return !hideClosed;
-    return true;
+    // 「〜のみ表示」で絞り込む。どちらも外していれば削除済み以外すべて出す
+    if (!onlyOpen && !onlyExpired) return true;
+    if (onlyOpen && (p.state === "open" || p.state === "hasApplicants"))
+      return true;
+    if (onlyExpired && p.state === "expiredClosed") return true;
+    return false;
   });
   const rows = [...visible].sort(SORTERS[sort]);
 
@@ -188,11 +207,20 @@ export function ProjectsTable() {
           <label className="ml-2 flex items-center gap-1 text-xs text-slate-600">
             <input
               type="checkbox"
-              checked={hideClosed}
-              onChange={(e) => setHideClosed(e.target.checked)}
+              checked={onlyOpen}
+              onChange={(e) => setOnlyOpen(e.target.checked)}
               className="accent-[#34b38a]"
             />
-            終了案件を隠す
+            募集中のみ表示
+          </label>
+          <label className="flex items-center gap-1 text-xs text-slate-600">
+            <input
+              type="checkbox"
+              checked={onlyExpired}
+              onChange={(e) => setOnlyExpired(e.target.checked)}
+              className="accent-[#34b38a]"
+            />
+            終了（不成立）のみ表示
           </label>
           <label className="flex items-center gap-1 text-xs text-slate-600">
             <input
@@ -283,7 +311,7 @@ export function ProjectsTable() {
               <th className="!text-right">応募</th>
               <th>応募者（申込順）</th>
               <th>訪問状況</th>
-              <th>（参考）要対応</th>
+              <th>（開発中）要対応</th>
             </tr>
           </thead>
           <tbody>
@@ -371,9 +399,22 @@ function ProjectRow({
     .filter((a) => a.stats.rejectStreak >= 2)
     .sort((a, b) => b.stats.rejectStreak - a.stats.rejectStreak);
 
+  // 応募0のまま最終日が迫っている案件は、見落とすと確実に不成立になるので
+  // 行全体を薄い赤にする。期限切れ(マイナス)は既に終わっているので対象にしない。
+  const isLastCall =
+    p.applicantCount === 0 &&
+    p.daysLeft !== null &&
+    p.daysLeft >= 0 &&
+    p.daysLeft <= 1;
+
   // align-top は必須。付けないと応募者が複数行ある行で掲載日が上下中央に浮く
   return (
-    <tr className="border-b border-slate-100 align-top hover:bg-slate-50">
+    <tr
+      className={
+        "border-b border-slate-100 align-top " +
+        (isLastCall ? "bg-red-50 hover:bg-red-100" : "hover:bg-slate-50")
+      }
+    >
       <td className="px-3 py-2.5">
         {/* 削除済みは /api/projects/[id] が 404 を返すのでリンクにしない */}
         {p.state === "deleted" ? (
@@ -772,12 +813,23 @@ function Legend() {
         <b>断定できるのは「未訪問」側だけ</b>と考えて使ってください。
       </p>
       <p>
-        <b className="text-slate-600">（参考）要対応</b>＝上段が
-        <b>管理者が取る行動</b>、下段がその<b>理由と期限</b>です。
-        「要対応順」で並べると上から優先度順で、同じ優先度の中では作業完了日が近い順（取り返しがつくうちに手を打てる順）になります。
-        ツールバー右端に<b className="text-red-600">急ぎ</b>と
+        <b className="text-slate-600">（開発中）要対応</b>＝上段が
+        <b>管理者が取る行動</b>、下段がその<b>理由と期限</b>です。判定の基準は運用しながら調整中です。
+        「要対応順」で並べると
+        <b>
+          急ぎ（赤）→ 本日掲載（緑）→ 要連絡（橙）→ 周知（濃いグレー）→
+          対応不要（薄いグレー）
+        </b>
+        の順になり、同じ色の中では作業完了日が近い順（取り返しがつくうちに手を打てる順）に並びます。
+        ツールバー右端に<b className="text-[#12795a]">本日掲載</b>・
+        <b className="text-red-600">急ぎ</b>・
         <b className="text-amber-700">要連絡</b>
         の件数を出すので、その日の作業量が先に分かります。
+      </p>
+      <p>
+        <b className="text-red-600">行全体が薄い赤</b>＝
+        <b>応募0件のまま作業完了日が明日または今日</b>
+        になった案件です。見落とすとそのまま不成立になるので、行ごと目立たせています。
       </p>
       <p className="pl-3">
         <b className="text-red-600">
@@ -835,9 +887,17 @@ function Legend() {
         がいます。離脱しやすいので優先して声をかけます。
       </p>
       <p>
-        <b className="text-slate-600">終了案件を隠す / 削除済表示</b>
-        ＝終了した案件も既定で表示します（落選フォローや「決めずに期限切れ」を取りこぼさないため）。
-        画面を整理したいときだけ「終了案件を隠す」にチェックしてください。削除済みは既定で非表示です。
+        <b className="text-slate-600">
+          募集中のみ表示 / 終了（不成立）のみ表示 / 削除済表示
+        </b>
+        ＝状態での絞り込みです。
+        <b>3つとも外した状態が既定</b>で、
+        <b>削除済み以外のすべて（募集中・マッチ成立・終了（不成立））</b>
+        が出ます。終了した案件を既定で出しているのは、落選フォローや「決めずに期限切れ」を取りこぼさないためです。
+        「〜のみ表示」は<b>両方同時にチェックもできます</b>
+        （その場合は募集中と終了（不成立）の2種類が出ます）。削除済みは独立したトグルで、ONにすると表示対象に加わります。
+        なお<b>「マッチ成立」だけを絞り込むチェックはありません</b>
+        ので、成立済みの案件を見たいときは3つとも外した既定の状態でご覧ください。
       </p>
       <p>
         対象は<b>応募できる案件（projects）のみ</b>
