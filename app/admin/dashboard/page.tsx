@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import type { AdminDashboardResponse, AdminUserRow } from "@/app/admin/_type/adminDashboard";
 import { BarChart } from "./BarChart";
+import { ProjectsTable } from "./ProjectsTable";
 
 type Range = "1m" | "3m" | "all";
 type SortKey = "unconfirmed" | "registered" | "lastSeen" | "projPosts" | "postTotal" | "matches";
+type Tab = "users" | "projects";
 
 const daysSince = (iso: string | null) =>
   iso == null ? null : (Date.now() - new Date(iso).getTime()) / 86400000;
@@ -31,6 +33,7 @@ export default function AdminDashboardPage() {
     useAuthedFetch<AdminDashboardResponse>("/api/admin/dashboard");
   const [range, setRange] = useState<Range>("1m");
   const [sort, setSort] = useState<SortKey>("lastSeen"); // 初期は最終訪問順
+  const [tab, setTab] = useState<Tab>("users"); // 下の一覧だけを切り替える（概況は常に表示）
 
   // グラフ高さを画面の高さに合わせる（3ボックスで画面を埋める）
   const [chartH, setChartH] = useState(120);
@@ -153,7 +156,30 @@ export default function AdminDashboardPage() {
         </section>
       </div>
 
-      <h2 className="mt-7 mb-3 text-base font-bold tracking-wide">ユーザー一覧</h2>
+      {/* 一覧の切り替え。上の概況はどちらのタブでも出したままにする */}
+      <div className="mt-7 mb-3 flex items-center gap-2">
+        {(
+          [
+            ["users", "ユーザー一覧"],
+            ["projects", "案件一覧"],
+          ] as [Tab, string][]
+        ).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            className={
+              "rounded-full border px-4 py-1.5 text-sm " +
+              (tab === k
+                ? "border-[#34b38a] bg-[#34b38a]/10 font-bold text-[#12795a]"
+                : "border-slate-200 text-slate-600")
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "users" && (
       <div className="max-h-[calc(100vh-72px)] overflow-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
           <span className="mr-1 text-xs text-slate-500">並び替え</span>
@@ -273,7 +299,12 @@ export default function AdminDashboardPage() {
           </tbody>
         </table>
       </div>
+      )}
 
+      {tab === "projects" && <ProjectsTable />}
+
+      {/* 以下の解説はユーザー一覧の列についてのものなので、案件タブでは隠す */}
+      {tab === "users" && (
       <div className="mt-3 space-y-1 text-xs text-slate-500">
         <p>
           <b className="text-slate-600">登録 / 認証</b>
@@ -300,6 +331,7 @@ export default function AdminDashboardPage() {
           案件＝応募できる案件／依頼＝発注待ちの事業者。投稿・応募の「0」と記事・動画の「−」は赤。会社名クリックで会社詳細へ。
         </p>
       </div>
+      )}
     </main>
   );
 }
