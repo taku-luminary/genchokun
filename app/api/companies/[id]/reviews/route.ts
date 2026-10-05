@@ -21,6 +21,10 @@ export async function GET(
 
     // 1. 閲覧者の会社ID（未ログイン/会社未登録なら null）。isMine 判定に使う。
     const user = await getAuthUser();
+    // proxy.ts でも未ログインは弾いているが、API を直接叩かれた場合に備えて route 内でも確認する
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
     const myCompany = user
       ? await prisma.companies.findUnique({
           where: { userId: user.id },

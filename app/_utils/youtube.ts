@@ -7,6 +7,12 @@
 // 11文字)だけを抜き出し、YouTube公式の embed URL を自前で組み立てることで
 // 不正な埋め込みを防ぐ。
 // 有効なIDを取り出せなければ null を返す（＝画面では非表示になる）。
+//
+// youtube-nocookie.com を使う理由:
+// 企業ページは未ログインでも閲覧できるため、www.youtube.com で埋め込むと
+// ページを開いただけで Google の Cookie が設定される。nocookie 版は再生するまで
+// Cookie を置かないので、「解析・広告の Cookie は使っていない」という
+// プライバシーポリシーの記載と実態をそろえられる。
 export function getYouTubeEmbedUrl(
   url: string | null | undefined
 ): string | null {
@@ -23,7 +29,7 @@ export function getYouTubeEmbedUrl(
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+      return `https://www.youtube-nocookie.com/embed/${match[1]}`;
     }
   }
 

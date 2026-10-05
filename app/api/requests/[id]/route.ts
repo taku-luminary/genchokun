@@ -49,6 +49,10 @@ export async function GET(
 
     // ログインユーザーの情報をもとに、3つのフラグと2つの連絡先を判定する
     const user = await getAuthUser();
+    // proxy.ts でも未ログインは弾いているが、API を直接叩かれた場合に備えて route 内でも確認する
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
 
     // 自分がこの依頼の投稿者（工事店）か
     const isMyRequest = user ? user.id === request.contractorUserId : false;
