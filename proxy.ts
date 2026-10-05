@@ -24,11 +24,12 @@ import { type NextRequest, NextResponse } from "next/server";
   ];
 
 
-  // 数字IDの企業ページ・企業APIだけを公開許可する。
-  // 例: /companies/123, /api/companies/123 → 許可
-  //     /api/companies/me は数字ではないので対象外（＝認証必須のまま）
+  // 数字IDの企業ページだけを公開許可する。
+  // 例: /companies/123 → 許可
+  // 企業情報のAPIは公開していない（ページがサーバー側で直接DBを読むため不要）。
+  // /api/companies/me は認証必須のまま。
   const isPublicCompanyPath = (pathname: string) =>
-    /^\/companies\/\d+$/.test(pathname) || /^\/api\/companies\/\d+$/.test(pathname);
+    /^\/companies\/\d+$/.test(pathname);
 
   export const proxy = async (request: NextRequest) => {
     const ref = { response: NextResponse.next({ request }) };

@@ -1,4 +1,3 @@
-import type { InterviewArticlePublic } from "./articles";
 import type { CompanyRatingSummary } from "@/app/_libs/companyRatings";
 
 // PUT /api/companies/me のリクエスト型（フォームの送信内容）
@@ -85,17 +84,4 @@ export type CompanyInfo = {
   // 会社の総合評価（工事店として・販売店として受けた評価を合算）。0件なら null。
   // 任意（optional）なので、評価を集計しない呼び出し元でも型エラーにならない
   rating?: CompanyRatingSummary | null
-};
-
-
-// GET /api/companies/[id] のレスポンス型（公開企業ページ用）
-// 連絡先（contactPhone/Email/LineId/Note）は公開しないので含めない。
-// 表示は既存の CompanyInfoCard を再利用するため、CompanyInfo をそのまま使う。
-export type CompanyPublicResponse = {
-  id: string;
-  company: CompanyInfo;
-  logoImageUrl: string | null;
-  isMyCompany: boolean;                    // 閲覧者がこの企業のオーナー本人か
-  isAdmin: boolean;                        // 管理者に編集導線を出すため
-  article: InterviewArticlePublic | null;  // 公開中の記事（published のみ）
 };
