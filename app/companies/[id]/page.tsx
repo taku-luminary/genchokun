@@ -16,9 +16,37 @@ import type { CompanyCredentials } from "@/app/_types/companies";
 const getCompany = cache(async (id: string) => {
   return prisma.companies.findUnique({
     where: { id: BigInt(id) },
-    include: {
-      prefecture: true,
-      interviewArticle: { include: { blocks: true } },
+    // 未ログインでも見えるページなので、表示に使う項目だけを取り出す。
+    // 全カラムを取ると連絡先がメモリに乗り、将来うっかり展開したときに漏れる
+    select: {
+      id: true,
+      userId: true, // isMyCompany の判定に使う
+      name: true,
+      city: true,
+      address: true,
+      representativeName: true,
+      employeeCount: true,
+      websiteUrl: true,
+      description: true,
+      workExperience: true,
+      qualifications: true,
+      qualificationsOther: true,
+      hasInsurance: true,
+      insuranceNote: true,
+      installerIdManufacturers: true,
+      isInvoiceRegistered: true,
+      prefecture: { select: { name: true } },
+      interviewArticle: {
+        select: {
+          status: true,
+          title: true,
+          introText: true,
+          youtubeUrl: true,
+          blocks: {
+            select: { sectionKey: true, blockType: true, textContent: true },
+          },
+        },
+      },
     },
   });
 });
