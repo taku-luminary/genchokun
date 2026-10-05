@@ -186,6 +186,31 @@ export default function SignupPage() {
           <p className="text-red-500 text-sm">{errors.root.serverError.message}</p>
         )}
 
+        {/* 利用規約は、登録操作が同意を意味することをボタンの直前で示す（民法548条の2 のみなし合意）。
+            プライバシーポリシーは利用目的の公表（個人情報保護法21条）にあたるため、
+            同意ではなく「確認」として並べ、チェックボックスでの必須化はしない。
+            別タブで開くのは、読みに行って入力済みのメールアドレスとパスワードが消えるのを防ぐため */}
+        <p className="text-xs leading-relaxed text-slate-500">
+          <Link
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-slate-700"
+          >
+            利用規約
+          </Link>
+          と
+          <Link
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-slate-700"
+          >
+            プライバシーポリシー
+          </Link>
+          をご確認のうえ、お進みください。会員登録をもって、利用規約に同意したものとみなします。
+        </p>
+
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "送信中..." : "会員登録"}
         </Button>

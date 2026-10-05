@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export const Footer: React.FC = () => {
   return (
@@ -16,11 +17,24 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 md:gap-8 text-xs text-slate-500">
-          <a href="#" className="hover:text-brand-green-dark transition-colors">お問い合わせ・報告</a>
-          <a href="#" className="hover:text-brand-green-dark transition-colors">利用規約</a>
-          <a href="#" className="hover:text-brand-green-dark transition-colors">運営会社</a>
-        </div>
+        {/* 規約・ポリシー・問い合わせ窓口は未ログインでも読めなければならないため、
+            全ページ共通のフッターから常に辿れるようにしている。
+            各リンクに py-3 を持たせているのは、タップ対象の高さを確保するため */}
+        <nav className="flex flex-col md:flex-row md:flex-wrap md:gap-8 text-xs text-slate-500">
+          <Link href="/contact" className="py-3 hover:text-brand-green-dark transition-colors">
+            お問い合わせ・報告
+          </Link>
+          <Link href="/terms" className="py-3 hover:text-brand-green-dark transition-colors">
+            利用規約
+          </Link>
+          <Link href="/privacy" className="py-3 hover:text-brand-green-dark transition-colors">
+            プライバシーポリシー
+          </Link>
+          {/* 運営者情報は /contact 内のセクションなので、アンカーで直接飛ばす */}
+          <Link href="/contact#operator" className="py-3 hover:text-brand-green-dark transition-colors">
+            運営会社
+          </Link>
+        </nav>
       </div>
     </footer>
   );

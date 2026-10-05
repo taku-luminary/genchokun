@@ -17,6 +17,10 @@ import { type NextRequest, NextResponse } from "next/server";
     "/api/auth/password-reset/new",
     "/api/auth/confirm",
     "/api/home",
+    // 規約・ポリシー・問い合わせ案内は、登録前と退会後にも読めなければならないので公開する
+    "/terms",
+    "/privacy",
+    "/contact",
   ];
 
 

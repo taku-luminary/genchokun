@@ -156,7 +156,8 @@ export default function CompanySettingsPage() {
         自社情報の{isNew ? "登録" : "編集"}
       </h1>
       <p className="text-sm text-slate-500 mb-8 text-center">
-        登録した内容は、案件・依頼の詳細ページで相手に表示されます
+        登録した内容は、ログインしていない方や検索エンジンからも見られる企業ページに公開されます。
+        連絡先だけは、マッチングが成立した相手にのみ表示されます。
       </p>
 
       {/* noValidate でブラウザ標準の吹き出しチェックを止め、すべて入力欄の下の赤字エラー（RHF）で案内する */}
@@ -254,6 +255,11 @@ export default function CompanySettingsPage() {
             placeholder="例：本郷1-2-3"
             {...register("address")}
           />
+          {/* 自宅兼事務所の場合に住居の所在が公開されるため、
+              入力しない選択ができることをその場で示す */}
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
+            企業ページに公開されます。公開したくない場合は、空欄のままにできます（都道府県と市区町村までは公開されます）。
+          </p>
         </div>
 
         {/* 代表者名 */}
@@ -271,6 +277,9 @@ export default function CompanySettingsPage() {
               // のように値を反映できるようになる
             // }
           />
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
+            企業ページに公開されます。公開したくない場合は、空欄のままにできます。
+          </p>
         </div>
 
         {/* 従業員数 */}

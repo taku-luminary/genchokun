@@ -17,7 +17,7 @@ export default function SettingsPage() {
           href="/mypage/settings/company"
           icon={<BuildingOffice2Icon className="h-5 w-5" />}
           title="自社情報の編集"
-          description="会社名・所在地・連絡先などを編集します。会社情報は企業ページで公開され、連絡先はマッチングが成立した相手にだけ表示されます。"
+          description="会社名・所在地・連絡先などを編集します。会社情報は、ログインしていない方も見られる企業ページに公開されます。連絡先はマッチングが成立した相手にだけ表示されます。"
         />
         <LinkListItem
           href="/mypage/settings/email"
