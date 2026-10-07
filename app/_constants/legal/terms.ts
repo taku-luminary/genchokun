@@ -7,7 +7,7 @@ import { OPERATOR } from "@/app/_constants/legal/operator";
 export const TERMS: LegalDocument = {
   title: "利用規約",
   version: "1.0",
-  revisedAt: "2026-10-05",
+  revisedAt: "2026-10-08",
   sections: [
     {
       heading: "第1条（適用）",

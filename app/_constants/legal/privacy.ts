@@ -10,7 +10,7 @@ import { OPERATOR } from "@/app/_constants/legal/operator";
 export const PRIVACY_POLICY: LegalDocument = {
   title: "プライバシーポリシー",
   version: "1.0",
-  revisedAt: "2026-10-05",
+  revisedAt: "2026-10-08",
   sections: [
     {
       heading: "1. はじめに",
