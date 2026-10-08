@@ -46,10 +46,6 @@ export default function ContactPage() {
             <dd className="mt-0.5 text-slate-700">{OPERATOR.name}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-400">代表者</dt>
-            <dd className="mt-0.5 text-slate-700">{OPERATOR.representative}</dd>
-          </div>
-          <div>
             <dt className="text-xs text-slate-400">所在地</dt>
             <dd className="mt-0.5 text-slate-700">
               〒{OPERATOR.postalCode}
