@@ -32,7 +32,7 @@ export function CompanyCredentialsFields({ control, register, savedQualification
       <div>
         <h2 className="text-2xl font-bold text-slate-800">施工体制・資格（任意）</h2>
         <p className="text-xs font-bold text-brand-green-dark mt-1">
-          こちらは企業ページに公開され、相手企業が依頼先を検討する際の判断材料になります。<br />
+          こちらはログインしていない方も見られる企業ページに公開され、相手企業が依頼先を検討する際の判断材料になります。<br />
           記載すると貴社の情報が伝わり、マッチングにつながりやすくなります。
         </p>
       </div>

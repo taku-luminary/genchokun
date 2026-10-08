@@ -66,7 +66,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
         where: projectsWhere,
         include: {
           prefecture: true,
-          salesUser: { include: { company: true } },
+          // 公開APIなので、カードに出す会社名と、評価の突き合わせに使う id だけを取る
+          salesUser: { include: { company: { select: { id: true, name: true } } } },
         },
         orderBy: { createdAt: "desc" },
         skip: (projectsPage - 1) * limit, // 先頭から何件スキップするか
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
         include: {
           // 対応可能エリア（複数）。id 昇順で取得して表示順を安定させる
           prefectures: { orderBy: { id: "asc" } },
-          contractorUser: { include: { company: true } },
+          contractorUser: { include: { company: { select: { id: true, name: true } } } },
         },
         orderBy: { createdAt: "desc" },
         skip: (requestsPage - 1) * limit,

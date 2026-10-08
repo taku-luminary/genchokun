@@ -12,6 +12,7 @@ import { Button } from "@/app/_components/ui/Button";
 import { RewardTypeField } from "@/app/_components/RewardTypeField";
 import type { CreateProjectRequest } from "@/app/_types/projects";
 import { autoGrowTextarea, resizeTextareaEl } from "@/app/_utils/autoGrow";
+import { THIRD_PARTY_INFO_NOTICE } from "@/app/_constants/legal/notices";
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -229,6 +230,7 @@ export default function EditProjectPage() {
             {...register("summary")}
             onInput={autoGrowTextarea}
           />
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">{THIRD_PARTY_INFO_NOTICE}</p>
         </div>
 
         {/* メモ・備考 */}

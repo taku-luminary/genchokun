@@ -5,10 +5,13 @@ import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 
+// エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
+type ErrorResponse = { error: string };
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse<ProjectDetailResponse>> {
+): Promise<NextResponse<ProjectDetailResponse | ErrorResponse>> {
   const { id } = await params;
 
   try {
@@ -27,7 +30,7 @@ export async function GET(
     });
 
     if (!project) {
-      return NextResponse.json({ error: "案件が見つかりません" } as never, { status: 404 });
+      return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });
     }
 
     // ▼ 変更: hasApplied(boolean) ではなく myMatchStatus(4値) を計算する。
@@ -35,6 +38,10 @@ export async function GET(
     //         どれも無ければ null（未応募）を返す。
     //         cancelled は対象外（今は使っていないが、将来「自主取下げ」用に予約済み）。
     const user = await getAuthUser();
+    // proxy.ts でも未ログインは弾いているが、API を直接叩かれた場合に備えて route 内でも確認する
+    if (!user) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
     const isMyProject = user ? user.id === project.salesUserId : false;
 
     // ▼ status だけでなく、レビューカード判定に必要な項目もまとめて取得する
@@ -136,7 +143,7 @@ export async function GET(
 
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "サーバーエラーが発生しました" } as never, { status: 500 });
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
 
