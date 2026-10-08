@@ -11,6 +11,7 @@
   import type { CreateProjectRequest } from "@/app/_types/projects";
   import { useCompany } from "@/app/_hooks/useCompany";
   import { CompanyRequiredNotice } from "@/app/_components/ui/CompanyRequiredNotice";
+  import { THIRD_PARTY_INFO_NOTICE } from "@/app/_constants/legal/notices";
 
 
   export default function NewProjectPage() {
@@ -211,6 +212,7 @@
               {...register("summary")}
               onInput={autoGrowTextarea}
             />
+            <p className="text-slate-500 text-xs mt-1 leading-relaxed">{THIRD_PARTY_INFO_NOTICE}</p>
           </div>
 
           {/* メモ・備考 */}
