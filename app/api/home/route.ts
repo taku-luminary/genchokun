@@ -4,6 +4,26 @@ import { calcDaysLeft } from "@/app/_utils/format";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
 import { getCompanyOverallRatingsByCompanyIds } from "@/app/_libs/companyRatings"; 
 
+// 1回に返す件数の既定値と上限。画面（app/page.tsx）は20件ずつ取得している。
+// 上限は、1回のリクエストで全件をまとめて取り出せないようにするため
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 50;
+// ページ番号の上限。極端に大きい値だと、読み飛ばす件数（skip）が Prisma の扱える整数の範囲を超えて 500 になるため。
+// 20件ずつなら2万件まで辿れるので、今の規模には十分大きい
+const MAX_PAGE = 1000;
+// 検索に使う語の上限。語が1つ増えるごとに複数の列を調べる条件が増えるので、
+// 語を大量に並べた検索1回で、DB に重い問い合わせが届かないようにする
+const MAX_KEYWORDS = 5;
+
+// クエリの値を「1以上 max 以下の整数」として読む。未指定・数字でない・小数・範囲外のときは fallback を返す。
+// この API は未ログインでも呼べるため、どんな値が来ても 500 にせず、上限を超えて取り出せないようにする
+function parseIntParam(value: string | null, max: number, fallback: number): number {
+  if (value === null) return fallback;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1 || n > max) return fallback;
+  return n;
+}
+
 // 「完了扱い」かどうかを判定（status が completed OR 日本時間で終了日を過ぎている）
 function isEffectivelyCompleted(status: string, endDate: string | null): boolean {
   // : booleanの意味は、この関数は、最後に必ず true か false を返します。
@@ -20,13 +40,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
 
   // タブごとに独立したページ番号を受け取る
   const { searchParams } = new URL(request.url);
-  const projectsPage = Number(searchParams.get("projectsPage") ?? "1");
-  const requestsPage = Number(searchParams.get("requestsPage") ?? "1");
-  const limit = Number(searchParams.get("limit") ?? "20");
+  const projectsPage = parseIntParam(searchParams.get("projectsPage"), MAX_PAGE, 1);
+  const requestsPage = parseIntParam(searchParams.get("requestsPage"), MAX_PAGE, 1);
+  const limit = parseIntParam(searchParams.get("limit"), MAX_LIMIT, DEFAULT_LIMIT);
   // 検索キーワード。前後の空白を除去し、未指定なら空文字にする
   const q = (searchParams.get("q") ?? "").trim();
-  // 半角・全角スペースで分割して空要素を除去（複数ワード検索に対応）
-  const keywords = q.split(/[\s\u3000]+/).filter(Boolean);
+  // 半角・全角スペースで分割して空要素を除去（複数ワード検索に対応）。使うのは先頭の MAX_KEYWORDS 語まで
+  const keywords = q.split(/[\s\u3000]+/).filter(Boolean).slice(0, MAX_KEYWORDS);
 
   // findMany（一覧）と count（総件数）で同じ条件を使うため、where を変数にまとめる
   // AND: 各ワードすべてを含む / OR: ワードがどれかのカラムに含まれる
