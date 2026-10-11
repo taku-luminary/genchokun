@@ -53,6 +53,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   // keywords が空配列のとき AND: [] は「条件なし＝全件」になるので、空検索の分岐は不要
   const projectsWhere = {
     deletedAt: null,
+    // 利用停止中の会員（退会を含む）の投稿は、一覧にも件数にも出さない
+    salesUser: { isActive: true },
     AND: keywords.map((kw) => ({
       OR: [
         { title: { contains: kw, mode: "insensitive" as const } },
@@ -66,6 +68,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
 
   const requestsWhere = {
     deletedAt: null,
+    // 利用停止中の会員（退会を含む）の投稿は、一覧にも件数にも出さない
+    contractorUser: { isActive: true },
     // deletedAtがnullである かつ すべてのワードについてORの中のどれか1つに一致する
     AND: keywords.map((kw) => ({
       OR: [

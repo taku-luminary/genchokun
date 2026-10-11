@@ -34,8 +34,9 @@ export async function GET(
 
     // 2. 企業＋その企業が受けた全レビューを 1クエリで取得（reviewsReceived リレーション経由）。
     //    企業が存在すれば0件でも name が取れ、存在しなければ null → 404 にできる。
+    //    利用停止中の会員（退会を含む）の企業は、企業ページと同じく評価の一覧も公開しない
     const company = await prisma.companies.findUnique({
-      where: { id: companyId },
+      where: { id: companyId, user: { isActive: true } },
       select: {
         name: true,
         reviewsReceived: {

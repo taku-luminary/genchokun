@@ -46,9 +46,10 @@ export async function POST(
       .catch(() => ({}))) as CreateRequestApplicationRequest;
     const message = body.message?.trim() || null;
 
-    // 3. 依頼待ちを取得（論理削除されていないもの）
+    // 3. 依頼待ちを取得（論理削除されていないもの）。
+    //    投稿者が利用停止中（退会を含む）の依頼は一覧・詳細でも非公開なので、URL を直接開いても応募させない
     const target = await prisma.requests.findUnique({
-      where: { id: BigInt(id), deletedAt: null },
+      where: { id: BigInt(id), deletedAt: null, contractorUser: { isActive: true } },
     });
     if (!target) {
       return NextResponse.json({ error: "依頼が見つかりません" }, { status: 404 });

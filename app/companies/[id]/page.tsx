@@ -15,7 +15,8 @@ import type { CompanyCredentials } from "@/app/_types/companies";
 // ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
 const getCompany = cache(async (id: string) => {
   return prisma.companies.findUnique({
-    where: { id: BigInt(id) },
+    // 利用停止中の会員（退会を含む）の企業ページは公開しない（存在しない企業と同じく 404 にする）
+    where: { id: BigInt(id), user: { isActive: true } },
     // 未ログインでも見えるページなので、表示に使う項目だけを取り出す。
     // 全カラムを取ると連絡先がメモリに乗り、将来うっかり展開したときに漏れる
     select: {
