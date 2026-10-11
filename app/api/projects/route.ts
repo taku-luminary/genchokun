@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
   import { findCompanyByUserId } from "@/app/_libs/requireCompany";
   import type { CreateProjectRequest, CreateProjectResponse } from "@/app/_types/projects";
   import { getProjectInputError, getRewardYenError } from "@/app/_utils/inputValidation";
+  import { logServerError } from "@/app/_libs/logServerError";
 
   export async function POST(request: NextRequest): Promise<NextResponse<CreateProjectResponse | { error: string }>> {
     // 認証チェック
@@ -48,23 +49,28 @@ import { NextRequest, NextResponse } from "next/server";
     }
     const rewardYen = isNegotiable ? null : body.rewardYen ?? null;
 
-    // DBに案件を保存
-    const project = await prisma.projects.create({
-      data: {
-        prefectureId: body.prefectureId,
-        city:                body.city ?? null,
-        title:               body.title,
-        summary: body.summary ?? null,
-        note: body.note ?? null,
-        workStartDate:       body.workStartDate ? new Date(body.workStartDate) : null,
-        workEndDate:         body.workEndDate   ? new Date(body.workEndDate)   : null,
-        rewardType:          body.rewardType,
-        rewardYen,
-        paymentCycle:        body.paymentCycle  ?? null,
-        salesUserId:         user.id,
-        status:              "open",
-      },
-    });
+    // DBに案件を保存。失敗しても画面側が json.error を読めるよう JSON で返し、ログには入力内容を残さない
+    try {
+      const project = await prisma.projects.create({
+        data: {
+          prefectureId: body.prefectureId,
+          city:                body.city ?? null,
+          title:               body.title,
+          summary: body.summary ?? null,
+          note: body.note ?? null,
+          workStartDate:       body.workStartDate ? new Date(body.workStartDate) : null,
+          workEndDate:         body.workEndDate   ? new Date(body.workEndDate)   : null,
+          rewardType:          body.rewardType,
+          rewardYen,
+          paymentCycle:        body.paymentCycle  ?? null,
+          salesUserId:         user.id,
+          status:              "open",
+        },
+      });
 
-    return NextResponse.json({ id: project.id.toString() });
+      return NextResponse.json({ id: project.id.toString() });
+    } catch (e) {
+      logServerError("POST /api/projects", e);
+      return NextResponse.json({ error: "案件の作成に失敗しました" }, { status: 500 });
+    }
   }

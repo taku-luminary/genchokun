@@ -4,6 +4,7 @@ import { getAuthErrorMessage } from "@/app/_libs/authErrorMessage";
 import { getEmailError } from "@/app/_utils/companyValidation";
 import { PASSWORD_MIN_LENGTH } from "@/app/_constants/auth";
 import type { SignupRequest, SignupResponse } from "@/app/(auth)/signup/_type/signup";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/auth/signup
 // メールアドレスとパスワードで会員登録し、確認メールを送る（確認メールのリンクを押すまでは、ログインできない）
@@ -54,7 +55,7 @@ export async function POST(request: Request): Promise<NextResponse<SignupRespons
     return NextResponse.json({ success: true });
   } catch (e) {
     // 想定外のエラーでも画面側が json.error を読めるよう、必ず JSON で返す
-    console.error(e);
+    logServerError("POST /api/auth/signup", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

@@ -8,6 +8,7 @@ import type {
   CreateRequestApplicationRequest,
   CreateRequestApplicationResponse,
 } from "@/app/_types/applications";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/requests/[id]/apply
 // ログイン中の販売店ユーザーが、指定された依頼待ち(request)に応募する。
@@ -128,7 +129,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("POST /api/requests/[id]/apply", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }

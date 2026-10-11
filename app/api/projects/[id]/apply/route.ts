@@ -8,6 +8,7 @@ import type {
   CreateProjectApplicationRequest,
   CreateProjectApplicationResponse,
 } from "@/app/_types/applications";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/projects/[id]/apply
 // ログイン中の工事店ユーザーが、指定された案件に応募する。
@@ -132,7 +133,7 @@ export async function POST(
     // 8. 成功レスポンス
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("POST /api/projects/[id]/apply", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

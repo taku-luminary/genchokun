@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { isPastReviewTrigger } from "@/app/_libs/reviewEligibility";
 import type { CreateReviewRequest, ReviewMutationResponse } from "@/app/_types/reviews";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // 1〜5の整数かどうかを判定するガード
 function isValidRating(n: unknown): n is number {
@@ -113,7 +114,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("POST /api/matches/[matchId]/reviews", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

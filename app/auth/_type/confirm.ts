@@ -7,7 +7,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 // POST /api/auth/confirm のリクエスト型
 export type ConfirmRequest = {
   token_hash: string; // メールのリンクの URL に付いている、確認用のトークン
-  type: EmailOtpType; // 何の確認か（会員登録は "signup"、メールアドレスの変更は "email_change"）
+  type: EmailOtpType; // 何の確認か（会員登録の確認メールのリンクは "email"、メールアドレスの変更は "email_change"）
 };
 
 // POST /api/auth/confirm のレスポンス型

@@ -9,6 +9,7 @@ import type {
   AdminProjectState,
   AdminProjectFollowUp,
 } from "@/app/admin/_type/adminProjects";
+import { logServerError } from "@/app/_libs/logServerError";
 
 type ErrorResponse = { error: string };
 
@@ -296,7 +297,7 @@ export async function GET(): Promise<
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/admin/projects", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 },

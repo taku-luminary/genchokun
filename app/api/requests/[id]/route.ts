@@ -6,6 +6,7 @@ import type { CompanyContact } from "@/app/_types/companies";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -168,7 +169,7 @@ export async function GET(
       reviewCard,
     });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/requests/[id]", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
@@ -248,7 +249,7 @@ export async function PUT(
     return NextResponse.json({ success: true });
 
   } catch (e) {
-    console.error(e);
+    logServerError("PUT /api/requests/[id]", e);
     return NextResponse.json({ error: "更新に失敗しました" }, { status: 500 });
   }
 }
@@ -288,7 +289,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("DELETE /api/requests/[id]", e);
     return NextResponse.json({ error: "削除に失敗しました" }, { status: 500 });
   }
 }
