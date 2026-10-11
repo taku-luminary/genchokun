@@ -13,6 +13,7 @@ import { RewardTypeField } from "@/app/_components/RewardTypeField";
 import type { CreateProjectRequest } from "@/app/_types/projects";
 import { autoGrowTextarea, resizeTextareaEl } from "@/app/_utils/autoGrow";
 import { THIRD_PARTY_INFO_NOTICE } from "@/app/_constants/legal/notices";
+import { POST_TEXT_MAX_LENGTH } from "@/app/_constants/inputLimits";
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -201,7 +202,7 @@ export default function EditProjectPage() {
         {/* 市区町村 */}
         <div>
           <Label htmlFor="city">市区町村</Label>
-          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" {...register("city")} />
+          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
         </div>
 
         {/* タイトル */}
@@ -211,6 +212,7 @@ export default function EditProjectPage() {
             id="title"
             disabled={isSubmitting}
             placeholder="例：太陽光パネルの設置工事"
+            maxLength={POST_TEXT_MAX_LENGTH.title}
             {...register("title", { required: "タイトルを入力してください" })}
           />
           {errors.title && (
@@ -227,6 +229,7 @@ export default function EditProjectPage() {
             placeholder="例：創蓄の工事です。カナディアン・ソーラーの太陽光パネルと、ニチコン19.9kwの蓄電池の設置をお願いします。足場の手配、B材の調達、現地調査も相談したいです。"
             className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={2}
+            maxLength={POST_TEXT_MAX_LENGTH.summary}
             {...register("summary")}
             onInput={autoGrowTextarea}
           />
@@ -242,6 +245,7 @@ export default function EditProjectPage() {
             placeholder="例：お客様宅には駐車場がないため、訪問時は近隣のコインパーキングをご利用ください。"
             className="w-full min-h-24 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={3}
+            maxLength={POST_TEXT_MAX_LENGTH.note}
             {...register("note")}
             onInput={autoGrowTextarea}
           />
@@ -275,6 +279,7 @@ export default function EditProjectPage() {
             id="paymentCycle"
             disabled={isSubmitting}
             placeholder="例：人日発注"
+            maxLength={POST_TEXT_MAX_LENGTH.paymentCycle}
             {...register("paymentCycle")}
           />
         </div>

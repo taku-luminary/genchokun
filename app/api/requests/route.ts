@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { findCompanyByUserId } from "@/app/_libs/requireCompany";
 import type { CreateRequestRequest, CreateRequestResponse } from "@/app/_types/requests";
+import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 
 export async function POST(request: NextRequest): Promise<NextResponse<CreateRequestResponse | { error: string }>>{
   // 認証チェック
@@ -29,16 +30,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
     return NextResponse.json({ error: "リクエストの形式が正しくありません" } , 
       { status: 400 });  //  400 は Bad Requestで、リクエストの形式が正しくない状態
   }
-    // 都道府県は1件以上必須。型上は number[] でも、外部からの生JSONは
-  // 何が来るか分からないので Array.isArray でサーバー側でも検証する
-  if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
-    return NextResponse.json({ error: "都道府県を1つ以上選択してください" },
-      { status: 400 });
-  }
-
-  if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
-    return NextResponse.json({ error: "都道府県を1つ以上選択してください" },
-      { status: 400 });
+  // 型と文字数のチェック。都道府県（1件以上必須）も、型上は number[] でも外部からの生JSONは
+  // 何が来るか分からないので、配列であることと中身が都道府県の ID であることをサーバー側でも検証する
+  const inputError = getRequestInputError(body);
+  if (inputError) {
+    return NextResponse.json({ error: inputError }, { status: 400 });
   }
 
   // 報酬の決め方を検証。fixed=報酬金額(正の数)が必須 / negotiable=金額は必ず null に落とす
@@ -46,11 +42,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
     return NextResponse.json({ error: "報酬金額の決め方が不正です" }, { status: 400 });
   }
   const isNegotiable = body.rewardType === "negotiable";
-  if (
-    !isNegotiable &&
-    !(typeof body.rewardMinYen === "number" && Number.isFinite(body.rewardMinYen) && body.rewardMinYen > 0)
-  ) {
-    return NextResponse.json({ error: "報酬金額を入力してください" }, { status: 400 });
+  const rewardError = isNegotiable ? null : getRewardYenError(body.rewardMinYen);
+  if (rewardError) {
+    return NextResponse.json({ error: rewardError }, { status: 400 });
   }
   const rewardMinYen = isNegotiable ? null : body.rewardMinYen ?? null;
 

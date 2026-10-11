@@ -4,6 +4,7 @@ import type { ProjectDetailResponse, UpdateProjectRequest } from "@/app/_types/p
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
+import { getProjectInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -201,7 +202,18 @@ export async function PUT(
 
     // 4. 受け取った内容で更新。正規化ルールは新規作成API(/api/projects)と同じ。
     //    任意項目は ?? null、日付は文字列→Date に変換する。
-    const body: UpdateProjectRequest = await request.json();
+    let body: UpdateProjectRequest;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "リクエストの形式が正しくありません" }, { status: 400 });
+    }
+
+    // 型と文字数のチェック（新規作成と同じルール）
+    const inputError = getProjectInputError(body);
+    if (inputError) {
+      return NextResponse.json({ error: inputError }, { status: 400 });
+    }
 
     // 報酬の検証・正規化:
     //   fixed(金額指定)         → 正の整数が必須
@@ -210,11 +222,9 @@ export async function PUT(
       return NextResponse.json({ error: "報酬の決め方が不正です" }, { status: 400 });
     }
     const isNegotiable = body.rewardType === "negotiable";
-    if (
-      !isNegotiable &&
-      !(typeof body.rewardYen === "number" && Number.isFinite(body.rewardYen) && body.rewardYen > 0)
-    ) {
-      return NextResponse.json({ error: "報酬額を入力してください" }, { status: 400 });
+    const rewardError = isNegotiable ? null : getRewardYenError(body.rewardYen);
+    if (rewardError) {
+      return NextResponse.json({ error: rewardError }, { status: 400 });
     }
     const rewardYen = isNegotiable ? null : body.rewardYen ?? null;
 

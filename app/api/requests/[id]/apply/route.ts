@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { findCompanyByUserId } from "@/app/_libs/requireCompany";
 import { calcDaysLeft } from "@/app/_utils/format";
+import { getApplicationMessageError } from "@/app/_utils/inputValidation";
 import type {
   CreateRequestApplicationRequest,
   CreateRequestApplicationResponse,
@@ -44,6 +45,11 @@ export async function POST(
     const body = (await request
       .json()
       .catch(() => ({}))) as CreateRequestApplicationRequest;
+    // コメントの型と文字数を確かめる（画面の文字数制限と同じ上限）
+    const messageError = getApplicationMessageError(body);
+    if (messageError) {
+      return NextResponse.json({ error: messageError }, { status: 400 });
+    }
     const message = body.message?.trim() || null;
 
     // 3. 依頼待ちを取得（論理削除されていないもの）。

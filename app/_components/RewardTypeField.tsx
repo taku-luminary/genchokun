@@ -5,6 +5,7 @@ import type { Control, UseFormRegister, FieldErrors } from "react-hook-form";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import type { CreateProjectRequest } from "@/app/_types/projects";
+import { REWARD_YEN_MAX } from "@/app/_constants/inputLimits";
 
 type Props = {
   control: Control<CreateProjectRequest>;
@@ -70,6 +71,9 @@ export function RewardTypeField({ control, register, errors, disabled }: Props) 
               shouldUnregister: true,
               required: "報酬金額を入力してください",
               min: { value: 1, message: "1円以上を入力してください" },
+              // API と同じ上限と整数のチェック。保存のときに初めて弾かれないよう、入力の段階で伝える
+              max: { value: REWARD_YEN_MAX, message: `${REWARD_YEN_MAX.toLocaleString()}円以下で入力してください` },
+              validate: (value) => Number.isInteger(value) || "報酬金額は整数で入力してください",
             })}
           />
           {errors.rewardYen && (

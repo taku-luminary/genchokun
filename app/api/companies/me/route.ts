@@ -4,6 +4,7 @@ import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { isQualificationCode } from "@/app/_constants/qualifications";
 import { CREDENTIAL_TEXT_MAX_LENGTH } from "@/app/_constants/companyCredentials";
 import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
+import { getCompanyInputError } from "@/app/_utils/inputValidation";
 import type {CompanyMeResponse,UpdateCompanyRequest,} from "@/app/_types/companies";
 // このルート内で使うエラーレスポンス型
 type ErrorResponse = {
@@ -84,8 +85,19 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
-    const body: UpdateCompanyRequest = await request.json();
-    // request.json()は、request.body を読み取って、JSON文字列を JavaScriptオブジェクトに変換する関数
+    let body: UpdateCompanyRequest;
+    try {
+      body = await request.json();
+      // request.json()は、request.body を読み取って、JSON文字列を JavaScriptオブジェクトに変換する関数
+    } catch {
+      return NextResponse.json({ error: "リクエストの形式が正しくありません" }, { status: 400 });
+    }
+
+    // 型と文字数のチェック。文字列のはずの項目に別の型が届くと、下の形式チェックや保存の処理が途中で失敗するので、先に確かめる
+    const inputError = getCompanyInputError(body);
+    if (inputError) {
+      return NextResponse.json({ error: inputError }, { status: 400 });
+    }
 
     // 必須項目の最低限チェック（フォーム側でも RHF の required で弾くが、API でも防御）
     if (!body.name || !body.prefectureId) {
