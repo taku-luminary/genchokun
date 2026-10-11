@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/_components/ui/Button";
+import { reloadAfterAuthChange } from "@/app/_utils/authChange";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 
 export default function EmailChangePage() {
   const router = useRouter();
-  const [status, setStatus] = useState<"idle" | "loading" | "error" | "done">("idle");
+  // 変更が済むと、この画面を ?done=1 付きで読み込み直す。完了のお知らせを出すかは、この印で決める
+  const isDone = useSearchParams().get("done") === "1";
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
 
   const handleConfirm = async () => {
@@ -41,10 +44,10 @@ export default function EmailChangePage() {
         return;
       }
 
-      // 確認に成功すると、この端末はログインした状態になっている。
-      // refresh() で、ヘッダーなどサーバーで作られた部分を新しいアドレスの表示に作り直す
-      router.refresh();
-      setStatus("done");
+      // 確認に成功すると、この端末はログインした状態になっている（別の会員が使っていた場合は入れ替わる）。
+      // ページ全体を読み込み直して前の会員のデータを捨て、ヘッダーも新しいアドレスの表示に作り直す。
+      // URL から使い終わったトークンを外し、代わりに完了の印を付ける
+      reloadAfterAuthChange("/auth/email-change?done=1");
     } catch (e) {
       console.error(e);
       setStatus("error");
@@ -55,7 +58,7 @@ export default function EmailChangePage() {
   return (
     <div className="min-h-screen bg-[#e8e8e8] flex items-start justify-center px-4 pt-24">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
-        {status === "done" ? (
+        {isDone ? (
           <>
             <h1 className="text-xl font-black text-brand-green-dark mb-4">
               メールアドレスを変更しました

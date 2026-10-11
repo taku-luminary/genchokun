@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
                                                                                        
-  const response = NextResponse.redirect(new URL("/", request.url));
+  // 確認メールのリンクから来たとき（code あり）は、同じブラウザで使っていた会員と入れ替わることがある。
+  // サーバーからの転送だけでは、タブに残る応募の下書きを消せず、ほかのタブにも知らせられないので、
+  // ブラウザ側で後片付けをする画面（/auth/callback/done）を通してからトップへ進む
+  const response = NextResponse.redirect(new URL(code ? "/auth/callback/done" : "/", request.url));
                                                                                        
   if (code) {                    
     const cookieStore = await cookies();

@@ -9,6 +9,7 @@ import { type NextRequest, NextResponse } from "next/server";
     "/password-reset",
     "/password-reset/new",
     "/auth/callback",
+    "/auth/callback/done",
     "/auth/confirm",
     "/auth/email-change",
     "/api/auth/signup",
@@ -16,6 +17,8 @@ import { type NextRequest, NextResponse } from "next/server";
     "/api/auth/password-reset",
     "/api/auth/password-reset/new",
     "/api/auth/confirm",
+    // ログインの状態の確認。ログアウトに気づくための API なので、未ログインでも答える必要がある
+    "/api/auth/session",
     "/api/home",
     // 規約・ポリシー・問い合わせ案内は、登録前と退会後にも読めなければならないので公開する
     "/terms",

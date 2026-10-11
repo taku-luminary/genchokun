@@ -2,7 +2,10 @@
 
 import { createClient } from "@/app/_libs/supabase/server";
 
-export async function logout() {
+// ログアウトする。Supabase 側でのログアウトに失敗したときは、ログインの Cookie が消されずに残るので、
+// ok: false を返して画面側でやり直せるようにする
+export async function logout(): Promise<{ ok: boolean }> {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  return { ok: !error };
 }
