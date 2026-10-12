@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { reloadAfterAuthChange } from "@/app/_utils/authChange";
 
 export default function ConfirmPage() {
-  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -32,8 +31,8 @@ export default function ConfirmPage() {
     }
 
     // 確認成功。verifyOtp でログイン済みになっているのでトップへ。
-    router.push("/");
-    router.refresh();
+    // 同じブラウザで別の会員が使っていた場合に備え、ページ全体を読み込み直して前の会員のデータを捨てる
+    reloadAfterAuthChange("/");
   };
 
   return (

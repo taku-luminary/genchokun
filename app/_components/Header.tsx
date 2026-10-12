@@ -3,6 +3,7 @@ import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";
 import { recordLastSeen } from "@/app/_libs/recordLastSeen";
 import { MypageNoticeDot } from "./MypageNoticeDot";
+import { AuthChangeWatcher } from "./AuthChangeWatcher";
 import Link from "next/link";
 
 export const Header = async () => {
@@ -29,6 +30,8 @@ export const Header = async () => {
   const companyHref = companyId ? `/companies/${companyId}` : "/mypage/settings/company";
     return (
       <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 px-4 py-3 md:px-8">
+        {/* ほかのタブでの会員の入れ替わりや「戻る」での復元に気づいて、前の会員の情報を残さないための見張り役（何も表示しない） */}
+        <AuthChangeWatcher userId={user?.id ?? null} />
         <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useProject } from '@/app/_hooks/useProject';
 import { ProjectCard } from '@/app/_components/Cards';
 import { calcDaysLeft } from '@/app/_utils/format';
+import { applyDraftKey } from '@/app/_utils/applyDraft';
 import type { HomeProject } from '@/app/_types/home';
 import type {
   CreateProjectApplicationRequest,
@@ -21,8 +22,9 @@ export default function ProjectApplyPage() {
   const { data, isLoading, error, mutate } = useProject(id);
   const { isRegistered, isLoading: isCompanyLoading } = useCompany();
 
-  // 下書き保存用の sessionStorage キー (案件IDごとに分けて混在を防ぐ)
-  const storageKey = `project-apply-message:${id}`;
+  // 下書き保存用の sessionStorage キー (案件IDごとに分けて混在を防ぐ)。
+  // 会員が入れ替わったときに下書きだけを消せるよう、キーの作り方は applyDraft.ts にまとめている
+  const storageKey = applyDraftKey('project', id);
 
   // react-hook-form のフック
   // - setError でサーバ通信エラーもフォーム状態に格納する

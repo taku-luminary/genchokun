@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { PASSWORD_MIN_LENGTH } from "@/app/_constants/auth";
+import { hasMemberChanged, reloadAfterAuthChange, takeAuthChangeError } from "@/app/_utils/authChange";
 import type {
   NewPasswordRequest,
   PasswordResetResponse,
@@ -20,8 +21,11 @@ type FormData = Omit<NewPasswordRequest, "token_hash"> & {
 
 export default function NewPasswordPage() {
   const router = useRouter();
-  // 成功したら、フォームの代わりに完了のお知らせを出す（再設定メールの送信画面と同じ作り）
+  // 成功したら、フォームの代わりに完了のお知らせを出す（再設定メールの送信画面と同じ作り）。
+  // 成功するとこの画面を ?done=1 付きで読み込み直すので、読み込み直したあとはこの印で決める。
+  // done は、読み込み直しが終わるまでの間も完了の表示にして、フォームを二重に送れないようにするため
   const [done, setDone] = useState(false);
+  const isDone = useSearchParams().get("done") === "1" || done;
 
   const {
     register,
@@ -30,6 +34,14 @@ export default function NewPasswordPage() {
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
+
+  // 途中で失敗して読み込み直したときは、読み込み直す前の失敗の理由をここで出す
+  useEffect(() => {
+    const message = takeAuthChangeError();
+    if (message) {
+      setError("root.serverError", { type: "server", message });
+    }
+  }, [setError]);
 
   const setNewPassword = async ({ newPassword }: FormData) => {
     clearErrors("root.serverError");
@@ -56,17 +68,26 @@ export default function NewPasswordPage() {
       const json: PasswordResetResponse = await res.json();
 
       if (!res.ok) {
-        setError("root.serverError", {
-          type: "server",
-          message: "error" in json ? json.error : "パスワードの再設定に失敗しました",
-        });
+        const message = "error" in json ? json.error : "パスワードの再設定に失敗しました";
+        // リンクの確認は成功し、パスワードの更新だけ失敗したときは、ログインの状態だけ変わっている。
+        // 前の会員のデータを残さないよう、トークンを外したこの画面を読み込み直してからエラー文を出す。
+        // 確認に使ったリンクはもう使えないので、再設定メールの送り直しを案内する
+        if (await hasMemberChanged()) {
+          reloadAfterAuthChange(
+            "/password-reset/new",
+            `${message}（このリンクは使用済みになったため、下の「再設定メールを送り直す」からやり直してください）`
+          );
+          return;
+        }
+        setError("root.serverError", { type: "server", message });
         return;
       }
 
-      // API の中でログインした状態になっている。
-      // refresh() で、ヘッダーなどサーバーで作られた部分を、ログインした状態の表示に作り直す
-      router.refresh();
+      // API の中でログインした状態になっている（別の会員が使っていた場合は入れ替わる）。
+      // ページ全体を読み込み直して前の会員のデータを捨て、ヘッダーもログインした状態の表示に作り直す。
+      // URL から使い終わったトークンを外し、代わりに完了の印を付ける
       setDone(true);
+      reloadAfterAuthChange("/password-reset/new?done=1");
     } catch (e) {
       console.error(e);
       setError("root.serverError", {
@@ -76,7 +97,7 @@ export default function NewPasswordPage() {
     }
   };
 
-  if (done) {
+  if (isDone) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         <h1 className="text-xl font-black text-brand-green-dark mb-4">パスワードを再設定しました</h1>

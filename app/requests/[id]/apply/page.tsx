@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRequest } from '@/app/_hooks/useRequest';
 import { RequestCard } from '@/app/_components/Cards';
 import { calcDaysLeft } from '@/app/_utils/format';
+import { applyDraftKey } from '@/app/_utils/applyDraft';
 import type { HomeRequest } from '@/app/_types/home';
 import type {
   CreateRequestApplicationRequest,
@@ -21,8 +22,9 @@ export default function RequestApplyPage() {
   const { data, isLoading, error, mutate } = useRequest(id);
   const { isRegistered, isLoading: isCompanyLoading } = useCompany();
 
-  // 下書き保存用の sessionStorage キー
-  const storageKey = `request-apply-message:${id}`;
+  // 下書き保存用の sessionStorage キー。
+  // 会員が入れ替わったときに下書きだけを消せるよう、キーの作り方は applyDraft.ts にまとめている
+  const storageKey = applyDraftKey('request', id);
 
   // react-hook-form のフック
   // - setError でサーバ通信エラーもフォーム状態に格納する

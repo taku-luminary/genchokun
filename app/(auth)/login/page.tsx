@@ -1,15 +1,14 @@
 "use client";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
+import { hasMemberChanged, reloadAfterAuthChange, takeAuthChangeError } from "@/app/_utils/authChange";
 import type { LoginRequest, LoginResponse } from "@/app/(auth)/login/_type/login";
 
 export default function LoginPage() {
-  const router = useRouter();
-
   const {
     register,
     handleSubmit,
@@ -18,6 +17,13 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginRequest>();
 
+  // ログインの途中で失敗して読み込み直したときは、読み込み直す前の失敗の理由をここで出す
+  useEffect(() => {
+    const message = takeAuthChangeError();
+    if (message) {
+      setError('root.serverError', { type: 'server', message });
+    }
+  }, [setError]);
 
   const onSubmit = async (data: LoginRequest) => {
     clearErrors('root.serverError');
@@ -31,15 +37,19 @@ export default function LoginPage() {
       const json: LoginResponse = await res.json();
 
       if (!res.ok) {
-        setError('root.serverError', {
-          type: 'server',
-          message: "error" in json ? json.error : "ログインに失敗しました",
-        });
+        const message = "error" in json ? json.error : "ログインに失敗しました";
+        // 失敗でも、ログインの状態だけ変わっていることがある（例: ログインのあとのデータベースの処理で失敗した）。
+        // そのときは前の会員のデータを残さないよう、この画面を読み込み直してからエラー文を出す
+        if (await hasMemberChanged()) {
+          reloadAfterAuthChange("/login", message);
+          return;
+        }
+        setError('root.serverError', { type: 'server', message });
         return;
       }
 
-      router.push("/");
-      router.refresh();
+      // ログインした会員が入れ替わるので、ページ全体を読み込み直して、前の会員のデータをメモリと下書きから捨てる
+      reloadAfterAuthChange("/");
     } catch (e) {
       // 電波が悪いなどで API に届かなかったときも、画面が止まらずに理由が分かるようにする
       console.error(e);
