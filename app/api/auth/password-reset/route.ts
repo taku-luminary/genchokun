@@ -6,6 +6,7 @@ import type {
   PasswordResetRequest,
   PasswordResetResponse,
 } from "@/app/(auth)/password-reset/_type/passwordReset";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/auth/password-reset
 // パスワードを忘れた人に、再設定用のリンクをメールで送る（ログインできない人が使うため、ログイン不要の API）
@@ -45,7 +46,7 @@ export async function POST(request: Request): Promise<NextResponse<PasswordReset
     return NextResponse.json({ success: true });
   } catch (e) {
     // 想定外のエラーでも画面側が json.error を読めるよう、必ず JSON で返す
-    console.error(e);
+    logServerError("POST /api/auth/password-reset", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

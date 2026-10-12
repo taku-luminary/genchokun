@@ -10,6 +10,7 @@ import { Button } from "@/app/_components/ui/Button";
 import { CompanyCredentialsFields } from "@/app/_components/CompanyCredentialsFields";
 import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
 import type { UpdateCompanyRequest } from "@/app/_types/companies";
+import { COMPANY_TEXT_MAX_LENGTH } from "@/app/_constants/inputLimits";
 
 export default function CompanySettingsPage() {
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -169,6 +170,7 @@ export default function CompanySettingsPage() {
             id="name"
             disabled={isSubmitting}
             placeholder="例：株式会社電工"
+            maxLength={COMPANY_TEXT_MAX_LENGTH.name}
             {...register("name", { required: "会社名を入力してください" })}
           />
           {errors.name && (
@@ -210,6 +212,7 @@ export default function CompanySettingsPage() {
             id="city"
             disabled={isSubmitting}
             placeholder="例：文京区"
+            maxLength={COMPANY_TEXT_MAX_LENGTH.city}
             {...register("city", {
               // スペースだけの入力も未入力として扱う（API のチェックと条件をそろえる）
               validate: (value) =>
@@ -253,6 +256,7 @@ export default function CompanySettingsPage() {
             id="address"
             disabled={isSubmitting}
             placeholder="例：本郷1-2-3"
+            maxLength={COMPANY_TEXT_MAX_LENGTH.address}
             {...register("address")}
           />
           {/* 自宅兼事務所の場合に住居の所在が公開されるため、
@@ -269,6 +273,7 @@ export default function CompanySettingsPage() {
             id="representativeName"
             disabled={isSubmitting}
             placeholder="例：山田太郎"
+            maxLength={COMPANY_TEXT_MAX_LENGTH.representativeName}
             {...register("representativeName")}
             // ref: (element) => {
               // RHFがこのinput要素を覚える。
@@ -312,6 +317,7 @@ export default function CompanySettingsPage() {
             disabled={isSubmitting}
             type="url"
             placeholder="https://example.com"
+            maxLength={COMPANY_TEXT_MAX_LENGTH.websiteUrl}
             {...register("websiteUrl", {
               validate: (value) => getWebsiteUrlError(value) ?? true,
             })}
@@ -330,6 +336,7 @@ export default function CompanySettingsPage() {
             placeholder="事業内容や強みなど"
             className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
             rows={5}
+            maxLength={COMPANY_TEXT_MAX_LENGTH.description}
             {...register("description")}
           />
         </div>
@@ -350,6 +357,7 @@ export default function CompanySettingsPage() {
               disabled={isSubmitting}
               type="tel"
               placeholder="例：090-1234-5678"
+              maxLength={COMPANY_TEXT_MAX_LENGTH.contactPhone}
               {...register("contactPhone", {
                 // validate にオブジェクトを渡すと、複数のチェックを名前付きで順番に実行できる。
                 // 最初に引っかかったチェックのメッセージが errors.contactPhone.message に入る
@@ -383,6 +391,7 @@ export default function CompanySettingsPage() {
               disabled={isSubmitting}
               type="email"
               placeholder="例：eigyo@example.co.jp"
+              maxLength={COMPANY_TEXT_MAX_LENGTH.contactEmail}
               {...register("contactEmail", {
                 validate: (value) => getEmailError(value) ?? true,
               })}
@@ -404,6 +413,7 @@ export default function CompanySettingsPage() {
               id="contactLineId"
               disabled={isSubmitting}
               placeholder="例：@denkokun または https://line.me/..."
+              maxLength={COMPANY_TEXT_MAX_LENGTH.contactLineId}
               {...register("contactLineId")}
             />
           </div>
@@ -417,6 +427,7 @@ export default function CompanySettingsPage() {
               placeholder="例：Chatwork ID: 12345 / SMS可"
               className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
               rows={3}
+              maxLength={COMPANY_TEXT_MAX_LENGTH.contactNote}
               {...register("contactNote")}
             />
           </div>

@@ -9,11 +9,21 @@ import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
 import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
+import { logServerError } from "@/app/_libs/logServerError";
 
-// 会員登録の確認（type: "signup"）と、ログイン用メールアドレス変更の確認（type: "email_change"）が
+// 会員登録の確認（メールのリンクの type は "email"）と、ログイン用メールアドレス変更の確認（type: "email_change"）が
 // 共通で使う。どちらも token_hash を確かめ、成功すればログインした状態の Cookie を返す
 export async function POST(request: NextRequest): Promise<NextResponse<ConfirmResponse>> {
-  const { token_hash, type }: ConfirmRequest = await request.json();
+  // JSON として読めない送信は、確認情報が足りないものとして 400 にする。
+  // 読み取りの失敗をそのまま投げると、送られた文字列の一部（トークンを含みうる）がエラーとしてログに残るため
+  let body: ConfirmRequest | null;
+  try {
+    body = await request.json();
+  } catch {
+    body = null;
+  }
+  const token_hash = body?.token_hash;
+  const type = body?.type;
 
   if (!token_hash || !type) {
     return NextResponse.json(
@@ -58,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfirmRe
   try {
     await ensureUserRecord(data.user);
   } catch (e) {
-    console.error("ensureUserRecord failed after email confirm:", e);
+    logServerError("POST /api/auth/confirm ensureUserRecord", e);
   }
 
   return response;

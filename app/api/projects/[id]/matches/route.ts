@@ -5,6 +5,7 @@ import type {
   DecideProjectMatchRequest,
   DecideProjectMatchResponse,
 } from "@/app/_types/applications";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/projects/[id]/matches
 // 販売店が、自分の案件に来た応募の中から1社を選んでマッチング成立させる。
@@ -154,7 +155,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("POST /api/projects/[id]/matches", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }

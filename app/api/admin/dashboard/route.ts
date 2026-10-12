@@ -6,6 +6,7 @@ import type {
   AdminUserRow,
 } from "@/app/admin/_type/adminDashboard";
 import { calcDaysLeft } from "@/app/_utils/format";
+import { logServerError } from "@/app/_libs/logServerError";
 
 type ErrorResponse = { error: string };
 
@@ -232,7 +233,7 @@ export async function GET(): Promise<
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/admin/dashboard", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

@@ -11,6 +11,7 @@ import { RequestRewardTypeField } from "@/app/_components/RequestRewardTypeField
 import { autoGrowTextarea } from "@/app/_utils/autoGrow";
 import { useCompany } from "@/app/_hooks/useCompany";
 import { CompanyRequiredNotice } from "@/app/_components/ui/CompanyRequiredNotice";
+import { POST_TEXT_MAX_LENGTH } from "@/app/_constants/inputLimits";
 
 export default function NewRequestPage() {
   const router = useRouter();
@@ -98,7 +99,7 @@ export default function NewRequestPage() {
         {/* 市区町村 */}
         <div>
           <Label htmlFor="city">市区町村</Label>
-          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" {...register("city")} />
+          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
         </div>
 
         {/* タイトル */}
@@ -108,6 +109,7 @@ export default function NewRequestPage() {
             id="title"
             disabled={isSubmitting}
             placeholder="例：太陽光パネル・蓄電池の工事や現地調査はお任せください！"
+            maxLength={POST_TEXT_MAX_LENGTH.title}
             {...register("title", { required: "タイトルを入力してください" })}
           />
           {errors.title && (
@@ -124,6 +126,7 @@ export default function NewRequestPage() {
             placeholder="例：太陽光パネル・蓄電池・エコキュート・防水・足場・高圧"
             className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={2}
+            maxLength={POST_TEXT_MAX_LENGTH.summary}
             {...register("summary")}
             onInput={autoGrowTextarea}
           />
@@ -138,6 +141,7 @@ export default function NewRequestPage() {
             placeholder="例：現地調査は土日以外でしたら基本対応可能です。架台や商材の選定のご相談も承ります。工事後の電力申請も対応可能です。"
             className="w-full min-h-24 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={3}
+            maxLength={POST_TEXT_MAX_LENGTH.note}
             {...register("note")}
             onInput={autoGrowTextarea}
           />
@@ -171,6 +175,7 @@ export default function NewRequestPage() {
             id="paymentCycle"
             disabled={isSubmitting}
             placeholder="例：人日発注"
+            maxLength={POST_TEXT_MAX_LENGTH.paymentCycle}
             {...register("paymentCycle")}
           />
         </div>

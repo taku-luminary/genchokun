@@ -15,6 +15,7 @@ import type {
 } from '@/app/_types/applications';
 import { useCompany } from '@/app/_hooks/useCompany';
 import { CompanyRequiredNotice } from '@/app/_components/ui/CompanyRequiredNotice';
+import { APPLICATION_MESSAGE_MAX_LENGTH } from '@/app/_constants/inputLimits';
 
 export default function RequestApplyPage() {
   const { id } = useParams<{ id: string }>();
@@ -184,7 +185,7 @@ export default function RequestApplyPage() {
           </label>
           <textarea
             rows={5}
-            maxLength={1000}
+            maxLength={APPLICATION_MESSAGE_MAX_LENGTH}
             disabled={isSubmitting}
             placeholder="自己紹介・自社の強みや、具体的な条件・相談事項など相手へ伝えたいことを書きましょう"
             className="w-full border border-slate-300 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-brand-green"
@@ -200,7 +201,7 @@ export default function RequestApplyPage() {
             })}
           />
           <p className="text-xs text-slate-400 text-right">
-            {message.length} / 1000
+            {message.length} / {APPLICATION_MESSAGE_MAX_LENGTH}
           </p>
         </div>
 

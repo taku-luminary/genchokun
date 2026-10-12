@@ -1,3 +1,5 @@
+import { EMPLOYEE_COUNT_MAX } from "@/app/_constants/inputLimits";
+
 // 自社情報フォームの入力チェック。
 // フォーム（入力欄の下に赤字エラーを出す）と API（フォームを通さず直接呼ばれたときの防御）で同じルールを使う。
 // どの関数も、問題があれば画面に出すエラーメッセージ、問題なければ null を返す。
@@ -55,14 +57,14 @@ export function getWebsiteUrlError(value: string | null | undefined): string | n
   return null;
 }
 
-// 従業員数：1以上の整数（小数・0・マイナスは不可）。
-// DB は整数のカラムで小数を渡すと保存時にエラーになるため、フォームと API の両方で先に弾いて理由を伝える
+// 従業員数：1以上・上限以下の整数（小数・0・マイナスは不可）。
+// DB は整数のカラムで、小数や大きすぎる値を渡すと保存時にエラーになるため、フォームと API の両方で先に弾いて理由を伝える
 export function getEmployeeCountError(value: number | null | undefined): string | null {
   // 空欄は valueAsNumber で NaN になるので、未入力として扱う
   if (value === null || value === undefined || Number.isNaN(value)) return null;
 
-  if (!Number.isInteger(value) || value < 1) {
-    return "従業員数は1以上の整数で入力してください（例：10）";
+  if (!Number.isInteger(value) || value < 1 || value > EMPLOYEE_COUNT_MAX) {
+    return `従業員数は1〜${EMPLOYEE_COUNT_MAX.toLocaleString()}の整数で入力してください（例：10）`;
   }
   return null;
 }

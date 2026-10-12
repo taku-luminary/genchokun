@@ -5,6 +5,8 @@ import type { RequestDetailResponse, UpdateRequestRequest } from "@/app/_types/r
 import type { CompanyContact } from "@/app/_types/companies";
 import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
+import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -167,7 +169,7 @@ export async function GET(
       reviewCard,
     });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/requests/[id]", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
@@ -203,12 +205,16 @@ export async function PUT(
       );
     }
     // 4. 更新。正規化ルールは新規作成API(/api/requests)と同じ。
-    const body: UpdateRequestRequest = await request.json();
-    if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
-      return NextResponse.json({ error: "都道府県を1つ以上選択してください" }, { status: 400 });
+    let body: UpdateRequestRequest;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "リクエストの形式が正しくありません" }, { status: 400 });
     }
-    if (!Array.isArray(body.prefectureIds) || body.prefectureIds.length === 0) {
-      return NextResponse.json({ error: "都道府県を1つ以上選択してください" }, { status: 400 });
+    // 型と文字数のチェック（都道府県が1件以上あることも含め、作成APIと同じルール）
+    const inputError = getRequestInputError(body);
+    if (inputError) {
+      return NextResponse.json({ error: inputError }, { status: 400 });
     }
 
     // 報酬の決め方を検証。作成API(/api/requests)と同じルール。
@@ -216,11 +222,9 @@ export async function PUT(
       return NextResponse.json({ error: "報酬金額の決め方が不正です" }, { status: 400 });
     }
     const isNegotiable = body.rewardType === "negotiable";
-    if (
-      !isNegotiable &&
-      !(typeof body.rewardMinYen === "number" && Number.isFinite(body.rewardMinYen) && body.rewardMinYen > 0)
-    ) {
-      return NextResponse.json({ error: "報酬金額を入力してください" }, { status: 400 });
+    const rewardError = isNegotiable ? null : getRewardYenError(body.rewardMinYen);
+    if (rewardError) {
+      return NextResponse.json({ error: rewardError }, { status: 400 });
     }
     const rewardMinYen = isNegotiable ? null : body.rewardMinYen ?? null;
 
@@ -245,7 +249,7 @@ export async function PUT(
     return NextResponse.json({ success: true });
 
   } catch (e) {
-    console.error(e);
+    logServerError("PUT /api/requests/[id]", e);
     return NextResponse.json({ error: "更新に失敗しました" }, { status: 500 });
   }
 }
@@ -285,7 +289,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("DELETE /api/requests/[id]", e);
     return NextResponse.json({ error: "削除に失敗しました" }, { status: 500 });
   }
 }
