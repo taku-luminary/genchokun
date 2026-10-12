@@ -54,6 +54,12 @@ export async function GET(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    // 投稿者が利用停止中（退会を含む）なら、この依頼に応募した当事者以外には存在を隠す（一覧・企業ページと同じく非公開）。
+    // 応募した当事者には、取引の記録として表示を続ける
+    if (!request.contractorUser.isActive && request.match?.salesUserId !== user.id) {
+      return NextResponse.json({ error: "依頼が見つかりません" }, { status: 404 });
+    }
+
     // 自分がこの依頼の投稿者（工事店）か
     const isMyRequest = user ? user.id === request.contractorUserId : false;
 

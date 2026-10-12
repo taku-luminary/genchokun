@@ -9,9 +9,11 @@ import type { User } from "@supabase/supabase-js";
 // users.email（管理ダッシュボードに表示）が古いままにならないようにするため。
 // なお Supabase 本番DBには auth.users への INSERT 時に public.users へ
 // 自動転記するトリガーも設定済み（docs/sql/create_users_trigger.sql 参照）。
-// トリガーが動くのは行が作られたときだけで、メールアドレスの変更は反映されないため、ここでそろえる
-export async function ensureUserRecord(user: User) {
-  await prisma.users.upsert({
+// トリガーが動くのは行が作られたときだけで、メールアドレスの変更は反映されないため、ここでそろえる。
+// isActive は更新しない。運営が利用を停止した会員を、ログインや確認メールの処理で有効に戻さないため。
+// 戻り値の isActive は、ログインの API が停止中の会員を断るために使う
+export async function ensureUserRecord(user: User): Promise<{ isActive: boolean }> {
+  return prisma.users.upsert({
     where: { id: user.id },
     update: { email: user.email ?? null },
     create: {
@@ -20,5 +22,6 @@ export async function ensureUserRecord(user: User) {
       isActive: true,
       isAdmin: false,
     },
+    select: { isActive: true },
   });
 }

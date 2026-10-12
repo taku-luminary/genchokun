@@ -9,18 +9,22 @@ export const Header = async () => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // ログイン中なら自社の企業IDを取得（未登録なら null）
-  let companyId: string | null = null;
-  if (user) {
+  // ログイン中なら、users の行から「サービスを使えるか（isActive）」と自社の企業IDをまとめて取得する
+  const member = user
+    ? await prisma.users.findUnique({
+        where: { id: user.id },
+        select: { isActive: true, company: { select: { id: true } } },
+      })
+    : null;
+  // users の行が無い人と利用停止中の人（退会を含む）は、会員向けの機能を使えない（getAuthUser と同じ判定）
+  const canUseService = member?.isActive === true;
+
+  if (user && canUseService) {
     // 「今アプリを開いた」ことを記録する（管理ダッシュボードの「最終訪問」に使う）
     await recordLastSeen(user.id);
-
-    const company = await prisma.companies.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-    companyId = company ? company.id.toString() : null;
   }
+  // 自社の企業ID（未登録なら null）
+  const companyId = member?.company ? member.company.id.toString() : null;
   // 企業ページがあればそこへ、なければ登録（編集）ページへ
   const companyHref = companyId ? `/companies/${companyId}` : "/mypage/settings/company";
     return (
@@ -42,7 +46,7 @@ export const Header = async () => {
           </div>
 
           <nav className="flex items-center gap-3 md:gap-8">
-          {user ? (
+          {user && canUseService ? (
             <>
               <span className="text-sm text-slate-500 hidden md:block">{user.email}</span>
               <Link
@@ -66,6 +70,17 @@ export const Header = async () => {
               </Link>
 
             </>
+          ) : user ? (
+            <>
+              {/* サービスを使えない状態でもログアウトはできるよう、ログアウトのある各種設定への入口だけ残す */}
+              <span className="text-sm text-slate-500 hidden md:block">{user.email}</span>
+              <Link
+                href="/mypage/settings"
+                className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
+              >
+                各種設定
+              </Link>
+            </>
           ) : (
               <>
                 <Link href="/signup" className="text-xs md:text-sm font-bold text-slate-600 hover:text-brand-green-dark transition-colors whitespace-nowrap"
@@ -76,12 +91,20 @@ export const Header = async () => {
             )}
           </nav>
         </div>
-        {user && !companyId && (
+        {user && canUseService && !companyId && (
         <Link
           href="/mypage/settings/company"
           className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-1.5 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
           >
           自社情報が未登録です。投稿・応募には登録が必要です。
+        </Link>
+      )}
+        {user && !canUseService && (
+        <Link
+          href="/contact"
+          className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-3 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
+          >
+          このアカウントは現在ご利用いただけません。お問い合わせはこちら
         </Link>
       )}
       </header>

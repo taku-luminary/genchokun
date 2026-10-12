@@ -112,11 +112,19 @@ export async function POST(
         projectId: project.id,
         status: "pending",
       },
+      include: { contractorUser: { select: { isActive: true } } },
     });
     if (!target) {
       return NextResponse.json(
         { error: "対象の応募が見つかりません" },
         { status: 404 }
+      );
+    }
+    // 利用停止中（退会を含む）の会員とは、新しくマッチングを成立させない
+    if (!target.contractorUser.isActive) {
+      return NextResponse.json(
+        { error: "この応募者は現在選択できません" },
+        { status: 409 }
       );
     }
 

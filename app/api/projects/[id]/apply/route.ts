@@ -61,9 +61,10 @@ export async function POST(
       .catch(() => ({}))) as CreateProjectApplicationRequest;
     const message = body.message?.trim() || null;
 
-    // 3. 案件を取得（論理削除されていないもの）
+    // 3. 案件を取得（論理削除されていないもの）。
+    //    投稿者が利用停止中（退会を含む）の案件は一覧・詳細でも非公開なので、URL を直接開いても応募させない
     const project = await prisma.projects.findUnique({
-      where: { id: BigInt(id), deletedAt: null },
+      where: { id: BigInt(id), deletedAt: null, salesUser: { isActive: true } },
     });
     if (!project) {
       return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });

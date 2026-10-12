@@ -32,7 +32,16 @@ export async function POST(request: Request): Promise<NextResponse<LoginResponse
     // 確認メールを別端末で開いた等で callback の upsert が実行されなかった
     // ユーザーのため、ログイン成功時にも users 行を保証する
     if (data.user) {
-      await ensureUserRecord(data.user);
+      const member = await ensureUserRecord(data.user);
+      // 運営が利用を停止した会員（退会を含む）は、ログインした状態を残さずに理由を返す。
+      // 「ログインできたのに何も使えない」状態にしないため、ここで断る
+      if (!member.isActive) {
+        await supabase.auth.signOut();
+        return NextResponse.json(
+          { error: "このアカウントは現在ご利用いただけません。お問い合わせページからご連絡ください" },
+          { status: 403 }
+        );
+      }
     }
 
     // 移動先は画面側（router.push）で決めるので、API は成功したことだけを返す

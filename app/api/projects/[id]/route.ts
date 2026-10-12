@@ -62,6 +62,12 @@ export async function GET(
         })
       : null;
 
+    // 投稿者が利用停止中（退会を含む）なら、この案件に応募した当事者以外には存在を隠す（一覧・企業ページと同じく非公開）。
+    // 応募した当事者には、取引の記録として表示を続ける
+    if (!project.salesUser.isActive && !myMatch) {
+      return NextResponse.json({ error: "案件が見つかりません" }, { status: 404 });
+    }
+
     let myMatchStatus: ProjectDetailResponse["myMatchStatus"] = null;
     if (myMatch && myMatch.status !== "cancelled") {
       myMatchStatus = myMatch.status;
