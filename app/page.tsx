@@ -7,6 +7,7 @@ import { useAuthedFetch } from './_hooks/useAuthedFetch';
 import { ProjectCard, RequestCard } from './_components/Cards';
 import { HeroBackground } from './_components/HeroBackground';
 import type { HomeApiResponse } from './_types/home';
+import { SEARCH_QUERY_MAX_LENGTH } from './_constants/inputLimits';
 
 const LIMIT = 20;
 
@@ -114,6 +115,7 @@ export default function Home() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
+                maxLength={SEARCH_QUERY_MAX_LENGTH}
                 placeholder="キーワードで検索（例：東京）"
                 className="w-full bg-white rounded-xl md:rounded-2xl py-3.5 md:py-5 pl-10 md:pl-12 pr-4 text-base text-slate-600 font-bold shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-white/30 transition-all border-none"
               />

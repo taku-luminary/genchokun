@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
   import { getAuthUser } from "@/app/_libs/getAuthUser";
   import { findCompanyByUserId } from "@/app/_libs/requireCompany";
   import type { CreateProjectRequest, CreateProjectResponse } from "@/app/_types/projects";
+  import { getProjectInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 
   export async function POST(request: NextRequest): Promise<NextResponse<CreateProjectResponse | { error: string }>> {
     // 認証チェック
@@ -20,8 +21,19 @@ import { NextRequest, NextResponse } from "next/server";
       );
     }
 
-    // リクエストボディを取得
-    const body: CreateProjectRequest = await request.json();
+    // リクエストボディを取得（JSON として読めなければ 400）
+    let body: CreateProjectRequest;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "リクエストの形式が正しくありません" }, { status: 400 });
+    }
+
+    // 型と文字数のチェック（フォームでも制限しているが、API を直接呼ばれた場合に備えて確かめる）
+    const inputError = getProjectInputError(body);
+    if (inputError) {
+      return NextResponse.json({ error: inputError }, { status: 400 });
+    }
 
     // 報酬の検証・正規化:
     //   fixed(金額指定)         → 正の整数が必須
@@ -30,11 +42,9 @@ import { NextRequest, NextResponse } from "next/server";
       return NextResponse.json({ error: "報酬の決め方が不正です" }, { status: 400 });
     }
     const isNegotiable = body.rewardType === "negotiable";
-    if (
-      !isNegotiable &&
-      !(typeof body.rewardYen === "number" && Number.isFinite(body.rewardYen) && body.rewardYen > 0)
-    ) {
-      return NextResponse.json({ error: "報酬額を入力してください" }, { status: 400 });
+    const rewardError = isNegotiable ? null : getRewardYenError(body.rewardYen);
+    if (rewardError) {
+      return NextResponse.json({ error: rewardError }, { status: 400 });
     }
     const rewardYen = isNegotiable ? null : body.rewardYen ?? null;
 

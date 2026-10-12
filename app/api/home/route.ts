@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { calcDaysLeft } from "@/app/_utils/format";
 import type { HomeApiResponse, HomeProject, HomeRequest } from "@/app/_types/home";
-import { getCompanyOverallRatingsByCompanyIds } from "@/app/_libs/companyRatings"; 
+import { getCompanyOverallRatingsByCompanyIds } from "@/app/_libs/companyRatings";
+import { SEARCH_QUERY_MAX_LENGTH } from "@/app/_constants/inputLimits";
 
 // 1回に返す件数の既定値と上限。画面（app/page.tsx）は20件ずつ取得している。
 // 上限は、1回のリクエストで全件をまとめて取り出せないようにするため
@@ -43,8 +44,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HomeApiRes
   const projectsPage = parseIntParam(searchParams.get("projectsPage"), MAX_PAGE, 1);
   const requestsPage = parseIntParam(searchParams.get("requestsPage"), MAX_PAGE, 1);
   const limit = parseIntParam(searchParams.get("limit"), MAX_LIMIT, DEFAULT_LIMIT);
-  // 検索キーワード。前後の空白を除去し、未指定なら空文字にする
-  const q = (searchParams.get("q") ?? "").trim();
+  // 検索キーワード。前後の空白を除去し、未指定なら空文字にする。
+  // 長い語ほど部分一致の検索が重くなるので、画面の検索欄と同じ文字数で切り詰める（エラーにはしない）
+  const q = (searchParams.get("q") ?? "").trim().slice(0, SEARCH_QUERY_MAX_LENGTH);
   // 半角・全角スペースで分割して空要素を除去（複数ワード検索に対応）。使うのは先頭の MAX_KEYWORDS 語まで
   const keywords = q.split(/[\s\u3000]+/).filter(Boolean).slice(0, MAX_KEYWORDS);
 
