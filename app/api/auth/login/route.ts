@@ -3,6 +3,7 @@ import { createClient } from "@/app/_libs/supabase/server";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
 import { getAuthErrorMessage } from "@/app/_libs/authErrorMessage";
 import type { LoginRequest, LoginResponse } from "@/app/(auth)/login/_type/login";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // POST /api/auth/login
 // メールアドレスとパスワードでログインする。成功すると、ログインした状態の Cookie が返事と一緒にブラウザへ届く
@@ -48,7 +49,7 @@ export async function POST(request: Request): Promise<NextResponse<LoginResponse
     return NextResponse.json({ success: true });
   } catch (e) {
     // 想定外のエラーでも画面側が json.error を読めるよう、必ず JSON で返す
-    console.error(e);
+    logServerError("POST /api/auth/login", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

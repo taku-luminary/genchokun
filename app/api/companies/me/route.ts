@@ -6,6 +6,7 @@ import { CREDENTIAL_TEXT_MAX_LENGTH } from "@/app/_constants/companyCredentials"
 import { getPhoneError, getEmailError, getWebsiteUrlError, getEmployeeCountError } from "@/app/_utils/companyValidation";
 import { getCompanyInputError } from "@/app/_utils/inputValidation";
 import type {CompanyMeResponse,UpdateCompanyRequest,} from "@/app/_types/companies";
+import { logServerError } from "@/app/_libs/logServerError";
 // このルート内で使うエラーレスポンス型
 type ErrorResponse = {
   error: string;
@@ -68,7 +69,7 @@ export async function GET(): Promise<NextResponse<CompanyMeResponse | ErrorRespo
     });
 
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/companies/me", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }
@@ -203,7 +204,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<{ id: stri
 
     return NextResponse.json({ id: company.id.toString() });
   } catch (e) {
-    console.error(e);
+    logServerError("PUT /api/companies/me", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }

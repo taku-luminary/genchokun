@@ -8,6 +8,7 @@ import type {
   CompanyReviewsResponse,
   RelatedPost,
 } from "@/app/_types/reviews";
+import { logServerError } from "@/app/_libs/logServerError";
 
 type ErrorResponse = { error: string };
 
@@ -159,7 +160,7 @@ export async function GET(
       sales: { count: salesReviews.length, reviews: salesReviews },
     });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/companies/[id]/reviews", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

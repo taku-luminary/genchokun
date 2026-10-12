@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import type { UpdateReviewRequest, ReviewMutationResponse } from "@/app/_types/reviews";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // 1〜5の整数かどうか（作成APIと同じ検証。小さいので各ルートに置く）
 function isValidRating(n: unknown): n is number {
@@ -67,7 +68,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("PUT /api/reviews/[id]", e);
     return NextResponse.json({ error: "更新に失敗しました" }, { status: 500 });
   }
 }
@@ -92,7 +93,7 @@ export async function DELETE(
     await prisma.reviews.delete({ where: { id: review.id } });
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("DELETE /api/reviews/[id]", e);
     return NextResponse.json({ error: "削除に失敗しました" }, { status: 500 });
   }
 }

@@ -5,6 +5,7 @@ import { verifyCurrentPassword } from "@/app/_libs/verifyCurrentPassword";
 import { getAuthErrorMessage } from "@/app/_libs/authErrorMessage";
 import { PASSWORD_MIN_LENGTH } from "@/app/_constants/auth";
 import type { ChangePasswordRequest, ChangePasswordResponse } from "@/app/_types/auth";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // PUT /api/account/password
 // ログイン中のユーザーが、今のパスワードで本人確認をしたうえで新しいパスワードに変更する
@@ -47,7 +48,7 @@ export async function PUT(request: Request): Promise<NextResponse<ChangePassword
     return NextResponse.json({ success: true });
   } catch (e) {
     // 想定外のエラーでも画面側が json.error を読めるよう、必ず JSON で返す
-    console.error(e);
+    logServerError("PUT /api/account/password", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

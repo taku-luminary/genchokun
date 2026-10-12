@@ -12,7 +12,8 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
 import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
-                                                                                       
+import { logServerError } from "@/app/_libs/logServerError";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -60,8 +61,13 @@ export async function GET(request: NextRequest) {
 
     if (user) {
       // callback は新規登録者だけでなく既存ユーザーも来る可能性があるため、
-      // users テーブルに存在しなければ作成、存在すればメールアドレスを最新にそろえる
-      await ensureUserRecord(user);
+      // users テーブルに存在しなければ作成、存在すればメールアドレスを最新にそろえる。
+      // 失敗してもメールの確認は済んでいるので止めず、/api/auth/confirm と同じくログだけ残す（users 行はログイン時にも作られる）
+      try {
+        await ensureUserRecord(user);
+      } catch (e) {
+        logServerError("GET /auth/callback ensureUserRecord", e);
+      }
     }
       }
 

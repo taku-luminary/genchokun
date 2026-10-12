@@ -9,6 +9,7 @@ import type {
   ChangeEmailRequest,
   ChangeEmailResponse,
 } from "@/app/mypage/settings/email/_type/emailChange";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // このルート内で使うエラーレスポンス型
 type ErrorResponse = { error: string };
@@ -27,7 +28,7 @@ export async function GET(): Promise<NextResponse<AccountEmailResponse | ErrorRe
     // 確認が終わると Supabase 側で空になるので、画面はこの値だけを見れば確認待ちかどうか分かる
     return NextResponse.json({ email: user.email, newEmail: user.new_email ?? null });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/account/email", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
@@ -100,7 +101,7 @@ export async function PUT(request: Request): Promise<NextResponse<ChangeEmailRes
     return NextResponse.json({ success: true });
   } catch (e) {
     // 想定外のエラーでも画面側が json.error を読めるよう、必ず JSON で返す
-    console.error(e);
+    logServerError("PUT /api/account/email", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

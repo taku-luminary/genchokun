@@ -5,6 +5,7 @@ import type {
   AdminArticleResponse,
   UpsertArticleRequest,
 } from "@/app/_types/articles";
+import { logServerError } from "@/app/_libs/logServerError";
 
 type ErrorResponse = { error: string };
 
@@ -55,7 +56,7 @@ export async function GET(
         },
       });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/admin/companies/[id]/article", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }
@@ -165,7 +166,7 @@ export async function PUT(
 
     return NextResponse.json({ id: result.id.toString() });
   } catch (e) {
-    console.error(e);
+    logServerError("PUT /api/admin/companies/[id]/article", e);
     return NextResponse.json(
       { error: "サーバーエラーが発生しました" },
       { status: 500 }

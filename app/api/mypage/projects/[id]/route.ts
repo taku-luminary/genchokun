@@ -7,6 +7,7 @@ import {
   getCompanyOverallRating,
   getCompanyOverallRatingsByCompanyIds, // ← 追加
 } from "@/app/_libs/companyRatings";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // GET /api/mypage/projects/[id]
 // 自分が販売店として投稿した案件1件 + その案件への応募一覧を返す。
@@ -186,7 +187,7 @@ export async function GET(
       reviewCard,
     });
   } catch (e) {
-    console.error(e);
+    logServerError("GET /api/mypage/projects/[id]", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

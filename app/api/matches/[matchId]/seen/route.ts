@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { logServerError } from "@/app/_libs/logServerError";
 
 // 既読API: このマッチのカードを開いた当事者の「既読時刻」を記録する。
 // 販売店側なら salesSeenAt、工事店側なら contractorSeenAt に現在時刻を入れる。
@@ -53,7 +54,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error(e);
+    logServerError("POST /api/matches/[matchId]/seen", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
