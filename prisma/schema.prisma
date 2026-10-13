@@ -98,6 +98,22 @@ model users {
 
   createdInterviewArticles company_interview_articles[] @relation("createdInterviewArticles")
   updatedInterviewArticles company_interview_articles[] @relation("updatedInterviewArticles")
+
+  termsAgreements terms_agreements[]
+}
+
+// 利用規約への同意の記録。どの会員が、どの版に、いつ、どの画面で同意したかを残す。
+// 1回の同意につき1行。版を上げても前の版の行は消さず、同じ版への同意は最初の1行だけを残す
+model terms_agreements {
+  id           BigInt   @id @default(autoincrement())
+  userId       String   @db.Uuid
+  termsVersion String // 同意した利用規約の版（app/_constants/legal/terms.ts の version）
+  source       String // 同意した画面（app/_types/legal.ts の TermsAgreementSource）
+  agreedAt     DateTime @default(now()) @map("agreed_at")
+
+  user users @relation(fields: [userId], references: [id])
+
+  @@unique([userId, termsVersion])
 }
 
 // ▼ リレーションの見方メモ
