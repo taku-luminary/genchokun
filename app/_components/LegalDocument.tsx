@@ -13,7 +13,7 @@ export function LegalDocument({ document }: Props) {
 
       {/* 版数と日付は、どの版に同意したかを後から確認できるようにするため本文と一緒に出す */}
       <p className="mt-2 text-xs text-slate-400">
-        第 {document.version} 版 ／ 制定・最終改定日 {document.revisedAt}
+        第 {document.version} 版 ／ 最終改定日 {document.revisedAt}
       </p>
 
       <div className="mt-8 space-y-8">
