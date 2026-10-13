@@ -164,6 +164,11 @@ export default function RequestDetailPage() {
                   {data.reviewCard.partnerCompany.name}
                 </Link>
               )}
+              {data.applicationMessage && (
+                <p className="text-sm text-slate-700 whitespace-pre-wrap break-words mt-2">
+                  {data.applicationMessage}
+                </p>
+              )}
             </MatchedContactCard>
           )
         )}
