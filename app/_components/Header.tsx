@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";
 import { recordLastSeen } from "@/app/_libs/recordLastSeen";
+import { TERMS } from "@/app/_constants/legal/terms";
 import { MypageNoticeDot } from "./MypageNoticeDot";
 import { AuthChangeWatcher } from "./AuthChangeWatcher";
 import Link from "next/link";
@@ -10,15 +11,26 @@ export const Header = async () => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // ログイン中なら、users の行から「サービスを使えるか（isActive）」と自社の企業IDをまとめて取得する
+  // ログイン中なら、users の行から「サービスを使えるか（isActive）」と自社の企業ID、
+  // 今の版の利用規約への同意の記録（あれば1件）をまとめて取得する
   const member = user
     ? await prisma.users.findUnique({
         where: { id: user.id },
-        select: { isActive: true, company: { select: { id: true } } },
+        select: {
+          isActive: true,
+          company: { select: { id: true } },
+          termsAgreements: {
+            where: { termsVersion: TERMS.version },
+            select: { id: true },
+            take: 1,
+          },
+        },
       })
     : null;
   // users の行が無い人と利用停止中の人（退会を含む）は、会員向けの機能を使えない（getAuthUser と同じ判定）
   const canUseService = member?.isActive === true;
+  // 今の版の利用規約にまだ同意していない会員には、同意の画面への案内を出す（版を上げると、全員にもう一度出る）
+  const needsTermsAgreement = member?.isActive === true && member.termsAgreements.length === 0;
 
   if (user && canUseService) {
     // 「今アプリを開いた」ことを記録する（管理ダッシュボードの「最終訪問」に使う）
@@ -100,6 +112,14 @@ export const Header = async () => {
           className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-1.5 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
           >
           自社情報が未登録です。投稿・応募には登録が必要です。
+        </Link>
+      )}
+        {needsTermsAgreement && (
+        <Link
+          href="/mypage/terms-agreement"
+          className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-3 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
+          >
+          利用規約への同意をお願いします。内容の確認と同意はこちら
         </Link>
       )}
         {user && !canUseService && (

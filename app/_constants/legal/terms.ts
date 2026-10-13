@@ -4,6 +4,7 @@ import { OPERATOR } from "@/app/_constants/legal/operator";
 // 利用規約の本文。
 // 実装が実際に行っていることだけを書く（例: 取消機能が無いので「取消できる」とは書かない）。
 // 改定するときは version と revisedAt を上げ、附則に改定日と効力発生日を書き、第17条のとおり効力発生日より前に公開する。
+// version を上げると、その版にまだ同意していない会員に、ヘッダーで同意のお願いが出る（同意の記録は terms_agreements）。
 export const TERMS: LegalDocument = {
   title: "利用規約",
   version: "1.1",
