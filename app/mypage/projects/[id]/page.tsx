@@ -172,7 +172,7 @@ export default function MypageProjectDetailPage() {
                 <p className="text-lg font-bold text-slate-400">（会社名未登録）</p>
               )}
               {matchedApp.message && (
-                <p className="text-sm text-slate-700 whitespace-pre-wrap mt-2">
+                <p className="text-sm text-slate-700 whitespace-pre-wrap break-words mt-2">
                   {matchedApp.message}
                 </p>
               )}
@@ -255,7 +255,7 @@ export default function MypageProjectDetailPage() {
                   </p>
 
                   {app.message && (
-                    <p className="text-slate-700 font-medium whitespace-pre-wrap">
+                    <p className="text-slate-700 font-medium whitespace-pre-wrap break-words">
                       {app.message}
                     </p>
                   )}
