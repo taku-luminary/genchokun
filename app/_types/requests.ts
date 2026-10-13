@@ -55,6 +55,9 @@ export type RequestDetailResponse = {
   // ▼ 追加: 自分の依頼にマッチが入った場合の「販売店（応募者）」の連絡先。
   //         isMyRequest && isMatched 以外は null。
   salesContact: CompanyContact | null;
+  // 応募した販売店が、投稿者に宛てて書いたメッセージ（任意入力）。
+  // 宛先は投稿者だけなので、連絡先と同じく isMyRequest && isMatched のときだけ値が入り、それ以外は null。
+  applicationMessage: string | null;
     // ▼ 追加: ログイン中ユーザーがこの依頼を「今」編集/削除できるか。
   //   投稿者本人 && status === "open"（＝まだマッチが入っていない）のときだけ true。
   isEditable: boolean;

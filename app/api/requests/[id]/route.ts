@@ -40,6 +40,8 @@ export async function GET(
                 company: { include: { prefecture: true } },
               },
             },
+            // 応募時のメッセージ。投稿者に見せる本文だけを取る
+            applicationDetail: { select: { message: true } },
           },
         },
       },
@@ -90,6 +92,8 @@ export async function GET(
     // active のときだけ、相手の連絡先を出す（プライバシー保護）。
     let contractorContact: CompanyContact | null = null;
     let salesContact: CompanyContact | null = null;
+    // 応募メッセージは応募者から投稿者に宛てたものなので、連絡先と同じく投稿者にだけ返す
+    let applicationMessage: string | null = null;
 
     if (request.match?.status === "active") {
       // 応募者視点: 自分が応募者 → 工事店（投稿者）の連絡先を渡す
@@ -115,6 +119,7 @@ export async function GET(
             note: sc.contactNote,
           };
         }
+        applicationMessage = request.match.applicationDetail?.message ?? null;
       }
     }
 
@@ -164,6 +169,7 @@ export async function GET(
       isMyRequest,
       contractorContact,
       salesContact,
+      applicationMessage,
       // ▼ 追加: 編集/削除ボタンの表示制御用（PUT/DELETE 時にサーバー側でも再チェックする）
       isEditable,
       reviewCard,
