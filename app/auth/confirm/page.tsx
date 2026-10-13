@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
 import type { ConfirmResponse } from "@/app/auth/_type/confirm";
 
@@ -22,7 +23,8 @@ export default function ConfirmPage() {
       const res = await fetch("/api/auth/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token_hash, type }),
+        // このボタンは「利用規約に同意して登録を完了する」なので、同意したことを API に伝え、版と日時を記録してもらう
+        body: JSON.stringify({ token_hash, type, agreedToTerms: true }),
       });
       const json: ConfirmResponse = await res.json();
 
@@ -54,6 +56,30 @@ export default function ConfirmPage() {
           下のボタンを押して登録を完了してください。
         </p>
 
+        {/* 登録を完了するボタンを押すことが利用規約への同意になることを、ボタンの直前と文言の両方で示す。
+            プライバシーポリシーは、会員登録の画面と同じく同意ではなく「確認」として並べる。
+            別タブで開くのは、読みに行ってもこの画面（メールのリンクの情報）を失わないようにするため */}
+        <p className="text-xs leading-relaxed text-slate-500 text-left mb-4">
+          <Link
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-slate-700"
+          >
+            利用規約
+          </Link>
+          と
+          <Link
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-slate-700"
+          >
+            プライバシーポリシー
+          </Link>
+          をご確認のうえ、お進みください。
+        </p>
+
         {status === "error" && (
           <p className="text-red-500 text-sm mb-4">{message}</p>
         )}
@@ -63,7 +89,7 @@ export default function ConfirmPage() {
           disabled={status === "loading"}
           className="w-full bg-brand-green text-white font-bold py-3 rounded-xl disabled:opacity-50"
         >
-          {status === "loading" ? "確認中..." : "ユーザー認証をする"}
+          {status === "loading" ? "確認中..." : "利用規約に同意して登録を完了する"}
         </button>
       </div>
     </div>

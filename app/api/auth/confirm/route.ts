@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
+import { recordTermsAgreement } from "@/app/_libs/recordTermsAgreement";
 import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 import { logServerError } from "@/app/_libs/logServerError";
@@ -69,6 +70,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfirmRe
     await ensureUserRecord(data.user);
   } catch (e) {
     logServerError("POST /api/auth/confirm ensureUserRecord", e);
+  }
+
+  // 会員登録の確認画面で「利用規約に同意して登録を完了する」が押されたときだけ、同意を記録する。
+  // メールアドレス変更の確認（同じ API を使う）はこの印を送らないので、記録しない。
+  // 記録に失敗しても確認は成功として扱い、ログだけ残す（同意はログイン後のヘッダーの案内からやり直せる）
+  if (body?.agreedToTerms === true) {
+    try {
+      await recordTermsAgreement(data.user.id, "signup_confirm");
+    } catch (e) {
+      logServerError("POST /api/auth/confirm recordTermsAgreement", e);
+    }
   }
 
   return response;
