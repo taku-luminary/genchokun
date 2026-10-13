@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
+import type { ConfirmResponse } from "@/app/auth/_type/confirm";
 
 export default function ConfirmPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -17,22 +18,30 @@ export default function ConfirmPage() {
     const token_hash = params.get("token_hash");
     const type = params.get("type");
 
-    const res = await fetch("/api/auth/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token_hash, type }),
-    });
+    try {
+      const res = await fetch("/api/auth/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token_hash, type }),
+      });
+      const json: ConfirmResponse = await res.json();
 
-    if (!res.ok) {
-      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setStatus("error");
+        setMessage("error" in json ? json.error : "確認に失敗しました");
+        return;
+      }
+
+      // 確認成功。verifyOtp でログイン済みになっているのでトップへ。
+      // 同じブラウザで別の会員が使っていた場合に備え、ページ全体を読み込み直して前の会員のデータを捨てる
+      reloadAfterAuthChange("/");
+    } catch (e) {
+      // 電波が悪いなどで API に届かなかったときや、返事が JSON でなかったときも、
+      // 「確認中...」のまま止まらずに理由が分かるようにする
+      console.error(e);
       setStatus("error");
-      setMessage(json.error ?? "確認に失敗しました");
-      return;
+      setMessage("通信に失敗しました。時間をおいて再度お試しください");
     }
-
-    // 確認成功。verifyOtp でログイン済みになっているのでトップへ。
-    // 同じブラウザで別の会員が使っていた場合に備え、ページ全体を読み込み直して前の会員のデータを捨てる
-    reloadAfterAuthChange("/");
   };
 
   return (
