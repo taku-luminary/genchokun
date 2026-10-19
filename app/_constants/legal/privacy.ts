@@ -1,5 +1,6 @@
 import type { LegalDocument } from "@/app/_types/legal";
 import { OPERATOR } from "@/app/_constants/legal/operator";
+import { PRIVACY_REVISIONS } from "@/app/_constants/legal/revisions";
 
 // プライバシーポリシーの本文。
 // 実際に取得している情報・実際に講じている措置だけを書く（実装していない対策は書かない）。
@@ -8,10 +9,10 @@ import { OPERATOR } from "@/app/_constants/legal/operator";
 // ただし代表者名は載せず、問い合わせに遅滞なく回答することで満たす（operator.ts 参照）。
 // 電気通信事業法27条の12（外部送信規律）が公表を求める3項目（送信される情報の内容・
 // 送信先・利用目的）は、第10項で満たす。
+// 版・公開日は revisions.ts の改定の経過に書き、その決まりに従って改定する。
 export const PRIVACY_POLICY: LegalDocument = {
   title: "プライバシーポリシー",
-  version: "1.1",
-  revisedAt: "2026-10-15",
+  revisions: PRIVACY_REVISIONS,
   sections: [
     {
       heading: "1. はじめに",

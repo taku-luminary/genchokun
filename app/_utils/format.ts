@@ -15,6 +15,13 @@ export function formatJpDate(dateStr: string | null): string {
   return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
 }
 
+// "2026-10-08" 形式の日付を "2026年10月8日" 形式で表示する（規約・ポリシーの最終改定日や改定の経過）
+// Date に変換せず文字のまま並べ替えるので、時差で日付がずれず、公開前で未確定の "??" もそのまま表示できる
+export function formatYmdJa(ymd: string): string {
+  const [y, m, d] = ymd.split("-");
+  return `${y}年${m.replace(/^0/, "")}月${d.replace(/^0/, "")}日`;
+}
+
 // 与えられた日時を「日本時間の年月日」文字列(YYYY-MM-DD)に変換する
 // timeZone に Asia/Tokyo を明示することで、実行場所(サーバーUTC / ブラウザ)に
 // 依存せず常に日本時間の日付として扱える。en-CA は "2026-08-11" 形式で扱いやすい

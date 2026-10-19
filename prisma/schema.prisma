@@ -107,7 +107,7 @@ model users {
 model terms_agreements {
   id           BigInt   @id @default(autoincrement())
   userId       String   @db.Uuid
-  termsVersion String // 同意した利用規約の版（app/_constants/legal/terms.ts の version）
+  termsVersion String // 同意した利用規約の版の値（例 terms-v1.1。app/_constants/legal/revisions.ts の termsAgreementKey）。"1.1" の行は公開前の確認で記録された下書きへの同意で、公開版の同意としては数えない
   source       String // 同意した画面（app/_types/legal.ts の TermsAgreementSource）
   agreedAt     DateTime @default(now()) @map("agreed_at")
 

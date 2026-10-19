@@ -1,14 +1,14 @@
 import type { LegalDocument } from "@/app/_types/legal";
 import { OPERATOR } from "@/app/_constants/legal/operator";
+import { TERMS_REVISIONS } from "@/app/_constants/legal/revisions";
 
 // 利用規約の本文。
 // 実装が実際に行っていることだけを書く（例: 取消機能が無いので「取消できる」とは書かない）。
-// 改定するときは version と revisedAt を上げ、附則に改定日と効力発生日を書き、第17条のとおり効力発生日より前に公開する。
-// version を上げると、その版にまだ同意していない会員に、ヘッダーで同意のお願いが出る（同意の記録は terms_agreements）。
+// 版・公開日・効力発生日は revisions.ts の改定の経過に書き、その決まりに従って改定する。
+// 第17条のとおり、変更後の内容と効力発生日を、効力発生日より前に公開する（改定の経過が画面での掲載場所になる）。
 export const TERMS: LegalDocument = {
   title: "利用規約",
-  version: "1.1",
-  revisedAt: "2026-10-15",
+  revisions: TERMS_REVISIONS,
   sections: [
     {
       heading: "第1条（適用）",
@@ -165,14 +165,6 @@ export const TERMS: LegalDocument = {
       paragraphs: [
         "本サービスに関する問い合わせ、退会の申出、個人情報に関する請求および会員間のトラブルの報告は、本サービスの「お問い合わせ・報告」に記載する窓口までご連絡ください。",
         "本規約の解釈には日本法を適用します。本サービスに関して当社と会員の間に生じた紛争については、当社の本店所在地を管轄する地方裁判所を専属的合意管轄裁判所とします。",
-      ],
-    },
-    {
-      // 画面の「最終改定日」だけでは制定日と効力発生日が分からないので、改定の経過をここに残す
-      heading: "附則",
-      paragraphs: [
-        "本規約は、2026年10月8日に制定し、2026年10月15日に改定しました。",
-        "第1.1版は、2026年10月16日から効力を生じます。第1.1版の変更は、第5条の記載を本サービスの機能に合わせて修正したものです。",
       ],
     },
   ],
