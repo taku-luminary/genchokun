@@ -4,6 +4,7 @@
 // POST /api/account/terms-agreement のリクエスト型。同意のボタンが押されたときだけ送る
 export type TermsAgreementRequest = {
   agreed: true;
+  termsVersion: string; // 画面に表示した利用規約の版の値（例 "terms-v1.1"）。今の版と違えば記録しない
 };
 
 // POST /api/account/terms-agreement のレスポンス型

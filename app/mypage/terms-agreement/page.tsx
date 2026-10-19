@@ -4,13 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/_components/ui/Button";
+import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
+import { TERMS_AGREEMENT_KEY, TERMS_VERSION } from "@/app/_constants/legal/revisions";
 import type {
   TermsAgreementRequest,
   TermsAgreementResponse,
 } from "@/app/mypage/terms-agreement/_type/termsAgreement";
 
-// 利用規約への同意をお願いする画面。今の版にまだ同意していない会員に、ヘッダーの案内から来てもらう。
-// 同意は、この画面のボタンが押されたときだけ記録する（同意した版と日時は API が残す）
+// 利用規約への同意をお願いする画面。同意済みとして扱う版にまだ同意していない会員に、ヘッダーの案内から来てもらう。
+// 同意は、この画面のボタンが押されたときだけ記録する（同意した版・日時・画面は API が残す）
 export default function TermsAgreementPage() {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -20,7 +22,8 @@ export default function TermsAgreementPage() {
     setStatus("loading");
     setMessage("");
 
-    const body: TermsAgreementRequest = { agreed: true };
+    // 画面に表示した版も一緒に送る。開いている間に改定されていたら、API は記録せずに読み込み直しを求める
+    const body: TermsAgreementRequest = { agreed: true, termsVersion: TERMS_AGREEMENT_KEY };
 
     try {
       const res = await fetch("/api/account/terms-agreement", {
@@ -79,7 +82,7 @@ export default function TermsAgreementPage() {
           >
             利用規約
           </Link>
-          と
+          （第{TERMS_VERSION}版）と
           <Link
             href="/privacy"
             target="_blank"
@@ -91,21 +94,8 @@ export default function TermsAgreementPage() {
           をご確認ください。
         </p>
 
-        {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前にこの画面でも示し、空欄にできる項目と変え方を添える */}
-        <div className="rounded-xl bg-slate-50 p-4">
-          <p className="text-sm font-bold text-slate-600">企業ページに公開される情報</p>
-          <p className="mt-2 text-sm text-slate-500 leading-relaxed">
-            登録された会社情報（会社名、所在地（町名・番地・建物名を含みます）、代表者名、従業員数、Webサイト、自社紹介、施工体制・資格など）は、ログインしていない方や検索エンジンからも見られる企業ページに公開されます。町名・番地・建物名と代表者名は、
-            <Link href="/mypage/settings/company" className="underline hover:text-slate-700">
-              自社情報の編集
-            </Link>
-            で空欄にできます。連絡先は、マッチングが成立した相手にだけ表示されます。
-          </p>
-        </div>
-
-        <p className="text-xs text-slate-500 leading-relaxed">
-          会員である事業者としての同意になります。同意した日時と、同意した利用規約の版を記録します。
-        </p>
+        {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前にこの画面でも示す */}
+        <CompanyPublicInfoNotice />
 
         {status === "error" && (
           <p className="text-red-500 font-bold text-sm text-center">{message}</p>

@@ -7,7 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { ensureUserRecord } from "@/app/_libs/ensureUserRecord";
-import { recordTermsAgreement } from "@/app/_libs/recordTermsAgreement";
+import { recordTermsAgreement, TERMS_UPDATED_MESSAGE } from "@/app/_libs/recordTermsAgreement";
+import { isSameOriginJsonRequest, NOT_SAME_ORIGIN_MESSAGE } from "@/app/_libs/isSameOriginJsonRequest";
+import { TERMS_AGREEMENT_KEY } from "@/app/_constants/legal/revisions";
 import { COOKIE_OPTIONS } from "@/app/_libs/supabase/cookieOptions";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 import { logServerError } from "@/app/_libs/logServerError";
@@ -15,6 +17,11 @@ import { logServerError } from "@/app/_libs/logServerError";
 // 会員登録の確認（メールのリンクの type は "email"）と、ログイン用メールアドレス変更の確認（type: "email_change"）が
 // 共通で使う。どちらも token_hash を確かめ、成功すればログインした状態の Cookie を返す
 export async function POST(request: NextRequest): Promise<NextResponse<ConfirmResponse>> {
+  // 電工くんの画面以外から送られた操作は、中身を読む前に断る（CSRF 対策）。メールの印は確かめないので、使われずに残る
+  if (!isSameOriginJsonRequest(request)) {
+    return NextResponse.json({ error: NOT_SAME_ORIGIN_MESSAGE }, { status: 403 });
+  }
+
   // JSON として読めない送信は、確認情報が足りないものとして 400 にする。
   // 読み取りの失敗をそのまま投げると、送られた文字列の一部（トークンを含みうる）がエラーとしてログに残るため
   let body: ConfirmRequest | null;
@@ -31,6 +38,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfirmRe
       { error: "確認情報が不足しています" },
       { status: 400 }
     );
+  }
+
+  // 会員登録の確認で同意するときは、画面に表示した版が今の版と同じかを、メールの印を使う前に確かめる。
+  // 違えば（画面を開いている間に改定された）確認も記録もせずに断る。印は使われずに残るので、読み込み直してもう一度押せる
+  if (body?.agreedToTerms === true && body.termsVersion !== TERMS_AGREEMENT_KEY) {
+    return NextResponse.json({ error: TERMS_UPDATED_MESSAGE }, { status: 409 });
   }
 
   // 成功時の返事。ここに確認後のログインセッションCookieを書き込む。

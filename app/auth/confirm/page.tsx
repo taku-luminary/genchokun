@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
+import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
+import { TERMS_AGREEMENT_KEY, TERMS_VERSION } from "@/app/_constants/legal/revisions";
 import type { ConfirmResponse } from "@/app/auth/_type/confirm";
 
 export default function ConfirmPage() {
@@ -23,8 +25,9 @@ export default function ConfirmPage() {
       const res = await fetch("/api/auth/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // このボタンは「利用規約に同意して登録を完了する」なので、同意したことを API に伝え、版と日時を記録してもらう
-        body: JSON.stringify({ token_hash, type, agreedToTerms: true }),
+        // このボタンは「利用規約に同意して登録を完了する」なので、同意したことと画面に表示した版を API に伝え、版と日時を記録してもらう。
+        // 開いている間に改定されていたら、API はメールの印を使う前に断り、読み込み直しを求める
+        body: JSON.stringify({ token_hash, type, agreedToTerms: true, termsVersion: TERMS_AGREEMENT_KEY }),
       });
       const json: ConfirmResponse = await res.json();
 
@@ -56,6 +59,11 @@ export default function ConfirmPage() {
           下のボタンを押して登録を完了してください。
         </p>
 
+        {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前に示す（同意の画面と同じ文） */}
+        <div className="mb-4">
+          <CompanyPublicInfoNotice />
+        </div>
+
         {/* 登録を完了するボタンを押すことが利用規約への同意になることを、ボタンの直前と文言の両方で示す。
             プライバシーポリシーは、会員登録の画面と同じく同意ではなく「確認」として並べる。
             別タブで開くのは、読みに行ってもこの画面（メールのリンクの情報）を失わないようにするため */}
@@ -68,7 +76,7 @@ export default function ConfirmPage() {
           >
             利用規約
           </Link>
-          と
+          （第{TERMS_VERSION}版）と
           <Link
             href="/privacy"
             target="_blank"
