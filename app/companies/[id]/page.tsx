@@ -10,6 +10,7 @@ import type { InterviewArticlePublic } from "@/app/_types/articles";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { CompanyCredentialsCard } from "@/app/_components/CompanyCredentialsCard";
 import type { CompanyCredentials } from "@/app/_types/companies";
+import { ACCEPTED_TERMS_AGREEMENTS_QUERY, hideUnagreedCompanyFields } from "@/app/_libs/companyDisclosure";
 
 // DB取得を cache() で包む。同じリクエスト内なら generateMetadata と
 // ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
@@ -37,6 +38,8 @@ const getCompany = cache(async (id: string) => {
       installerIdManufacturers: true,
       isInvoiceRegistered: true,
       prefecture: { select: { name: true } },
+      // 代表者名と町名・番地・建物名を表示してよいかの判定に使う（同意済みとして扱う記録が1件あるか）
+      user: { select: { termsAgreements: ACCEPTED_TERMS_AGREEMENTS_QUERY } },
       interviewArticle: {
         select: {
           status: true,
@@ -134,18 +137,23 @@ export default async function CompanyPublicPage({
 
   const companyRating = await getCompanyOverallRating(company.id.toString());
 
-  const companyInfo = {
-    id: company.id.toString(),
-    name: company.name,
-    prefecture: company.prefecture.name,
-    city: company.city,
-    address: company.address,
-    representativeName: company.representativeName,
-    employeeCount: company.employeeCount,
-    websiteUrl: company.websiteUrl,
-    description: company.description,
-    rating: companyRating,
-  };
+  // 代表者名と町名・番地・建物名は、会員のアカウントで利用規約に同意した記録がある会社だけ表示する（理由は companyDisclosure.ts）。
+  // このページは誰でも見られるので、本人や管理者が開いた場合も、ほかの人に見えるのと同じ表示にする
+  const companyInfo = hideUnagreedCompanyFields(
+    {
+      id: company.id.toString(),
+      name: company.name,
+      prefecture: company.prefecture.name,
+      city: company.city,
+      address: company.address,
+      representativeName: company.representativeName,
+      employeeCount: company.employeeCount,
+      websiteUrl: company.websiteUrl,
+      description: company.description,
+      rating: companyRating,
+    },
+    company.user.termsAgreements.length > 0
+  );
 
   // 表示に必要な7項目だけを取り出して渡す（連絡先など公開しない情報をカードに渡さないため）
   const credentials: CompanyCredentials = {
