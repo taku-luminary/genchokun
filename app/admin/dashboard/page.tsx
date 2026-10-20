@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuthedFetch } from "@/app/_hooks/useAuthedFetch";
 import type { AdminDashboardResponse, AdminUserRow } from "@/app/admin/_type/adminDashboard";
+import { toJstYmd } from "@/app/_utils/format";
 import { BarChart } from "./BarChart";
 import { ProjectsTable } from "./ProjectsTable";
 
 type Range = "1m" | "3m" | "all";
-type SortKey = "unconfirmed" | "registered" | "lastSeen" | "projPosts" | "postTotal" | "matches";
+type SortKey = "unconfirmed" | "notAgreed" | "registered" | "lastSeen" | "projPosts" | "postTotal" | "matches";
 type Tab = "users" | "projects";
 
 const daysSince = (iso: string | null) =>
@@ -63,6 +64,13 @@ export default function AdminDashboardPage() {
     unconfirmed: (a, b) => {
       const av = a.emailConfirmedAt == null ? 0 : 1;
       const bv = b.emailConfirmedAt == null ? 0 : 1;
+      if (av !== bv) return av - bv;
+      return new Date(a.registeredAt).getTime() - new Date(b.registeredAt).getTime();
+    },
+    // 規約に未同意の会員を先頭に。同じ状態なら登録が古い順＝同意のお願いが長く届いていない人ほど上に来る
+    notAgreed: (a, b) => {
+      const av = a.termsAgreedAt == null ? 0 : 1;
+      const bv = b.termsAgreedAt == null ? 0 : 1;
       if (av !== bv) return av - bv;
       return new Date(a.registeredAt).getTime() - new Date(b.registeredAt).getTime();
     },
@@ -187,6 +195,7 @@ export default function AdminDashboardPage() {
           {(
             [
               ["unconfirmed", "未認証優先"],
+              ["notAgreed", "未同意優先"],
               ["registered", "登録順"],
               ["lastSeen", "最終訪問"],
               ["projPosts", "案件投稿数"],
@@ -215,6 +224,7 @@ export default function AdminDashboardPage() {
           <colgroup>
             <col className="w-[240px]" />{/* 会社 / メール */}
             <col className="w-[88px]" />{/* 登録 / 認証 */}
+            <col className="w-[76px]" />{/* 規約同意 */}
             <col className="w-[72px]" />{/* 最終訪問 */}
             <col className="w-[72px]" />{/* 最終活動 */}
             <col className="w-[76px]" />{/* レビュー */}
@@ -231,13 +241,14 @@ export default function AdminDashboardPage() {
           </colgroup>
           <thead>
             <tr className="[&_th]:sticky [&_th]:top-[41px] [&_th]:z-10 [&_th]:bg-slate-50 [&_th]:px-3 [&_th]:pt-2 [&_th]:pb-1 [&_th]:text-left [&_th]:text-[11px] [&_th]:font-bold [&_th]:text-slate-500">
-              <th colSpan={7}>基本情報</th>
+              <th colSpan={8}>基本情報</th>
               <th colSpan={4} className="border-l border-slate-300 !text-[#12795a]">投稿（自分が出す）</th>
               <th colSpan={4} className="border-l border-slate-300 !text-[#12795a]">応募（自分が応募する）</th>
             </tr>
             <tr className="[&_th]:sticky [&_th]:top-[67px] [&_th]:z-10 [&_th]:border-b [&_th]:border-slate-300 [&_th]:bg-slate-50 [&_th]:px-3 [&_th]:pb-2 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:text-slate-600">
             <th className="!text-left">会社 / メール</th>
               <th className="!text-left">登録 / 認証</th>
+              <th className="!text-left">規約同意</th>
               <th className="!text-left">最終訪問</th>
               <th className="!text-left">最終活動</th>
               <th className="!text-right">レビュー</th>
@@ -274,6 +285,13 @@ export default function AdminDashboardPage() {
                     <div className="mt-1">
                       <AuthBadge confirmedAt={u.emailConfirmedAt} />
                     </div>
+                  </td>
+                  <td className="px-2 py-2.5 text-xs tabular-nums text-slate-700">
+                    <TermsBadge agreedAt={u.termsAgreedAt} />
+                    {/* 同意した日は日本時間で出す（深夜0〜9時の同意が前日に見えないように） */}
+                    {u.termsAgreedAt && (
+                      <div className="mt-1">{toJstYmd(new Date(u.termsAgreedAt)).slice(2).replace(/-/g, "/")}</div>
+                    )}
                   </td>
                   <td className={"px-2 py-2.5 text-xs tabular-nums " + recencyClass(u.lastSeenAt)}>
                     {agoLabel(u.lastSeenAt)}
@@ -317,6 +335,13 @@ export default function AdminDashboardPage() {
           <b className="text-slate-600">（会社未登録）</b>
           ＝会員登録は済んでいるが<b>自社情報をまだ入力していない</b>状態。認証の有無とは別の話で、
           認証済みでも自社情報が未入力ならこの表示になります。
+        </p>
+        <p>
+          <b className="text-slate-600">規約同意</b>
+          ＝今お願いしている版の利用規約に、<b>会員のアカウントで同意した記録</b>があるか。下段は同意した日（日本時間）です。
+          <b className="text-red-600">未同意</b>の会員には、ログイン後の画面の上に同意のお願いが出ています。
+          未同意の会社は、企業ページ・案件・依頼待ちの詳細で<b>代表者名と町名・番地・建物名を表示しません</b>（同意すると表示されます）。
+          同意済はアカウント上の同意操作の記録です。代表者本人の了承を、運営が個別に確認したことを示すものではありません。
         </p>
         <p>
           <b className="text-slate-600">最終訪問</b>
@@ -401,6 +426,22 @@ function AuthBadge({ confirmedAt }: { confirmedAt: string | null }) {
   return (
     <span className="inline-block rounded bg-[#34b38a]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#12795a]">
       認証済
+    </span>
+  );
+}
+
+function TermsBadge({ agreedAt }: { agreedAt: string | null }) {
+  // null ＝ 今お願いしている版の利用規約に、まだ同意していない（ヘッダーに同意のお願いが出ている）
+  if (agreedAt == null) {
+    return (
+      <span className="inline-block rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-600">
+        未同意
+      </span>
+    );
+  }
+  return (
+    <span className="inline-block rounded bg-[#34b38a]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#12795a]">
+      同意済
     </span>
   );
 }
