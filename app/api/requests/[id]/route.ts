@@ -7,6 +7,7 @@ import { buildReviewCardInfo } from "@/app/_libs/reviewCard";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 import { logServerError } from "@/app/_libs/logServerError";
+import { ACCEPTED_TERMS_AGREEMENTS_QUERY, hideUnagreedCompanyFields } from "@/app/_libs/companyDisclosure";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -31,6 +32,8 @@ export async function GET(
             company: {
               include: { prefecture: true },
             },
+            // 投稿者の代表者名と町名・番地・建物名を表示してよいかの判定に使う（同意済みとして扱う記録が1件あるか）
+            termsAgreements: ACCEPTED_TERMS_AGREEMENTS_QUERY,
           },
         },
         match: {
@@ -150,19 +153,23 @@ export async function GET(
       rewardMinYen: request.rewardMinYen === null ? null : Number(request.rewardMinYen),
       paymentCycle: request.paymentCycle,
       status: request.status,
+      // 代表者名と町名・番地・建物名は、投稿者の会員が利用規約に同意した記録がある場合だけ返す（理由は companyDisclosure.ts）
       company: c
-        ? {
-            id: c.id.toString(), 
-            name: c.name,
-            prefecture: c.prefecture.name,
-            city: c.city,
-            address: c.address,
-            representativeName: c.representativeName,
-            employeeCount: c.employeeCount,
-            websiteUrl: c.websiteUrl,
-            description: c.description,
-            rating: companyRating,
-          }
+        ? hideUnagreedCompanyFields(
+            {
+              id: c.id.toString(),
+              name: c.name,
+              prefecture: c.prefecture.name,
+              city: c.city,
+              address: c.address,
+              representativeName: c.representativeName,
+              employeeCount: c.employeeCount,
+              websiteUrl: c.websiteUrl,
+              description: c.description,
+              rating: companyRating,
+            },
+            request.contractorUser.termsAgreements.length > 0
+          )
         : null,
       hasApplied,
       isMatched,

@@ -7,6 +7,7 @@ import type {
 } from "@/app/admin/_type/adminDashboard";
 import { calcDaysLeft } from "@/app/_utils/format";
 import { logServerError } from "@/app/_libs/logServerError";
+import { ACCEPTED_TERMS_AGREEMENT_KEYS } from "@/app/_constants/legal/revisions";
 
 type ErrorResponse = { error: string };
 
@@ -44,7 +45,7 @@ export async function GET(): Promise<
     }
 
     // まとめて取得（ここからすべて算出）
-    const [users, companies, projects, requests, matches, reviews, articles] =
+    const [users, companies, projects, requests, matches, reviews, articles, termsAgreements] =
       await Promise.all([
         prisma.users.findMany({ select: { id: true, email: true, createdAt: true, lastSeenAt: true } }),
         prisma.companies.findMany({ select: { id: true, userId: true, name: true, createdAt: true } }),
@@ -53,6 +54,11 @@ export async function GET(): Promise<
         prisma.matches.findMany({ select: { projectId: true, requestId: true, salesUserId: true, contractorUserId: true, status: true, createdAt: true, salesSeenAt: true, contractorSeenAt: true } }),
         prisma.reviews.findMany({ select: { revieweeCompanyId: true, item1Rating: true, item2Rating: true, item3Rating: true, item4Rating: true, item5Rating: true } }),
         prisma.company_interview_articles.findMany({ select: { companyId: true, status: true, youtubeUrl: true } }),
+        // 利用規約への同意の記録。ヘッダーの案内と同じく、同意済みとして扱う版の記録だけを数える（公開前の下書きの "1.1" は数えない）
+        prisma.terms_agreements.findMany({
+          where: { termsVersion: { in: ACCEPTED_TERMS_AGREEMENT_KEYS } },
+          select: { userId: true, agreedAt: true },
+        }),
       ]);
 
     // メール認証の完了日時。public.users には無く auth スキーマにしかないため直接読む
@@ -60,6 +66,13 @@ export async function GET(): Promise<
       { id: string; email_confirmed_at: Date | null }[]
     >`SELECT id, email_confirmed_at FROM auth.users`;
     const confirmedByUser = new Map(authRows.map((r) => [r.id, r.email_confirmed_at]));
+
+    // 会員ごとの利用規約への同意の日時。同意済みとして扱う版が複数あるときは、いちばん新しい同意の日時を使う
+    const agreedByUser = new Map<string, Date>();
+    for (const t of termsAgreements) {
+      const prev = agreedByUser.get(t.userId);
+      if (!prev || t.agreedAt > prev) agreedByUser.set(t.userId, t.agreedAt);
+    }
 
     // マッチ済（active）を案件/依頼ごとに1件へ集約
     // 削除されていない（生きている）案件・依頼のIDだけを集合にしておく。
@@ -208,6 +221,7 @@ export async function GET(): Promise<
       const rev = comp ? revByCompany.get(comp.id) : undefined;
       const art = comp ? articleByCompany.get(comp.id) : undefined;
       const confirmed = confirmedByUser.get(u.id) ?? null;
+      const agreed = agreedByUser.get(u.id) ?? null;
       return {
         userId: u.id,
         email: u.email,
@@ -215,6 +229,7 @@ export async function GET(): Promise<
         companyName: comp?.name ?? null,
         registeredAt: u.createdAt.toISOString(),
         emailConfirmedAt: confirmed ? confirmed.toISOString() : null,
+        termsAgreedAt: agreed ? agreed.toISOString() : null,
         lastSeenAt: u.lastSeenAt ? u.lastSeenAt.toISOString() : null,
         lastActivityAt: a.lastActivity ? new Date(a.lastActivity).toISOString() : null,
         reviewCount: rev?.count ?? 0,

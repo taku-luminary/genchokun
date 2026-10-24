@@ -31,6 +31,7 @@ export type AdminUserRow = {
   companyName: string | null;
   registeredAt: string;
   emailConfirmedAt: string | null; // null＝メール認証がまだ（会員登録だけ済んだ状態）
+  termsAgreedAt: string | null; // 同意済みとして扱う版の利用規約に同意した日時（複数あれば最新）。null＝未同意
   lastSeenAt: string | null; // 最終訪問（未記録は null）
   lastActivityAt: string | null; // ISO（最後に操作した日）
   reviewCount: number;
