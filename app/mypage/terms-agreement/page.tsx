@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/_components/ui/Button";
 import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
-import { TERMS_AGREEMENT_KEY, TERMS_VERSION } from "@/app/_constants/legal/revisions";
+import { TERMS_AGREEMENT_KEY, TERMS_V1_1_RESTRICTION_STARTS_ON, TERMS_VERSION } from "@/app/_constants/legal/revisions";
+import { formatYmdJa } from "@/app/_utils/format";
 import type {
   TermsAgreementRequest,
   TermsAgreementResponse,
@@ -93,6 +94,16 @@ export default function TermsAgreementPage() {
           </Link>
           をご確認ください。
         </p>
+
+        {/* 新しい投稿・応募などに同意が必要になる日と、同意の前でも使える範囲を、同意の前に知らせる */}
+        <div className="space-y-2 text-sm text-slate-600 leading-relaxed">
+          <p>
+            {formatYmdJa(TERMS_V1_1_RESTRICTION_STARTS_ON)}からは、同意がお済みでない場合、ログインすると最初にこの画面が表示されます。同意いただくまで、新しい投稿・応募、投稿の編集、評価の投稿・編集、ご自身が当事者でない募集の詳細閲覧などはご利用いただけません。
+          </p>
+          <p>
+            すでにある自社の募集・応募の確認、応募者の選定、応募が届いていない募集の取り下げ、マッチングが成立した相手の連絡先の確認、自社情報の編集、各種設定（ログアウトを含む）、お問い合わせ（退会のご連絡を含む）などは、同意の前でもご利用いただけます。
+          </p>
+        </div>
 
         {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前にこの画面でも示す */}
         <CompanyPublicInfoNotice />

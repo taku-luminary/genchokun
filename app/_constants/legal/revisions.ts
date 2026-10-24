@@ -69,3 +69,8 @@ const lastAskIndex = TERMS_REVISIONS.map((revision) => revision.asksAgreement).l
 export const ACCEPTED_TERMS_AGREEMENT_KEYS: string[] = TERMS_REVISIONS.slice(Math.max(lastAskIndex, 0)).map(
   (revision) => termsAgreementKey(revision.version)
 );
+
+// 第1.1版への同意の記録が無い会員について、新しい投稿・応募などを同意のあとにしてもらう（利用を制限する）開始日（日本時間）。
+// 制限は、版を上げることや asksAgreement とは別に、改定ごとに「制限するか・対象・開始日」を決める。この定数は第1.1版だけに使い、ほかの版には広げない。
+// 開始日は、効力発生日と同じく周知の期間をおいて決める（第1.1版は公開日の14日後で、効力発生日と同じ日）。公開がずれたら、公開の前に合わせる
+export const TERMS_V1_1_RESTRICTION_STARTS_ON = "2026-11-07";

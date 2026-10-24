@@ -2,7 +2,8 @@ import React from "react";
 import { createClient } from "@/app/_libs/supabase/server";
 import { prisma } from "@/app/_libs/prisma";
 import { recordLastSeen } from "@/app/_libs/recordLastSeen";
-import { ACCEPTED_TERMS_AGREEMENT_KEYS } from "@/app/_constants/legal/revisions";
+import { ACCEPTED_TERMS_AGREEMENT_KEYS, TERMS_V1_1_RESTRICTION_STARTS_ON } from "@/app/_constants/legal/revisions";
+import { formatYmdJa } from "@/app/_utils/format";
 import { MypageNoticeDot } from "./MypageNoticeDot";
 import { AuthChangeWatcher } from "./AuthChangeWatcher";
 import Link from "next/link";
@@ -120,7 +121,8 @@ export const Header = async () => {
           href="/mypage/terms-agreement"
           className="block -mx-4 md:-mx-8 -mb-3 mt-3 bg-red-50 px-4 py-3 text-center text-xs md:text-sm font-bold text-red-500 hover:underline"
           >
-          利用規約への同意をお願いします。内容の確認と同意はこちら
+          {/* 新しい投稿・応募などに同意が必要になる日を、その日より前から帯でも知らせる（日付は revisions.ts の1か所から出す） */}
+          利用規約への同意をお願いします。{formatYmdJa(TERMS_V1_1_RESTRICTION_STARTS_ON)}からは、同意がお済みでないと新しい投稿・応募などができなくなります。内容の確認と同意はこちら
         </Link>
       )}
         {user && !canUseService && (
