@@ -1,9 +1,19 @@
 import useSWR from 'swr';
+import { isTermsAgreementRequiredResponse, TERMS_AGREEMENT_PATH } from '@/app/_utils/termsAgreement';
 
 const fetcher = async <T>(url: string): Promise<T> => {
   const res = await fetch(url);
     // fetch() は、method を書かない場合、デフォルトでmethodは GETリクエスト になります。
-  if (!res.ok) throw new Error("データの取得に失敗しました");
+  if (!res.ok) {
+    // 利用規約への同意が必要な会員が、同意のあとに見られるデータ（当事者でない募集の詳細）を開いたときは、同意の画面へ移す（第1.1版の利用制限）。
+    // ここはフックの外で router を使えないので、ページ全体を読み込み直して移る（ヘッダーの案内も新しくなる）。
+    // 移るまでのあいだは「取得に失敗しました」を出さず、読み込み中のままにする（終わらない Promise を返す）
+    if (await isTermsAgreementRequiredResponse(res)) {
+      window.location.replace(TERMS_AGREEMENT_PATH);
+      return new Promise<T>(() => {});
+    }
+    throw new Error("データの取得に失敗しました");
+  }
   return res.json();
 };
 

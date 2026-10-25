@@ -37,3 +37,10 @@ export type LegalDocument = {
 // - "signup_confirm"：会員登録の確認画面（会員のメールに届くリンクから開く。app/auth/confirm）
 // - "consent_page"：ログイン後の同意の画面（ヘッダーの案内から開く。app/mypage/terms-agreement）
 export type TermsAgreementSource = "signup_confirm" | "consent_page";
+
+// 第1.1版の利用制限で、利用規約への同意が必要な会員の操作を API が断るときの返事（403）。
+// code の印で、ログインしていない（401）・自社情報が未登録（403）などの断りと区別する
+export type TermsAgreementRequiredResponse = {
+  error: string;
+  code: "terms_agreement_required";
+};

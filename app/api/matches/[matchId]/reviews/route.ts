@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { isPastReviewTrigger } from "@/app/_libs/reviewEligibility";
+import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
 import type { CreateReviewRequest, ReviewMutationResponse } from "@/app/_types/reviews";
 import { logServerError } from "@/app/_libs/logServerError";
 
@@ -21,6 +22,11 @@ export async function POST(
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 第1.1版の利用制限：評価の投稿は、利用規約への同意のあとにできる（開始日の前は制限しない）
+    if (await isTermsAgreementRequired(user.id)) {
+      return termsAgreementRequiredResponse();
     }
 
     // 2. マッチを取得（予定日・両者の会社IDまで一緒に辿る）

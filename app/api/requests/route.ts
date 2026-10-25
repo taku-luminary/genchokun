@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { findCompanyByUserId } from "@/app/_libs/requireCompany";
+import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
 import type { CreateRequestRequest, CreateRequestResponse } from "@/app/_types/requests";
 import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 
@@ -11,6 +12,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateReq
   if (!user) {
     return NextResponse.json({ error: "ログインが必要です" } ,
      { status: 401 });//  401 は Unauthorizedで、ログインしていない、または認証できていない状態
+  }
+
+  // 第1.1版の利用制限：新しい依頼待ちの投稿は、利用規約への同意のあとにできる（開始日の前は制限しない）
+  if (await isTermsAgreementRequired(user.id)) {
+    return termsAgreementRequiredResponse();
   }
 
   // 自社情報が未登録なら依頼を出させない（本人特定できない取引を防ぐ）

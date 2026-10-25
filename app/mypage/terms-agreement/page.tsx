@@ -13,6 +13,7 @@ import type {
 } from "@/app/mypage/terms-agreement/_type/termsAgreement";
 
 // 利用規約への同意をお願いする画面。同意済みとして扱う版にまだ同意していない会員に、ヘッダーの案内から来てもらう。
+// 第1.1版の利用制限の対象の会員は、入口のルールや同意のあとに使う機能からも、この画面へ移る（TermsAgreementGate・useAuthedFetch）。
 // 同意は、この画面のボタンが押されたときだけ記録する（同意した版・日時・画面は API が残す）
 export default function TermsAgreementPage() {
   const router = useRouter();
@@ -115,6 +116,30 @@ export default function TermsAgreementPage() {
         <Button type="button" onClick={handleAgree} disabled={status === "loading"}>
           {status === "loading" ? "記録しています..." : "利用規約に同意する"}
         </Button>
+      </div>
+
+      {/* 同意の前でも使える機能への入口。同意の画面へ移されたあとでも、すでにある取引の確認・ログアウト・問い合わせ（退会の連絡）へ進めるようにする。
+          同意のボタンの流れを邪魔しないよう、ログインの画面と同じくボタンの下にまとめ、文全体をリンクにする。
+          この画面には、自社情報の編集への誘導は置かない（ヘッダーの「自社情報」から開ける） */}
+      <div className="mt-4 text-center">
+        <Link
+          href="/mypage"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+        >
+          同意の前に、すでにある募集・応募を確認する方はこちら
+        </Link>
+        <Link
+          href="/mypage/settings"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+        >
+          ログアウトなど各種設定をする方はこちら
+        </Link>
+        <Link
+          href="/contact"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+        >
+          お問い合わせ（退会のご連絡を含む）をする方はこちら
+        </Link>
       </div>
     </div>
   );
