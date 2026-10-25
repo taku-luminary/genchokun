@@ -70,7 +70,29 @@ export const ACCEPTED_TERMS_AGREEMENT_KEYS: string[] = TERMS_REVISIONS.slice(Mat
   (revision) => termsAgreementKey(revision.version)
 );
 
-// 第1.1版への同意の記録が無い会員について、新しい投稿・応募などを同意のあとにしてもらう（利用を制限する）開始日（日本時間）。
+// 第1.1版以後の版への同意の記録が無い会員について、新しい投稿・応募などを同意のあとにしてもらう（利用を制限する）開始日（日本時間）。
 // 制限は、版を上げることや asksAgreement とは別に、改定ごとに「制限するか・対象・開始日」を決める。この定数は第1.1版だけに使い、ほかの版には広げない。
 // 開始日は、効力発生日と同じく周知の期間をおいて決める（第1.1版は公開日の1週間後で、効力発生日と同じ日）。公開がずれたら、公開の前に合わせる
 export const TERMS_V1_1_RESTRICTION_STARTS_ON = "2026-10-31";
+
+// 第1.1版の利用制限で「同意済み」として扱う記録の値。第1.1版から今の版までの、どれかの版への同意の記録があればよい。
+// asksAgreement（帯で同意をお願いし直すか）とは分けて決める。将来の版で同意をお願いし直しても、
+// 第1.1版以後に同意した会員に、この制限が再び始まらないようにするため
+const termsV1_1Index = TERMS_REVISIONS.findIndex((revision) => revision.version === "1.1");
+export const TERMS_V1_1_RESTRICTION_ACCEPTED_KEYS: string[] = TERMS_REVISIONS.slice(termsV1_1Index).map(
+  (revision) => termsAgreementKey(revision.version)
+);
+
+// 第1.1版の利用制限が始まっているか。開始日の0時（日本時間）から始まる。
+// サーバーの時計の時間帯（Vercel は UTC）に左右されないよう、日本時間の時刻として比べる。
+// ふだんのアクセスのたびに今の時刻と比べるので、開始日のための定期実行や一括の処理は要らない
+export function hasTermsV1_1RestrictionStarted(now: Date = new Date()): boolean {
+  return now.getTime() >= new Date(`${TERMS_V1_1_RESTRICTION_STARTS_ON}T00:00:00+09:00`).getTime();
+}
+
+// 第1.1版の利用制限の対象の会員か（日付は見ない）。管理者は対象外。
+// agreedTermsKeys は、その会員の同意の記録の値（terms_agreements.termsVersion）の一覧
+export function isTermsV1_1RestrictionTarget(isAdmin: boolean, agreedTermsKeys: string[]): boolean {
+  if (isAdmin) return false;
+  return !agreedTermsKeys.some((key) => TERMS_V1_1_RESTRICTION_ACCEPTED_KEYS.includes(key));
+}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
+import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
 import type { UpdateReviewRequest, ReviewMutationResponse } from "@/app/_types/reviews";
 import { logServerError } from "@/app/_libs/logServerError";
 
@@ -33,6 +34,11 @@ export async function PUT(
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 第1.1版の利用制限：評価の編集は、利用規約への同意のあとにできる（自分の評価の削除＝DELETE は同意の前でもできる）
+    if (await isTermsAgreementRequired(user.id)) {
+      return termsAgreementRequiredResponse();
     }
 
     // 所有権チェック（自分の会社のレビュー以外は 404）

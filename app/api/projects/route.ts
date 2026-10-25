@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
   import { prisma } from "@/app/_libs/prisma";
   import { getAuthUser } from "@/app/_libs/getAuthUser";
   import { findCompanyByUserId } from "@/app/_libs/requireCompany";
+  import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
   import type { CreateProjectRequest, CreateProjectResponse } from "@/app/_types/projects";
   import { getProjectInputError, getRewardYenError } from "@/app/_utils/inputValidation";
   import { logServerError } from "@/app/_libs/logServerError";
@@ -11,6 +12,11 @@ import { NextRequest, NextResponse } from "next/server";
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" } as never, { status: 401 });
+    }
+
+    // 第1.1版の利用制限：新しい投稿は、利用規約への同意のあとにできる（開始日の前は制限しない）
+    if (await isTermsAgreementRequired(user.id)) {
+      return termsAgreementRequiredResponse();
     }
 
     // 自社情報が未登録なら投稿させない（本人特定できない取引を防ぐ）

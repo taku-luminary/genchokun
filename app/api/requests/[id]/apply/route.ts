@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { findCompanyByUserId } from "@/app/_libs/requireCompany";
+import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
 import { calcDaysLeft } from "@/app/_utils/format";
 import { getApplicationMessageError } from "@/app/_utils/inputValidation";
 import type {
@@ -29,6 +30,11 @@ export async function POST(
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 第1.1版の利用制限：新しい応募（依頼待ちへの応募は、すぐに成立する）は、利用規約への同意のあとにできる（応募する本人の同意を見る。開始日の前は制限しない）
+    if (await isTermsAgreementRequired(user.id)) {
+      return termsAgreementRequiredResponse();
     }
 
     // 自社情報が未登録なら応募させない（本人特定できない取引を防ぐ）

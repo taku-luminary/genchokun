@@ -8,6 +8,7 @@ import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { getRequestInputError, getRewardYenError } from "@/app/_utils/inputValidation";
 import { logServerError } from "@/app/_libs/logServerError";
 import { ACCEPTED_TERMS_AGREEMENTS_QUERY, hideUnagreedCompanyFields } from "@/app/_libs/companyDisclosure";
+import { isTermsAgreementRequired, termsAgreementRequiredResponse } from "@/app/_libs/requireTermsAgreement";
 
 // エラーレスポンス型を明示しておくことで、as never で型エラーをごまかさずに済む
 type ErrorResponse = { error: string };
@@ -69,6 +70,12 @@ export async function GET(
 
     // 自分がこの依頼の投稿者（工事店）か
     const isMyRequest = user ? user.id === request.contractorUserId : false;
+
+    // 第1.1版の利用制限：当事者でない依頼の詳細は、利用規約への同意のあとに見られる。
+    // 自分の依頼と、自分が成立の相手の依頼は、すでに始めた取引の確認として同意の前でも見られる
+    if (!isMyRequest && request.match?.salesUserId !== user.id && (await isTermsAgreementRequired(user.id))) {
+      return termsAgreementRequiredResponse();
+    }
 
     // この依頼に既にマッチが成立しているか
     // matches.requestId は @unique のため最大1件。pending/active のみ「成立中」扱い。
@@ -198,6 +205,11 @@ export async function PUT(
     const user = await getAuthUser();
     if (!user) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    // 第1.1版の利用制限：投稿の編集は、利用規約への同意のあとにできる（応募が届いていない依頼の取り下げ＝DELETE は同意の前でもできる）
+    if (await isTermsAgreementRequired(user.id)) {
+      return termsAgreementRequiredResponse();
     }
 
     // 2. 所有者＋存在確認（本人の依頼だけがヒット。他人/削除済みは 404）
