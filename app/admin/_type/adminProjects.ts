@@ -40,7 +40,6 @@ export type AdminProjectApplicant = {
   contactNote: string | null;
   // ▼ users（認証）のメール。ログイン・会員登録に使うもので、上の連絡先とは別物。
   loginEmail: string | null;
-  message: string | null; // 応募コメント全文（モーダルで表示）
   // この会社の「案件への応募」累計。
   // 依頼(requests)は応募＝即成立で落選が起きないため含めない。
   stats: {

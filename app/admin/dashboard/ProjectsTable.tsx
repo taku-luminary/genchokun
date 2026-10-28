@@ -540,7 +540,7 @@ function ProjectRow({
                   <button
                     type="button"
                     onClick={() => onOpenApplicant(a)}
-                    title="応募実績とコメントを見る"
+                    title="連絡先と応募実績を見る"
                     className="w-4 shrink-0 text-xs text-slate-400"
                   >
                     ⓘ
@@ -672,12 +672,6 @@ function ApplicantModalBody({
           </p>
         )}
       </div>
-      <p className="mt-3 text-sm font-bold text-slate-600">
-        この案件への応募コメント
-      </p>
-      <p className="mt-1 whitespace-pre-wrap text-sm">
-        {a.message ?? <span className="text-slate-400">コメントなし</span>}
-      </p>
     </>
   );
 }
@@ -808,8 +802,8 @@ function Legend() {
         <b className="text-red-600">落選</b>＝選ばれなかった／
         <b className="text-amber-700">保留</b>＝まだ決まっていない。 行末の
         <b>ⓘ</b>を押すと、その会社の
-        <b>正式名・メール・応募実績（累計と連続落選）・応募コメント全文</b>
-        が読めます。
+        <b>正式名・メール・応募実績（累計と連続落選）</b>
+        が読めます。応募コメントは会員どうしのやりとりなので、管理画面には表示しません。
       </p>
       <p>
         <b className="text-slate-600">訪問状況</b>
