@@ -80,7 +80,8 @@ export async function GET(): Promise<
             status: true,
             createdAt: true,
             contractorUserId: true,
-            applicationDetail: { select: { message: true } },
+            // 応募コメントの本文（applicationDetail）は、通信の秘密として扱うので取得しない。
+            // 読めるのは応募を受けた掲載者だけにする（/api/mypage/projects/[id]）
             contractorUser: {
               select: {
                 email: true,
@@ -280,7 +281,6 @@ export async function GET(): Promise<
             contactLineId: company?.contactLineId ?? null,
             contactNote: company?.contactNote ?? null,
             loginEmail: m.contractorUser.email,
-            message: m.applicationDetail?.message ?? null,
             stats: statsByContractor.get(m.contractorUserId) ?? {
               applied: 0,
               won: 0,
