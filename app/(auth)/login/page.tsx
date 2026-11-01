@@ -127,6 +127,12 @@ export default function LoginPage() {
         >
           会員登録がまだの方はこちら
         </Link>
+        <Link
+          href="/signup/resend"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+        >
+          確認メールが届かない方はこちら
+        </Link>
       </div>
     </div>
   );

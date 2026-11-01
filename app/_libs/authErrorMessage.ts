@@ -8,7 +8,7 @@ export function getAuthErrorMessage(error: AuthError): string {
     case "invalid_credentials":
       return "メールアドレスまたはパスワードが正しくありません";
     case "email_not_confirmed":
-      return "メールアドレスの確認が済んでいません。会員登録のときに届いた確認メールのリンクから、登録を完了して下さい";
+      return "メールアドレスの確認が済んでいません。会員登録のときに届いた確認メールのリンクから、登録を完了して下さい。リンクの期限が切れた場合は、「確認メールが届かない方はこちら」から送り直せます";
     case "email_address_invalid":
       return "このメールアドレスは使用できません。入力に誤りがないかご確認下さい";
     case "email_exists":
