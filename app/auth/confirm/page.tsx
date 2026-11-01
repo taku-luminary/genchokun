@@ -10,10 +10,14 @@ import type { ConfirmResponse } from "@/app/auth/_type/confirm";
 export default function ConfirmPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState("");
+  // リンクの期限切れ・使用済み（API が 400 を返したとき）は、確認メールの再送の画面へ案内する。
+  // 規約の改定（409）や通信の失敗は、読み込み直す・押し直すことで済むので案内しない
+  const [showResendLink, setShowResendLink] = useState(false);
 
   const handleConfirm = async () => {
     setStatus("loading");
     setMessage("");
+    setShowResendLink(false);
 
     // ボタンを押したこの瞬間に、URL から確認情報を読み取る。
     // スキャナの先読み(GET)ではここは実行されないため、トークンは消費されない。
@@ -34,6 +38,7 @@ export default function ConfirmPage() {
       if (!res.ok) {
         setStatus("error");
         setMessage("error" in json ? json.error : "確認に失敗しました");
+        setShowResendLink(res.status === 400);
         return;
       }
 
@@ -99,6 +104,15 @@ export default function ConfirmPage() {
         >
           {status === "loading" ? "確認中..." : "利用規約に同意して登録を完了する"}
         </button>
+
+        {showResendLink && (
+          <Link
+            href="/signup/resend"
+            className="block mt-4 py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+          >
+            確認メールを送り直す方はこちら
+          </Link>
+        )}
       </div>
     </div>
   );

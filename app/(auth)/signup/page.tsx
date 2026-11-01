@@ -94,6 +94,13 @@ export default function SignupPage() {
         >
           メールアドレスを入力し直す
         </button>
+        {/* 時間をおいても届かないときや、リンクの期限が切れたときに、会員登録をやり直さずに送り直せるようにする */}
+        <Link
+          href="/signup/resend"
+          className="block py-3 text-sm text-slate-600 font-bold underline hover:text-slate-800"
+        >
+          確認メールを送り直す方はこちら
+        </Link>
         <Link href="/login" className="block py-3 text-sm text-brand-green-dark font-bold hover:opacity-80">
           ログイン画面へ
         </Link>
