@@ -1,16 +1,18 @@
 import {
   APPLICATION_MESSAGE_MAX_LENGTH,
   COMPANY_TEXT_MAX_LENGTH,
+  DB_ID_MAX,
   POST_TEXT_MAX_LENGTH,
   PREFECTURE_ID_MAX,
   PREFECTURE_ID_MIN,
   REWARD_YEN_MAX,
 } from "@/app/_constants/inputLimits";
 
-// API に届いた値の型と長さを、DB に渡す前に確かめる関数。
+// API に届いた値の型と長さや、URL の id を、DB に渡す前に確かめる関数。
 // 画面を通さずに API を直接呼ばれると、型の違う値や非常に長い文字列が届くことがある。
 // そのまま DB に渡すと 500 になったり、巨大な文字列が保存されて一覧が重くなったりするので、ここで 400 にする。
-// どの関数も、問題があれば画面に出すエラーメッセージ、問題なければ null を返す（companyValidation.ts と同じ形）
+// get で始まる関数は、問題があれば画面に出すエラーメッセージ、問題なければ null を返す（companyValidation.ts と同じ形）。
+// is で始まる関数は、使える値かどうかを true / false で返す
 
 // JSON の中身が「項目名 → 値」の形（オブジェクト）か。null・配列・文字列などは false
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -52,6 +54,13 @@ export function isPrefectureId(value: unknown): value is number {
     value >= PREFECTURE_ID_MIN &&
     value <= PREFECTURE_ID_MAX
   );
+}
+
+// URL の id（/companies/123 の 123 など）が、DB の id として使える数か（先頭が 0 でない19桁までの数字で、上限以下）。
+// BigInt() は "abc"・"1.5" で例外を出し、上限を超える数は DB がエラーを返す（どちらも 500 になる）。
+// "0101"・"0x65" も 101 と読むので、同じ企業のページが別の URL でも開けてしまう。使えない id は DB に渡さず 404 にする
+export function isDbId(value: unknown): value is string {
+  return typeof value === "string" && /^[1-9]\d{0,18}$/.test(value) && BigInt(value) <= DB_ID_MAX;
 }
 
 // 報酬金額：1円以上・上限以下の整数

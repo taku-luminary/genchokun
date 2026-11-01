@@ -11,10 +11,13 @@ import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { CompanyCredentialsCard } from "@/app/_components/CompanyCredentialsCard";
 import type { CompanyCredentials } from "@/app/_types/companies";
 import { ACCEPTED_TERMS_AGREEMENTS_QUERY, hideUnagreedCompanyFields } from "@/app/_libs/companyDisclosure";
+import { isDbId } from "@/app/_utils/inputValidation";
 
 // DB取得を cache() で包む。同じリクエスト内なら generateMetadata と
 // ページ本体で呼んでも、実際のDBアクセスは1回だけになる。
 const getCompany = cache(async (id: string) => {
+  // DB の id として使えない書き方なら、DB に問い合わせずに「見つからない」と同じ扱いにする（理由は isDbId のコメント）
+  if (!isDbId(id)) return null;
   return prisma.companies.findUnique({
     // 利用停止中の会員（退会を含む）の企業ページは公開しない（存在しない企業と同じく 404 にする）
     where: { id: BigInt(id), user: { isActive: true } },
