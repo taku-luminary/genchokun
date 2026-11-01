@@ -21,9 +21,14 @@ export default function NewRequestPage() {
     control, 
     setError,
     clearErrors,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<CreateRequestRequest>({ defaultValues: { rewardType: "fixed" } });
   const { isRegistered, isLoading: isCompanyLoading } = useCompany();
+  // 投稿が成功したあと、次の画面（マイページ）に移り終わるまでも「投稿中...」のまま押せないようにする。
+  // isSubmitting は送信の処理が終わった時点で false に戻るが、画面の移動はそのあとも続くため、
+  // 通信が遅いと押せる状態に戻り、もう一度押すと同じ内容が2件投稿されてしまう。
+  // isSubmitSuccessful は setError でサーバーのエラーを入れたときは false なので、失敗したときは今までどおり入力し直せる
+  const isBusy = isSubmitting || isSubmitSuccessful;
   const createRequest = async (data: CreateRequestRequest) => {
     clearErrors('root.serverError');
 
@@ -85,7 +90,7 @@ export default function NewRequestPage() {
                 id="prefectureIds"
                 value={field.value ?? []}  // 初期値（undefined）は空配列に変換して渡す
                 onChange={field.onChange}
-                disabled={isSubmitting}
+                disabled={isBusy}
               />
             )}
           />
@@ -99,7 +104,7 @@ export default function NewRequestPage() {
         {/* 市区町村 */}
         <div>
           <Label htmlFor="city">市区町村</Label>
-          <Input id="city" disabled={isSubmitting} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
+          <Input id="city" disabled={isBusy} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
         </div>
 
         {/* タイトル */}
@@ -107,7 +112,7 @@ export default function NewRequestPage() {
           <Label htmlFor="title">タイトル *</Label>
           <Input
             id="title"
-            disabled={isSubmitting}
+            disabled={isBusy}
             placeholder="例：太陽光パネル・蓄電池の工事や現地調査はお任せください！"
             maxLength={POST_TEXT_MAX_LENGTH.title}
             {...register("title", { required: "タイトルを入力してください" })}
@@ -122,7 +127,7 @@ export default function NewRequestPage() {
           <Label htmlFor="summary">依頼があれば受注できる内容</Label>
           <textarea
             id="summary"
-            disabled={isSubmitting}
+            disabled={isBusy}
             placeholder="例：太陽光パネル・蓄電池・エコキュート・防水・足場・高圧"
             className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={2}
@@ -137,7 +142,7 @@ export default function NewRequestPage() {
           <Label htmlFor="note">メモ・備考</Label>
           <textarea
             id="note"
-            disabled={isSubmitting}
+            disabled={isBusy}
             placeholder="例：現地調査は土日以外でしたら基本対応可能です。架台や商材の選定のご相談も承ります。工事後の電力申請も対応可能です。"
             className="w-full min-h-24 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
             rows={3}
@@ -152,11 +157,11 @@ export default function NewRequestPage() {
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
             <Label htmlFor="availableStartDate">対応可能開始日</Label>
-            <Input id="availableStartDate"  disabled={isSubmitting} type="date" {...register("availableStartDate")} />
+            <Input id="availableStartDate"  disabled={isBusy} type="date" {...register("availableStartDate")} />
           </div>
           <div className="flex-1">
             <Label htmlFor="availableEndDate">対応可能終了日</Label>
-            <Input id="availableEndDate" disabled={isSubmitting} type="date" {...register("availableEndDate")} />
+            <Input id="availableEndDate" disabled={isBusy} type="date" {...register("availableEndDate")} />
           </div>
         </div>
 
@@ -165,7 +170,7 @@ export default function NewRequestPage() {
           control={control}
           register={register}
           errors={errors}
-          disabled={isSubmitting}
+          disabled={isBusy}
         />
 
         {/* 支払サイクル */}
@@ -173,7 +178,7 @@ export default function NewRequestPage() {
           <Label htmlFor="paymentCycle">支払サイクル</Label>
           <Input
             id="paymentCycle"
-            disabled={isSubmitting}
+            disabled={isBusy}
             placeholder="例：人日発注"
             maxLength={POST_TEXT_MAX_LENGTH.paymentCycle}
             {...register("paymentCycle")}
@@ -186,8 +191,8 @@ export default function NewRequestPage() {
         )}
 
         {/* 送信ボタン */}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "投稿中..." : "あなたが受注できる情報を投稿する"}
+        <Button type="submit" disabled={isBusy}>
+          {isBusy ? "投稿中..." : "あなたが受注できる情報を投稿する"}
         </Button>
       </form>
     </div>

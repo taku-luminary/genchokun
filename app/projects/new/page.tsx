@@ -23,7 +23,7 @@
       control, // ← Controller に渡して、カスタム部品をRHFの管理下に置くための「接続口」
       setError,
       clearErrors,
-      formState: { errors, isSubmitting },
+      formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateProjectRequest>({ defaultValues: { rewardType: "fixed" } });
     // ===useForm<CreateProjectRequest>();の説明＝＝＝
     // →useFormが返す「道具セット」の中で、フォームの入力データに関係する部分だけがCreateProjectRequest を基準に型付けされる
@@ -31,6 +31,11 @@
     // 送信時に handleSubmit が作る data も、CreateProjectRequest の形として扱います。
     // ただし、register や handleSubmit や isSubmitting 自体がCreateProjectRequest 型になるわけではありません。
     const { isRegistered, isLoading: isCompanyLoading } = useCompany();
+    // 投稿が成功したあと、次の画面（マイページ）に移り終わるまでも「投稿中...」のまま押せないようにする。
+    // isSubmitting は送信の処理が終わった時点で false に戻るが、画面の移動はそのあとも続くため、
+    // 通信が遅いと押せる状態に戻り、もう一度押すと同じ内容が2件投稿されてしまう。
+    // isSubmitSuccessful は setError でサーバーのエラーを入れたときは false なので、失敗したときは今までどおり入力し直せる
+    const isBusy = isSubmitting || isSubmitSuccessful;
 
     const createProject = async (data: CreateProjectRequest) => {
       // 前回のサーバーエラーをクリア (root.serverError は予約名 root の下位キー)
@@ -123,7 +128,7 @@
                     id="prefectureId"
                     value={field.value ?? null}  // 未選択（undefined）は null に変換して渡す
                     onChange={field.onChange}    // 県タップ時に number がそのままRHFに保存される
-                    disabled={isSubmitting}
+                    disabled={isBusy}
                   />
                 )}
               />
@@ -140,7 +145,7 @@
           {/* 市区町村 */}
           <div>
             <Label htmlFor="city">市区町村</Label>
-            <Input id="city" disabled={isSubmitting} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
+            <Input id="city" disabled={isBusy} placeholder="例：文京区" maxLength={POST_TEXT_MAX_LENGTH.city} {...register("city")} />
               {/*===registerの説明=== 
                   ① 入力欄の名前をRHFに教える
                   ② 入力が変わったら内部ストアを更新する onChange を渡す
@@ -192,7 +197,7 @@
             <Label htmlFor="title">タイトル *</Label>
             <Input
               id="title"
-              disabled={isSubmitting}
+              disabled={isBusy}
               placeholder="例：太陽光パネルの設置工事"
               maxLength={POST_TEXT_MAX_LENGTH.title}
               {...register("title", { required: "タイトルを入力してください" })}
@@ -207,7 +212,7 @@
             <Label htmlFor="summary">案件詳細</Label>
             <textarea
               id="summary"
-              disabled={isSubmitting}
+              disabled={isBusy}
               placeholder="例：創蓄の工事です。カナディアン・ソーラーの太陽光パネルと、ニチコン19.9kwの蓄電池の設置をお願いします。足場の手配、B材の調達、現地調査も相談したいです。"
               className="w-full min-h-32 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
               rows={2}
@@ -223,7 +228,7 @@
             <Label htmlFor="note">メモ・備考</Label>
             <textarea
               id="note"
-              disabled={isSubmitting}
+              disabled={isBusy}
               placeholder="例：お客様宅には駐車場がないため、訪問時は近隣のコインパーキングをご利用ください。"
               className="w-full min-h-24 border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none overflow-hidden"
               rows={3}
@@ -238,12 +243,12 @@
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1">
               <Label   htmlFor="workStartDate">作業開始日</Label>
-              <Input id="workStartDate" disabled={isSubmitting} type="date"  {...register("workStartDate")} />
+              <Input id="workStartDate" disabled={isBusy} type="date"  {...register("workStartDate")} />
             </div>
 
             <div className="flex-1">
               <Label htmlFor="workEndDate">作業終了日</Label>
-              <Input id="workEndDate" disabled={isSubmitting} type="date" {...register("workEndDate")} />
+              <Input id="workEndDate" disabled={isBusy} type="date" {...register("workEndDate")} />
             </div>
           </div>
 
@@ -252,7 +257,7 @@
             control={control}
             register={register}
             errors={errors}
-            disabled={isSubmitting}
+            disabled={isBusy}
           />
 
           {/* 支払サイクル */}
@@ -260,7 +265,7 @@
             <Label htmlFor="paymentCycle">支払サイクル</Label>
             <Input
               id="paymentCycle"
-              disabled={isSubmitting}
+              disabled={isBusy}
               placeholder="例：人日発注"
               maxLength={POST_TEXT_MAX_LENGTH.paymentCycle}
               {...register("paymentCycle")}
@@ -273,8 +278,8 @@
           )}
 
           {/* 送信ボタン */}
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "投稿中..." : "工事案件を投稿する"}
+          <Button type="submit" disabled={isBusy}>
+            {isBusy ? "投稿中..." : "工事案件を投稿する"}
           </Button>
         </form>
       </div>
