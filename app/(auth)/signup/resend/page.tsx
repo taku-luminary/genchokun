@@ -68,6 +68,11 @@ export default function SignupResendPage() {
         <p className="text-sm text-slate-600 leading-relaxed text-left mt-4">
           このメールアドレスで会員登録の確認が済んでいない場合は、確認メールが届きます。メール内のリンクから、会員登録を完了してください。
         </p>
+        {/* 送り直すと、前に届いたメールのリンクは使えなくなる（Supabase が新しい印を作るときに古い印を消すため）。
+            受信箱に同じ件名のメールが並んでも迷わないよう、いちばん新しいメールを使うよう案内する */}
+        <p className="text-sm text-slate-600 leading-relaxed text-left mt-2">
+          前に届いたメールのリンクは使えなくなります。いちばん新しいメールのリンクを使ってください。
+        </p>
 
         {/* 届かない原因を並べておき、登録の有無を明かさずに、利用者が自分で原因に気づけるようにする */}
         <div className="mt-4 rounded-xl bg-slate-50 p-4 text-left">
