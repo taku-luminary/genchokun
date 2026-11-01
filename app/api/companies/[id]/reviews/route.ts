@@ -3,6 +3,7 @@ import { prisma } from "@/app/_libs/prisma";
 import { getAuthUser } from "@/app/_libs/getAuthUser";
 import { getCompanyOverallRating } from "@/app/_libs/companyRatings";
 import { formatDate, formatJpDate } from "@/app/_utils/format";
+import { isDbId } from "@/app/_utils/inputValidation";
 import type {
   CompanyReviewItem,
   CompanyReviewsResponse,
@@ -18,6 +19,10 @@ export async function GET(
 ): Promise<NextResponse<CompanyReviewsResponse | ErrorResponse>> {
   try {
     const { id } = await params;
+    // DB の id として使えない書き方なら、BigInt() の例外や DB のエラーで 500 にせず、存在しない企業と同じく 404 にする（理由は isDbId のコメント）
+    if (!isDbId(id)) {
+      return NextResponse.json({ error: "企業が見つかりません" }, { status: 404 });
+    }
     const companyId = BigInt(id);
 
     // 1. 閲覧者の会社ID（未ログイン/会社未登録なら null）。isMine 判定に使う。

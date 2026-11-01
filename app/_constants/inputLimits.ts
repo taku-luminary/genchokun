@@ -40,3 +40,7 @@ export const EMPLOYEE_COUNT_MAX = 100_000;
 // 都道府県の ID の範囲（prefectures テーブルの id。1=北海道〜47=沖縄県）
 export const PREFECTURE_ID_MIN = 1;
 export const PREFECTURE_ID_MAX = 47;
+
+// DB の id の上限（どのテーブルの id も PostgreSQL の bigint 型で、最大は 9223372036854775807）。
+// tsconfig の target が ES2017 で、数字の後ろに n を付ける書き方（9223372036854775807n）が使えないため、文字列から作る
+export const DB_ID_MAX = BigInt("9223372036854775807");
