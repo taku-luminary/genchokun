@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
 import { TERMS_AGREEMENT_KEY, TERMS_VERSION } from "@/app/_constants/legal/revisions";
 import type { ConfirmResponse } from "@/app/auth/_type/confirm";
@@ -37,7 +38,7 @@ export default function ConfirmPage() {
 
       if (!res.ok) {
         setStatus("error");
-        setMessage("error" in json ? json.error : "確認に失敗しました");
+        setMessage(getApiErrorMessage(res, json, "確認に失敗しました"));
         setShowResendLink(res.status === 400);
         return;
       }

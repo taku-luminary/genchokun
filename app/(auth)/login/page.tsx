@@ -6,6 +6,7 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { hasMemberChanged, reloadAfterAuthChange, takeAuthChangeError } from "@/app/_utils/authChange";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import type { LoginRequest, LoginResponse } from "@/app/(auth)/login/_type/login";
 
 export default function LoginPage() {
@@ -37,7 +38,7 @@ export default function LoginPage() {
       const json: LoginResponse = await res.json();
 
       if (!res.ok) {
-        const message = "error" in json ? json.error : "ログインに失敗しました";
+        const message = getApiErrorMessage(res, json, "ログインに失敗しました");
         // 失敗でも、ログインの状態だけ変わっていることがある（例: ログインのあとのデータベースの処理で失敗した）。
         // そのときは前の会員のデータを残さないよう、この画面を読み込み直してからエラー文を出す
         if (await hasMemberChanged()) {

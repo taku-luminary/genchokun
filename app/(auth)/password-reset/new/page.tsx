@@ -9,6 +9,7 @@ import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { PASSWORD_MIN_LENGTH } from "@/app/_constants/auth";
 import { hasMemberChanged, reloadAfterAuthChange, takeAuthChangeError } from "@/app/_utils/authChange";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import type {
   NewPasswordRequest,
   PasswordResetResponse,
@@ -68,7 +69,7 @@ export default function NewPasswordPage() {
       const json: PasswordResetResponse = await res.json();
 
       if (!res.ok) {
-        const message = "error" in json ? json.error : "パスワードの再設定に失敗しました";
+        const message = getApiErrorMessage(res, json, "パスワードの再設定に失敗しました");
         // リンクの確認は成功し、パスワードの更新だけ失敗したときは、ログインの状態だけ変わっている。
         // 前の会員のデータを残さないよう、トークンを外したこの画面を読み込み直してからエラー文を出す。
         // 確認に使ったリンクはもう使えないので、再設定メールの送り直しを案内する
