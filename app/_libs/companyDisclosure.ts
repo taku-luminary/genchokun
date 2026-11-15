@@ -6,7 +6,7 @@ import { ACCEPTED_TERMS_AGREEMENT_KEYS } from "@/app/_constants/legal/revisions"
 // 本人向けの画面（自社情報の編集・マイページの自分の案件）は、自分の情報を確かめるためのものなので、この判定を使わない。
 // 「同意済み」の考え方はヘッダーの案内と同じく ACCEPTED_TERMS_AGREEMENT_KEYS にそろえる（公開前の下書きの "1.1" の記録は数えない）。
 // 今の判定のまま、将来、版を上げて asksAgreement を true にすると、同意し直すまでこの2項目も表示されなくなる。
-// 公開範囲を変えない再同意で非公開に戻す必要はないので、その設定変更のときに、過去の有効な公開への同意を続けて扱えるよう判定を見直す（法務トリガー表 C 節）
+// 公開範囲を変えない再同意で非公開に戻す必要はないので、その設定変更のときに、過去の有効な公開への同意を続けて扱えるよう判定を見直す
 
 // Prisma の select / include の termsAgreements にそのまま渡す。同意済みとして扱う記録が1件あるかだけを見る
 export const ACCEPTED_TERMS_AGREEMENTS_QUERY = {
