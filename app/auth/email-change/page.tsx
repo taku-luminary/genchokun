@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/_components/ui/Button";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import type { ConfirmRequest, ConfirmResponse } from "@/app/auth/_type/confirm";
 
 export default function EmailChangePage() {
@@ -40,7 +41,7 @@ export default function EmailChangePage() {
 
       if (!res.ok) {
         setStatus("error");
-        setMessage("error" in json ? json.error : "確認に失敗しました");
+        setMessage(getApiErrorMessage(res, json, "確認に失敗しました"));
         return;
       }
 

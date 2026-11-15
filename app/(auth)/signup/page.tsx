@@ -7,6 +7,7 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { PASSWORD_MIN_LENGTH } from "@/app/_constants/auth";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import type { SignupRequest, SignupResponse } from "@/app/(auth)/signup/_type/signup";
 
 // フォームで扱う値。確認用パスワードは打ち間違いのチェックにだけ使い、API には送らない
@@ -50,7 +51,7 @@ export default function SignupPage() {
       if (!res.ok) {
         setError('root.serverError', {
           type: 'server',
-          message: "error" in json ? json.error : "会員登録に失敗しました",
+          message: getApiErrorMessage(res, json, "会員登録に失敗しました"),
         });
         return;
       }

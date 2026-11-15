@@ -7,6 +7,7 @@ import { Label } from "@/app/_components/ui/Label";
 import { Input } from "@/app/_components/ui/Input";
 import { Button } from "@/app/_components/ui/Button";
 import { getEmailError } from "@/app/_utils/companyValidation";
+import { getApiErrorMessage } from "@/app/_utils/apiError";
 import type {
   PasswordResetRequest,
   PasswordResetResponse,
@@ -39,7 +40,7 @@ export default function PasswordResetPage() {
       if (!res.ok) {
         setError("root.serverError", {
           type: "server",
-          message: "error" in json ? json.error : "メールの送信に失敗しました",
+          message: getApiErrorMessage(res, json, "メールの送信に失敗しました"),
         });
         return;
       }
