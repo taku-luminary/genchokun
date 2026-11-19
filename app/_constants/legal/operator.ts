@@ -15,5 +15,5 @@ export const OPERATOR = {
   lineUrl: "https://line.me/R/ti/p/@303pmuxr",
   // LINE を使わない方・退会後に友だち解除した方のための補助窓口。
   // 個人情報保護法33〜39条の請求は退会後にも行えるため、LINE だけにしない
-  email: "tsuji@luminaryjp.com",
+  email: "contact@luminaryjp.com",
 } as const;
