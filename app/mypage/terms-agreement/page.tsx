@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/_components/ui/Button";
 import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
+import { InfoHandlingNotice } from "@/app/_components/InfoHandlingNotice";
 import { TERMS_AGREEMENT_KEY, TERMS_V1_1_RESTRICTION_STARTS_ON, TERMS_VERSION } from "@/app/_constants/legal/revisions";
 import { formatYmdJa } from "@/app/_utils/format";
 import type {
@@ -108,6 +109,9 @@ export default function TermsAgreementPage() {
 
         {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前にこの画面でも示す */}
         <CompanyPublicInfoNotice />
+
+        {/* 運営が応募の状況を確認して使うことにも、このボタンで同意をもらうので、情報の取扱いの要点と一緒にボタンの前に示す（会員登録の確認画面と同じ文） */}
+        <InfoHandlingNotice />
 
         {status === "error" && (
           <p className="text-red-500 font-bold text-sm text-center">{message}</p>
