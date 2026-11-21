@@ -4,11 +4,12 @@ import { TERMS_REVISIONS } from "@/app/_constants/legal/revisions";
 
 // 利用規約の本文。
 // 実装が実際に行っていることだけを書く（例: 取消機能が無いので「取消できる」とは書かない）。
-// 版・公開日・効力発生日は revisions.ts の改定の経過に書き、その決まりに従って改定する。
-// 第17条のとおり、変更後の内容と効力発生日を、効力発生日より前に公開する（改定の経過が画面での掲載場所になる）。
+// 版・公開日・効力発生日は revisions.ts に書き、その決まりに従って改定する。
+// 第17条のとおり、変更後の内容と効力発生日を、効力発生日より前に公開する（ページの一番上の効力発生日の行が、画面での掲載場所になる）。
 export const TERMS: LegalDocument = {
   title: "利用規約",
   revisions: TERMS_REVISIONS,
+  showsEffectiveDate: true,
   sections: [
     {
       heading: "第1条（適用）",

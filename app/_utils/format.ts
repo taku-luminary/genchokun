@@ -15,7 +15,7 @@ export function formatJpDate(dateStr: string | null): string {
   return `${d.getMonth() + 1}月${d.getDate()}日(${days[d.getDay()]})`;
 }
 
-// "2026-10-08" 形式の日付を "2026年10月8日" 形式で表示する（規約・ポリシーの最終改定日や改定の経過）
+// "2026-10-08" 形式の日付を "2026年10月8日" 形式で表示する（規約・ポリシーの最終改定日や、規約の効力発生日）
 // Date に変換せず文字のまま並べ替えるので、時差で日付がずれず、公開前で未確定の "??" もそのまま表示できる
 export function formatYmdJa(ymd: string): string {
   const [y, m, d] = ymd.split("-");
