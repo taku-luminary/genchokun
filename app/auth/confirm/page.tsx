@@ -5,6 +5,7 @@ import Link from "next/link";
 import { reloadAfterAuthChange } from "@/app/_utils/authChange";
 import { getApiErrorMessage } from "@/app/_utils/apiError";
 import { CompanyPublicInfoNotice } from "@/app/_components/CompanyPublicInfoNotice";
+import { InfoHandlingNotice } from "@/app/_components/InfoHandlingNotice";
 import { TERMS_AGREEMENT_KEY, TERMS_VERSION } from "@/app/_constants/legal/revisions";
 import type { ConfirmResponse } from "@/app/auth/_type/confirm";
 
@@ -68,6 +69,11 @@ export default function ConfirmPage() {
         {/* 企業ページの公開範囲は会員への影響が大きいので、同意の前に示す（同意の画面と同じ文） */}
         <div className="mb-4">
           <CompanyPublicInfoNotice />
+        </div>
+
+        {/* 運営が応募の状況を確認して使うことにも、このボタンで同意をもらうので、情報の取扱いの要点と一緒にボタンの前に示す（同意の画面と同じ文） */}
+        <div className="mb-4">
+          <InfoHandlingNotice />
         </div>
 
         {/* 登録を完了するボタンを押すことが利用規約への同意になることを、ボタンの直前と文言の両方で示す。
