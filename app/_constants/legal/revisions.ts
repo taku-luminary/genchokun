@@ -30,8 +30,8 @@ export const TERMS_REVISIONS: TermsRevision[] = [
     // 公開日は、本番へ反映する日。公開がずれたら、公開の前に公開日と効力発生日を合わせる。
     // 効力発生日は、すでに同意した会員との契約を変更する日で、変更の内容に合わせて周知の期間をおいて決める（翌日とは決めない）。
     // この版に同意した会員には、同意の時から適用する（ページの一番上に、効力発生日と一緒に示す）
-    publishedAt: "2026-12-01",
-    effectiveAt: "2026-12-08",
+    publishedAt: "2026-11-23",
+    effectiveAt: "2026-11-30",
     // すでに同意した会員に、同意をお願いし直さない版
     asksAgreement: false,
   },
@@ -52,8 +52,8 @@ export const PRIVACY_REVISIONS: LegalRevision[] = [
   {
     version: "1.2",
     // 公開日は、本番へ反映する日。ポリシーは公開日から適用するので、効力発生日も同じ日にする。公開がずれたら、公開の前に合わせる
-    publishedAt: "2026-12-01",
-    effectiveAt: "2026-12-01",
+    publishedAt: "2026-11-23",
+    effectiveAt: "2026-11-23",
   },
 ];
 
